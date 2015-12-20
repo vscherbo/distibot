@@ -7,9 +7,10 @@ import sys
 import time
 
 def signal_handler(signal, frame):
+    global loop_flag
     loop_flag = False
- 	// log.close()
-    // sys.exit(0)
+    # log.close()
+    # sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
 
