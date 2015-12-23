@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime
 from bottle import route, run, debug, template, static_file, request, get
+from w1thermsensor import W1ThermSensor
 
 # Static Routes
 @get('/<filename:re:.*\.js>')
@@ -32,8 +33,18 @@ def timer_show():
 def ask_timer():
     return str(datetime.now())
 
+@route('/tsensor')
+def t_show():
+    output = template('temperature_show')
+    return output
+
+@route('/ask_t')
+def ask_temperature():
+    return str(sensor.get_temperature())
+
 #add this at the very end:
 debug(True)
+sensor = W1ThermSensor()
 run(reloader=True)
 
 
