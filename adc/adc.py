@@ -1,35 +1,20 @@
-from time import sleep
-import RPi.GPIO as GPIO
+import spidev
+import time
 
-CS = 8
-DOUT = 9
-CLK = 11
+spi = spidev.SpiDev()
+spi.open(0, 0)
 
-vc = 5
+while True:
+    try:
 
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(CS, GPIO.OUT)
-GPIO.setup(DOUT, GPIO.IN)
-GPIO.setup(CLK, GPIO.OUT)
+        adc = spi.xfer2([0, 0])
+        print ">>>" + str(adc)
+        data = ((adc[0] & 0x0f)*(2**7)) + (adc[1] >> 1)
+        voltage = ((float(data) / 4096) * 4.887) * 2
+        print "ADC Value = " + str(data)
+        print "Analog Value = " + str(voltage) + " V"
 
-while (True):
-    GPIO.output(CS, True)
-    GPIO.output(CLK, True)
-    GPIO.output(CS, False)
-    binData = 0
-    i1 = 14
-
-    while (i1 >= 0):
-        GPIO.output(CLK, False)
-        bitDOUT = GPIO.input(DOUT)
-        GPIO.output(CLK, True)
-        bitDOUT = bitDOUT << i1
-        binData |= bitDOUT
-        i1 -= 1
-
-    GPIO.output(CS, True)
-    binData &= 0xFFF
-    res = round(vc * binData/4096.0, 2)
-    print('Voltage = ' + str(res) + 'V')
-    sleep(1)
+        time.sleep(1)
+    except (KeyboardInterrupt, SystemExit):
+        spi.close()
+        raise
