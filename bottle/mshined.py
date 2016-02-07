@@ -15,6 +15,10 @@ def javascripts(filename):
 def stylesheets(filename):
     return static_file(filename, root='static/css')
 
+@get('/<filename:re:.*\.wav>')
+def stylesheets(filename):
+    return static_file(filename, root='static/sound')
+
 
 @route('/todo')
 def todo_list():
@@ -23,7 +27,7 @@ def todo_list():
     c.execute("SELECT id, task FROM todo WHERE status LIKE '1'")
     result = c.fetchall()
     c.close()
-    output = template('make_table', rows=result, timestamp=datetime.now())
+    output = template('show_table', rows=result, timestamp=datetime.now())
     return output
     # return str(result)
 
@@ -36,6 +40,7 @@ def timer_show():
 def ask_timer():
     return str(datetime.now())
 
+# it works
 @route('/tsensor')
 def t_show():
     output = template('temperature_show')
@@ -43,11 +48,19 @@ def t_show():
 
 @route('/ask_t')
 def ask_temperature():
-    return str(sensor.get_temperature())
+    curr_temperature = sensor.get_temperature()
+    if curr_temperature >= 23.0:
+        snd_play = """<audio autoplay>
+         <source src="Zoop.wav" type="audio/wav">
+         Your browser does not support the audio element.
+         </audio>"""
+    	return str(curr_temperature) + snd_play
+    else:       
+	    return str(curr_temperature)
 
 #add this at the very end:
 debug(True)
 sensor = W1ThermSensor()
-run(reloader=True)
+run(host='192.168.2.106', reloader=True)
 
 
