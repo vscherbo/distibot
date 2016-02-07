@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -
+
 import sqlite3
 from datetime import datetime
 from bottle import route, run, debug, template, static_file, request, get
