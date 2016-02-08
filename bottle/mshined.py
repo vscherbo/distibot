@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -
 
+import socket, sys, os
 import sqlite3
 from datetime import datetime
 from bottle import route, run, debug, template, static_file, request, get
-from w1thermsensor import W1ThermSensor
+#from w1thermsensor import W1ThermSensor
+import w1thermsensor
 
 # Static Routes
 @get('/<filename:re:.*\.js>')
@@ -48,7 +50,11 @@ def t_show():
 
 @route('/ask_t')
 def ask_temperature():
-    curr_temperature = sensor.get_temperature()
+    global w1_emu
+    if w1_emu:
+        curr_temperature = 12.34
+    else:
+        curr_temperature = sensor.get_temperature()
     if curr_temperature >= 23.0:
         snd_play = """<audio autoplay>
          <source src="Zoop.wav" type="audio/wav">
@@ -60,7 +66,20 @@ def ask_temperature():
 
 #add this at the very end:
 debug(True)
-sensor = W1ThermSensor()
-run(host='192.168.2.106', reloader=True)
+
+w1_emu = False
+try:
+    sensor = w1thermsensor.W1ThermSensor()
+#except Exception as ex:
+except w1thermsensor.core.KernelModuleLoadError as ex:
+    w1_emu = True
+except Exception as e:
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    print(exc_type, fname, exc_tb.tb_lineno)
+    exit(0)
+
+loc_host = socket.gethostbyname(socket.gethostname())
+run(host=loc_host, reloader=True)
 
 
