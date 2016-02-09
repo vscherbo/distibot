@@ -8,6 +8,7 @@ from bottle import route, run, debug, template, static_file, request, get
 #from w1thermsensor import W1ThermSensor
 import w1thermsensor
 
+
 # Static Routes
 @get('/<filename:re:.*\.js>')
 def javascripts(filename):
@@ -21,18 +22,6 @@ def stylesheets(filename):
 def stylesheets(filename):
     return static_file(filename, root='static/sound')
 
-
-@route('/todo')
-def todo_list():
-    conn = sqlite3.connect('todo.db')
-    c = conn.cursor()
-    c.execute("SELECT id, task FROM todo WHERE status LIKE '1'")
-    result = c.fetchall()
-    c.close()
-    output = template('show_table', rows=result, timestamp=datetime.now())
-    return output
-    # return str(result)
-
 @route('/timer')
 def timer_show():
     output = template('timer_show')
@@ -45,31 +34,37 @@ def ask_timer():
 # it works
 @route('/tsensor')
 def t_show():
-    output = template('temperature_show')
+    global g_snd_file
+    output = template('temperature_show', snd_file = g_snd_file)
     return output
 
 @route('/ask_t')
 def ask_temperature():
     global w1_emu
+    global g_snd_file
     if w1_emu:
         curr_temperature = it.next()
     else:
         curr_temperature = sensor.get_temperature()
-    if curr_temperature >= 0.5:
-        snd_play = '<audio autoplay src="Zoop.wav">Your browser does not support the audio element. </audio>'
-    	return str(curr_temperature) + snd_play
+    if curr_temperature >= Talarm:
+        #snd_play = '<audio autoplay src="Zoop.wav">Your browser does not support the audio element. </audio>'
+        g_snd_file="Zoop.wav"
     else:       
-	    return str(curr_temperature)
+        g_snd_file=""
+    return str(curr_temperature)
 
 #add this at the very end:
 debug(True)
 
 w1_emu = False
+g_snd_file = ""
 try:
     sensor = w1thermsensor.W1ThermSensor()
+    Talarm = 25
 #except Exception as ex:
 except w1thermsensor.core.KernelModuleLoadError as ex:
     w1_emu = True
+    Talarm = 0.5
     Trange=[x * 0.1 for x in range(0, 102)]
     it = iter(Trange)
 except Exception as e:
