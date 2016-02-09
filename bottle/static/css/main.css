@@ -1,2 +1,24 @@
 table {font-size: 24px}
-#content {font-size: 48px; margin: 20px}
+#content {
+  box-shadow: 8px 0 7px rgba(243,126,97,0.5);
+  -moz-box-shadow: 8px 0 7px rgba(243,126,97,0.5);
+  -webkit-box-shadow: 8px 0 7px rgba(243,126,97,0.5);
+  -o-box-shadow: 8px 0 7px rgba(243,126,97,0.5);
+  text-shadow: 3px 1px 3px rgba(255,32,0,0.5);
+  font-size: 67px;
+  font-family: "Segoe UI", "Bitstream Vera Sans", "Trebuchet MS", Verdana, sans-serif;
+  text-align: center;
+  color: #000000;
+  border-radius: 18px;
+  -moz-border-radius: 18px;
+  -webkit-border-radius: 18px;
+  -o-border-radius: 18px;
+  width: 313px;
+  height: 91px;
+  top: 60px;
+  left: 67px;
+  transform: rotate(0deg);
+  -moz-transform: rotate(0deg);
+  -webkit-transform: rotate(0deg);
+  -o-transform: rotate(0deg);
+}
