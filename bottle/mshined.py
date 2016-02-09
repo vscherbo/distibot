@@ -52,14 +52,11 @@ def t_show():
 def ask_temperature():
     global w1_emu
     if w1_emu:
-        curr_temperature = 12.34
+        curr_temperature = it.next()
     else:
         curr_temperature = sensor.get_temperature()
-    if curr_temperature >= 23.0:
-        snd_play = """<audio autoplay>
-         <source src="Zoop.wav" type="audio/wav">
-         Your browser does not support the audio element.
-         </audio>"""
+    if curr_temperature >= 0.5:
+        snd_play = '<audio autoplay src="Zoop.wav">Your browser does not support the audio element. </audio>'
     	return str(curr_temperature) + snd_play
     else:       
 	    return str(curr_temperature)
@@ -73,6 +70,8 @@ try:
 #except Exception as ex:
 except w1thermsensor.core.KernelModuleLoadError as ex:
     w1_emu = True
+    Trange=[x * 0.1 for x in range(0, 102)]
+    it = iter(Trange)
 except Exception as e:
     exc_type, exc_obj, exc_tb = sys.exc_info()
     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
