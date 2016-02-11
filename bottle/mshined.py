@@ -22,42 +22,36 @@ def stylesheets(filename):
 def stylesheets(filename):
     return static_file(filename, root='static/sound')
 
-@route('/timer')
-def timer_show():
-    output = template('timer_show')
-    return output
-
-@route('/ask_timer')
-def ask_timer():
-    return str(datetime.now())
-
 # it works
 @route('/tsensor')
 def t_show():
-    global g_snd_file
-    output = template('temperature_show', snd_file = g_snd_file)
+    output = template('temperature_show')
     return output
 
 @route('/ask_t')
 def ask_temperature():
     global w1_emu
-    global g_snd_file
     if w1_emu:
         curr_temperature = it.next()
     else:
         curr_temperature = sensor.get_temperature()
     if curr_temperature >= Talarm:
-        #snd_play = '<audio autoplay src="Zoop.wav">Your browser does not support the audio element. </audio>'
-        g_snd_file="Zoop.wav"
+        #snd_play = '<audio autoplay src="Zoop.wav"></audio>'
+        snd_play="""
+        <script>
+        var audio = document.getElementById('alarm_sound');
+        audio.src = 'Zoop.wav'
+        </script>
+        """
+        #snd_play = 'Zoop.wav'
     else:       
-        g_snd_file=""
-    return str(curr_temperature)
+        snd_play = ''
+    return str(curr_temperature) + snd_play
 
 #add this at the very end:
 debug(True)
 
 w1_emu = False
-g_snd_file = ""
 try:
     sensor = w1thermsensor.W1ThermSensor()
     Talarm = 25
