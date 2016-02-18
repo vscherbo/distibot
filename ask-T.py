@@ -18,7 +18,7 @@ print("Create sensor")
 sensor = W1ThermSensor()
 print("Sensor is created")
 
-log = open('sensor-'+time.strftime("%Y-%m-%d-%H-%M") +'.csv','w')
+log = open('sensor-'+time.strftime("%Y-%m-%d-%H-%M") +'.csv','w', 0) # 0 - unbuffered write
 loop_flag = True
 while loop_flag:
     temperature_in_celsius = sensor.get_temperature()
