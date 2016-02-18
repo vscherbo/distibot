@@ -22,6 +22,10 @@ def stylesheets(filename):
 def stylesheets(filename):
     return static_file(filename, root='static/sound')
 
+@get('/<filename:re:.*\.png>')
+def stylesheets(filename):
+    return static_file(filename, root='static/images')
+
 # it works
 @route('/tsensor')
 def t_show():
@@ -58,8 +62,8 @@ try:
 #except Exception as ex:
 except w1thermsensor.core.KernelModuleLoadError as ex:
     w1_emu = True
-    Talarm = 0.5
-    Trange=[x * 0.1 for x in range(0, 102)]
+    Talarm = 90.5
+    Trange=[x * 0.1 for x in range(0, 199)]
     it = iter(Trange)
 except Exception as e:
     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -69,5 +73,4 @@ except Exception as e:
 
 loc_host = socket.gethostbyname(socket.gethostname())
 run(host=loc_host, reloader=True)
-
 
