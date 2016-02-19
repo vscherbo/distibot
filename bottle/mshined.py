@@ -26,6 +26,13 @@ def stylesheets(filename):
 def stylesheets(filename):
     return static_file(filename, root='static/images')
 
+@route('/push_accepted', method='POST')
+def push_accepted(x=None, y=None):
+    # do something
+    new = request.POST.get('value', '').strip()
+    print new
+    return new
+
 # it works
 @route('/tsensor')
 def t_show():

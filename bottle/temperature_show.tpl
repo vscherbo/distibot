@@ -5,6 +5,17 @@
 
     <script> 
 
+        function push_accepted()  
+        {  
+            $.ajax({  
+                url: '/push_accepted',
+                cache: false,  
+                success: function(html){  
+                    $("#button_ack").html(html);  
+                }  
+            });  
+        }  
+      
         function show()  
         {  
             $.ajax({  
@@ -49,6 +60,12 @@
     <div id="t_label" style="display:inherit">Температура</div> 
     <div id="content" style="display:inherit"></div> 
 </div> 
+
+<button id="button_ack" type="button" onclick="push_accepted()">Принято</button>
+<!-- form action="/push_accepted" method="post">
+    <button id="button_ack" type="submit" value="Send Email">Принято</button>
+</form -->
+
 
 </body>  
 </html>
