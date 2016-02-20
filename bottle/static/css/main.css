@@ -1,4 +1,10 @@
 table {font-size: 24px}
+#div_t {
+  width: 190px;
+  height: 90px;
+  font-size: 67px;
+}
+
 #content {
   box-shadow: 8px 0 7px rgba(243,126,97,0.5);
   -moz-box-shadow: 8px 0 7px rgba(243,126,97,0.5);
@@ -27,6 +33,14 @@ table {font-size: 24px}
   width: 313px;
   height: 91px;
   top: 60px;
+  left: 67px;
+  font-family: "Segoe UI", "Bitstream Vera Sans", "Trebuchet MS", Verdana, sans-serif;
+  font-size: 67px;
+}
+#button_ack {
+  width: 313px;
+  height: 91px;
+  top: 155px;
   left: 67px;
   font-family: "Segoe UI", "Bitstream Vera Sans", "Trebuchet MS", Verdana, sans-serif;
   font-size: 67px;
