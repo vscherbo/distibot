@@ -15,6 +15,9 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
+Talarms = [25.0, 25.5, 25.9]
+alarm_limit = 3
+
 print("Create sensor")
 sensor = W1ThermSensor()
 print("Sensor is created")
@@ -32,14 +35,19 @@ c = [x for x in pb.channels if x.name == u"Billy's moonshine"][0]
 # c.push_note("Hello "+ c.name, "Hello My Channel")
 
 log = open('sensor-'+time.strftime("%Y-%m-%d-%H-%M") +'.csv','w', 0) # 0 - unbuffered write
+Talarm = Talarms.pop(0)
 loop_flag = True
 while loop_flag:
     temperature_in_celsius = sensor.get_temperature()
     print(time.strftime("%H:%M:%S")+ ","+ str(temperature_in_celsius), file=log)
     # print(time.strftime("%H:%M:%S")+ ","+ str(temperature_in_celsius))
-    if temperature_in_celsius > 25.0:
-        c.push_note("Превысили 25", str(temperature_in_celsius))
-    sleep(10)
+    alarm_cnt = 0
+    if temperature_in_celsius > Talarm:
+        if alarm_cnt >= alarm_limit:
+            Talarm = Talarms.pop(0)
+        c.push_note("Превысили "+str(Talarm), str(temperature_in_celsius))
+        alarm_cnt++;
+    sleep(5)
 
 log.close()
 sys.exit(0)
