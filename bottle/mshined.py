@@ -81,7 +81,7 @@ Talarms_emu = [25.0, 26.0, 26.5, 27, 28, 29, 30, 31, 999.9] # debug
 Talarms = [77.0, 79.0, 87.0, 89.0, 95.0, 98.7, 999.9] # production
 
 w1_emu = False
-ack_button_display = True # False
+ack_button_display = False
 
 try:
     sensor = w1thermsensor.W1ThermSensor()
