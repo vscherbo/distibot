@@ -46,11 +46,11 @@ while loop_flag:
     print(time.strftime("%H:%M:%S")+ ","+ str(temperature_in_celsius), file=log)
     # print(time.strftime("%H:%M:%S")+ ","+ str(temperature_in_celsius))
     if temperature_in_celsius > Talarm:
+        c.push_note("Превысили "+str(Talarm), str(temperature_in_celsius))
+        alarm_cnt += 1
         if alarm_cnt >= alarm_limit:
             alarm_cnt = 0
             Talarm = Talarms.pop(0)
-        c.push_note("Превысили "+str(Talarm), str(temperature_in_celsius))
-        alarm_cnt += 1
     # debug 
     # print("alarm_cnt="+str(alarm_cnt) + " Talarm=" + str(Talarm))
     sleep(5)
