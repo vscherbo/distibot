@@ -54,21 +54,16 @@
 <html>
 <body>
 <audio id="alarm_sound" autoplay src="silence-1sec.wav"></audio>
-<table>
-<tr><td>
 <button id="button_start" autofocus type="button" onclick="click_play()">Start</button>
 
 <div id="div_t" style="display:none">
-    <div id="t_label" style="display:inherit">Температура</div> 
-    <div id="content" style="display:inherit"></div> 
+    <div id="t_label">Температура</div> 
+    <div id="content"></div> 
 </div> 
-</td></tr>
-<tr><td>
+
 <div>
-<button id="button_ack" type="button" style="display:none" onclick="push_accepted()">Принято</button>
+    <button id="button_ack" type="button" style="display:none; margin-top: 100px;" onclick="push_accepted()">Принято</button>
 </div>
-</td></tr>
-<table>
 
 
 </body>  
