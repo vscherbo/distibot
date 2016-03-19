@@ -16,22 +16,25 @@ class Cooker:
         RPIO.setup(self.gpio_down, RPIO.OUT, initial=RPIO.HIGH)
         self.power = 1400
         self.state_on = False
+    def click_button(self,gpio_port_num):
+        RPIO.output(gpio_port_num, 0)
+        time.sleep(0.1)
+        RPIO.output(gpio_port_num, 1)
+
     def switch_on(self):
         if not self.state_on:
-            RPIO.output(gpio_on_off, 0)
-            time.sleep(1)
-            RPIO.output(gpio_on_off, 1)
+            self.click_button(self.gpio_on_off)
             self.state_on = True 
     def switch_off(self):
         if self.state_on:
-            RPIO.output(gpio_on_off, 0)
-            time.sleep(1)
-            RPIO.output(gpio_on_off, 1)
+            self.click_button(self.gpio_on_off)
             self.state_on = False
     def power_up(self):
         if self.power < power_max:
-            RPIO.output(gpio_up, 0)
-            time.sleep(1)
-            RPIO.output(gpio_up, 1)
+            self.click_button(self.gpio_up)
             self.power += 200
+    def power_down(self):
+        if self.power > power_min:
+            self.click_button(self.gpio_down)
+            self.power -= 200
 
