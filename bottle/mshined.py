@@ -78,7 +78,8 @@ def ask_temperature():
 debug(True)
 
 Talarms_emu = [25.0, 26.0, 26.5, 27, 28, 29, 30, 31, 999.9] # debug
-Talarms = [77.0, 79.0, 87.0, 89.0, 95.0, 98.7, 999.9] # production
+# Talarms = [77.0, 79.0, 85.0, 88.0, 94.5, 98.5, 999.9] # 1st production
+Talarms = [94.5, 98.7, 999.9] # tails
 
 w1_emu = False
 ack_button_display = False
