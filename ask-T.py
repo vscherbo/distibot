@@ -17,8 +17,9 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-Talarms = [25.0, 25.5, 25.9, 999.9] # debug
-Talarms = [77.0, 79.0, 87.0, 89.0, 95.0, 98.7, 999.9] # production
+# Talarms = [25.0, 25.5, 25.9, 999.9] # debug
+# Talarms = [77.0, 79.0, 85.0, 88.0, 94.5, 98.5, 999.9] # 1st production
+Talarms = [94.5, 98.7, 999.9] # tails
 alarm_limit = 3
 
 print("Create sensor")

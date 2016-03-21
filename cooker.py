@@ -31,7 +31,7 @@ class Cooker:
             self.click_button(self.gpio_on_off)
             self.state_on = False
     def power_up(self):
-        if self.power_index < max_power_index:
+        if self.power_index < self.max_power_index:
             self.click_button(self.gpio_up)
             self.power_index += 1
             return True
