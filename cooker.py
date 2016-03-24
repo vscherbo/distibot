@@ -10,6 +10,7 @@ class Cooker:
     power_max = powers[-1]
     power_min = powers[0]
     def __init__(self, gpio_on_off, gpio_up, gpio_down):
+        RPIO.cleanup()
         self.gpio_on_off = gpio_on_off
         RPIO.setup(self.gpio_on_off, RPIO.OUT, initial=RPIO.HIGH)
         self.gpio_up = gpio_up
@@ -18,6 +19,8 @@ class Cooker:
         RPIO.setup(self.gpio_down, RPIO.OUT, initial=RPIO.HIGH)
         self.power_index = 6 # 1400W
         self.state_on = False
+    def __exit(self):
+        RPIO.cleanup()
     def click_button(self,gpio_port_num):
         RPIO.output(gpio_port_num, 0)
         time.sleep(0.1)

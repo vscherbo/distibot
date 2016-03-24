@@ -11,7 +11,7 @@ ngpio=17
 #GPIO.cleanup() 
 GPIO.setup(ngpio, GPIO.OUT)     #конфигурируем GPIO 7 как выход
 GPIO.output(ngpio, True)               #выводим на GPIO 7 логическую "1" (3.3 V)
-sleep(3)
+sleep(1)
 GPIO.output(ngpio, False)              #выводим на GPIO 7 логический "0"
 sleep(2)
 GPIO.output(ngpio, True)               #выводим на GPIO 7 логическую "1" (3.3 V)
