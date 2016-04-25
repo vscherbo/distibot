@@ -24,9 +24,8 @@ def gpio_callback(gpio_id, val):
 ngpio=14
 
 RPIO.setup(ngpio, RPIO.IN, pull_up_down=RPIO.PUD_DOWN)
-RPIO.add_interrupt_callback(ngpio, gpio_callback, debounce_timeout_ms=100)
+RPIO.add_interrupt_callback(ngpio, gpio_callback, edge='rising', debounce_timeout_ms=100, pull_up_down=RPIO.PUD_DOWN)
 #        , threaded_callback=True)
-#, pull_up_down=RPIO.PUD_UP)
 
 RPIO.wait_for_interrupts(threaded=True)
 
