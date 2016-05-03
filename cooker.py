@@ -40,6 +40,9 @@ class Cooker:
             return True
         else:
             return False
+    def power_max(self):
+        while self.power_up():
+            pass
     def power_down(self):
         if self.power_index > 0:
             self.click_button(self.gpio_down)
@@ -47,5 +50,20 @@ class Cooker:
             return True
         else:
             return False
+    def power_min(self):
+        while self.power_down():
+            pass
+    def set_power_600(self): # after switch_on only!
+        while self.current_power() > 600:
+            self.power_down()
+    def set_power(self, power):
+        #TODO detect wrong power OR approximate
+        self.target_power_index = self.powers.index(power)
+        if self.power_index > self.target_power_index:
+            change_power = self.power_down()
+        else:
+            change_power = self.power_up()
+        while self.power_index != self.target_power_index:
+            change_power
     def current_power(self):
         return self.powers[self.power_index]
