@@ -3,7 +3,8 @@
 import cooker
 from time import sleep
 
-ck = cooker.Cooker(22,27,17)
+ck = cooker.Cooker(gpio_on_off= 22, gpio_up = 27, gpio_down = 17)
+#ck = cooker.Cooker(22,27,17)
 ck.switch_on()
 sleep(2)
 ck.power_up()
