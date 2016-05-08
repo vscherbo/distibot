@@ -46,9 +46,9 @@ class Moonshine_controller:
     def __init__(self):
         RPIO.cleanup()
         self.sensor = W1ThermSensor()
-        self.cooker = Cooker(gpio_on_off= 22, gpio_up = 27, gpio_down = 17)
-        self.valve = Valve(ways = 2, gpio_1_2 = 23)
-        self.heads_sensor = Heads_sensor(gpio_heads_start = 25, gpio_heads_stop = 14)
+        self.cooker = cooker.Cooker(gpio_on_off= 22, gpio_up = 27, gpio_down = 17)
+        self.valve = valve.Valve(ways = 2, gpio_1_2 = 23)
+        self.heads_sensor = heads_sensor.Heads_sensor(gpio_heads_start = 25, gpio_heads_stop = 14)
         self.pb = Pushbullet('XmJ61j9LVdjbPyKcSOUYv1k053raCeJP')
         self.pb_channel = [x for x in pb.channels if x.name == u"Billy's moonshine"][0]
     def __del__(self):
@@ -74,15 +74,16 @@ def do_nothing():
 mshinectl = Moonshine_controller()
 
 #Talarms = [77.0, 79.0, 85.0, 88.0, 94.5, 98.5, 999.9] # 1st production
-Tprocess = {'stop_cooker': 77.0, 
-           'start_cooker': 79.0, 
-           'watch_heads': 85.0, 
-           'body_stop': 94.5, 
-           'finish': 98.5, 
-           'fake_last': 999.9] # 1st production
-Talarms = Tprocess.values()
-Tcmds = Tprocess.keys()
 
+# Raw moonshine
+Tsteps = {0.0 : mshinectl.start_process
+          77.0: mshinectl.cooker.switch_off, 
+          79.0: mshinectl.cooker.set_power_600, 
+          85.0: mshinectl.start_watch_heads, 
+//          94.5, mshinectl.stop_body,
+          98.5, mshinectl.finish,
+          999.9: do_nothing]
+"""
 Tsteps = {0.0 : mshinectl.start_process
           77.0: mshinectl.cooker.switch_off, 
           79.0: mshinectl.cooker.set_power_600, 
@@ -90,12 +91,13 @@ Tsteps = {0.0 : mshinectl.start_process
           94.5, mshinectl.stop_body,
           98.5, mshinectl.finish,
           999.9: do_nothing] # 1st production
+"""
 
 
 # Talarms = [94.5, 98.7, 999.9] # tails
 
 log = open('sensor-'+time.strftime("%Y-%m-%d-%H-%M") +'.csv','w', 0) # 0 - unbuffered write
-(Talarm, Tcmd) = Tprocess.popitem(0)
+(Talarm, Tcmd) = Tsteps.popitem(0)
 alarm_cnt = 0
 loop_flag = True
 while loop_flag:
@@ -108,7 +110,7 @@ while loop_flag:
         alarm_cnt += 1
         if alarm_cnt >= alarm_limit:
             alarm_cnt = 0
-            (Talarm, Tcmd) = Tprocess.popitem(0)
+            (Talarm, Tcmd) = Tsteps.popitem(0)
     # debug 
     # print("alarm_cnt="+str(alarm_cnt) + " Talarm=" + str(Talarm))
     sleep(5)
