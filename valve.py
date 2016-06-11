@@ -11,14 +11,12 @@ class Valve:
         self.way = 2
         self.ways = ways
         self.gpio_1_2 = gpio_1_2
-        if RPIO.OUT == RPIO.gpio_function(self.gpio_1_2):
-            RPIO.output(self.gpio_1_2, True)
-        RPIO.setup(self.gpio_1_2, RPIO.OUT, initial=RPIO.HIGH)
         self.gpio_2_3 = gpio_2_3
+        RPIO.setup(self.gpio_1_2, RPIO.OUT, initial=RPIO.HIGH)
         if self.gpio_2_3 is not None:
             RPIO.setup(self.gpio_2_3, RPIO.OUT, initial=RPIO.HIGH)
     def __del__(self):
-        pass
+        RPIO.cleanup()
     def v1_turn_on(self):
         if self.v1_on:
             pass
