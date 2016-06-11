@@ -46,7 +46,7 @@ class Moonshine_controller:
     def __init__(self):
         RPIO.cleanup()
         self.sensor = W1ThermSensor()
-        self.cooker = cooker.Cooker(gpio_on_off= 22, gpio_up = 27, gpio_down = 17)
+        self.cooker = cooker.Cooker(gpio_on_off= 17, gpio_up = 22, gpio_down = 27)
         self.valve = valve.Valve(ways = 2, gpio_1_2 = 23)
         self.heads_sensor = heads_sensor.Heads_sensor(gpio_heads_start = 25, gpio_heads_stop = 14)
         self.pb = Pushbullet('XmJ61j9LVdjbPyKcSOUYv1k053raCeJP')
