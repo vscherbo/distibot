@@ -10,7 +10,6 @@ class Cooker:
     power_max = powers[-1]
     power_min = powers[0]
     def __init__(self, gpio_on_off, gpio_up, gpio_down):
-        RPIO.cleanup()
         self.gpio_on_off = gpio_on_off
         RPIO.setup(self.gpio_on_off, RPIO.OUT, initial=RPIO.HIGH)
         self.gpio_up = gpio_up
