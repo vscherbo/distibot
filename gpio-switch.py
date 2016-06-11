@@ -5,7 +5,6 @@ from time import sleep
 #import RPi.GPIO as GPIO
 import RPIO
 
-RPIO.setwarnings(False)
 RPIO.setmode(RPIO.BCM)
 
 """
