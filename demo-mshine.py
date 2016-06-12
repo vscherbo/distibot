@@ -3,8 +3,9 @@
 
 from __future__ import print_function
 import collections
-import mshinectl 
+from mshinectl import Moonshine_controller
 import sys
+import signal
 import time
 
 def signal_handler(signal, frame):
