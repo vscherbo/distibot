@@ -34,14 +34,14 @@ class Moonshine_controller:
     def start_process(self):
         self.cooker.switch_on()
         self.cooker.power_max()
-    def heads_started():
+    def heads_started(self):
         self.pb_channel.push_note("Стартовали головы"+str(Talarm), str(temperature_in_celsius))
 
-    def start_watch_heads():
+    def start_watch_heads(self):
         self.valve.way_1()
         self.heads_sensor.watch_start(self.heads_started), 
         self.heads_sensor.watch_stop(self.valve.way_2), 
-    def stop_body():
+    def stop_body(self):
         self.valve.way_3()
-    def finish():
+    def finish(self):
         self.cooker.switch_off()
