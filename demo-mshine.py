@@ -28,8 +28,8 @@ mshinectl = Moonshine_controller()
 # Raw moonshine
 Tsteps = collections.OrderedDict()
 Tsteps[0.0] = mshinectl.start_process
-Tsteps[77.0] = mshinectl.cooker_switch_off
-Tsteps[79.0] = mshinectl.cooker_set_power_600
+Tsteps[77.0] = mshinectl.cooker.switch_off
+Tsteps[79.0] = mshinectl.cooker.set_power_600
 Tsteps[85.0] = mshinectl.start_watch_heads
 
 
