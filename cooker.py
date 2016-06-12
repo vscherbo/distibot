@@ -53,6 +53,8 @@ class Cooker:
         while self.power_down():
             pass
     def set_power_600(self): # after switch_on only!
+        self.switch_on()
+        time.sleep(0.5)
         while self.current_power() > 600:
             self.power_down()
     def set_power(self, power):
