@@ -28,7 +28,7 @@ class Moonshine_controller:
         self.valve = valve.Valve(ways = 2, gpio_1_2 = 23)
         self.heads_sensor = heads_sensor.Heads_sensor(gpio_heads_start = 25, gpio_heads_stop = 14)
         self.pb = Pushbullet('XmJ61j9LVdjbPyKcSOUYv1k053raCeJP')
-        self.pb_channel = [x for x in pb.channels if x.name == u"Billy's moonshine"][0]
+        self.pb_channel = [x for x in self.pb.channels if x.name == u"Billy's moonshine"][0]
     def __del__(self):
         RPIO.cleanup()
     def start_process(self):
