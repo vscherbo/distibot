@@ -50,7 +50,11 @@ class Valve:
             self.v1_turn_on()
             self.v2_turn_off()
             self.way = 1 
-    def way_2(self):
+    def way_2(self, gpio_id, value):
+        try: 
+            int(value)
+        except ValueError:
+            value = -1
         if not self.way == 2:
             self.v1_turn_off()
             self.v2_turn_off()
