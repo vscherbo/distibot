@@ -34,8 +34,8 @@ class Moonshine_controller:
     def start_process(self):
         self.cooker.switch_on()
         self.cooker.power_max()
-    def heads_started(self):
-        self.pb_channel.push_note("Стартовали головы"+str(Talarm), str(temperature_in_celsius))
+    def heads_started(self, gpio_id, value):
+        self.pb_channel.push_note("Стартовали головы", "gpio_id="+str(gpio_id)+ ", value="+str(value))
 
     def start_watch_heads(self):
         self.valve.way_1()
