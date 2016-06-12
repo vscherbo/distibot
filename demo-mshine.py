@@ -65,7 +65,7 @@ while loop_flag:
     step_counter += 1
     if step_counter >= step_max:
         step_counter = 0
-        c.push_note("Превысили "+str(Talarm), str(temperature_in_celsius))
+        mshinectl.pb_channel.push_note("Превысили "+str(Talarm), str(temperature_in_celsius))
         print(time.strftime("%H:%M:%S")+ ","+ str(temperature_in_celsius) +", Превысили "+str(Talarm), file=log)
         Tcmd()
         try:
