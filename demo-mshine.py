@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+import collections
 import mshinectl 
 import sys
 import time
@@ -24,11 +25,13 @@ mshinectl = Moonshine_controller()
 #Talarms = [77.0, 79.0, 85.0, 88.0, 94.5, 98.5, 999.9] # 1st production
 
 # Raw moonshine
-Tsteps = {0.0 : mshinectl.start_process
-          77.0: mshinectl.cooker.switch_off, 
-          79.0: mshinectl.cooker.set_power_600, 
-          85.0: mshinectl.start_watch_heads
-          }
+Tsteps = collections.OrderedDict()
+Tsteps[0.0] = mshinectl.start_process
+Tsteps[77.0] = mshinectl.cooker_switch_off
+Tsteps[79.0] = mshinectl.cooker_set_power_600
+Tsteps[85.0] = mshinectl.start_watch_heads
+
+
 """          
 //          94.5, mshinectl.stop_body,
           98.5, mshinectl.finish,
@@ -47,7 +50,11 @@ Tsteps = {0.0 : mshinectl.start_process
 step_max = 2
 
 log = open('sensor-'+time.strftime("%Y-%m-%d-%H-%M") +'.csv','w', 0) # 0 - unbuffered write
-(Talarm, Tcmd) = Tsteps.pop(0)
+Tkeys = Tsteps.keys()
+Talarm = Tkeys.pop(0)
+Tcmd = Tsteps.pop(Talarm)
+
+
 loop_flag = True
 step_counter = 0
 while loop_flag:
@@ -59,8 +66,13 @@ while loop_flag:
         step_counter = 0
         c.push_note("Превысили "+str(Talarm), str(temperature_in_celsius))
         print(time.strftime("%H:%M:%S")+ ","+ str(temperature_in_celsius) +", Превысили "+str(Talarm), file=log)
-        Tcmd
-        (Talarm, Tcmd) = Tsteps.popitem(0, )
+        Tcmd()
+        try:
+            Talarm = Tkeys.pop(0)
+        except IndexError:
+            Talarm = 999.0
+        Tcmd = Tsteps.pop(Talarm, do_nothing)
+
     # debug 
     # print("alarm_cnt="+str(alarm_cnt) + " Talarm=" + str(Talarm))
     time.sleep(5)
