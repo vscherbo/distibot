@@ -54,9 +54,10 @@ class Cooker:
             pass
     def set_power_600(self): # after switch_on only!
         self.switch_on()
-        time.sleep(0.5)
+        time.sleep(1.0)
         while self.current_power() > 600:
             self.power_down()
+            time.sleep(1.5)
     def set_power(self, power):
         #TODO detect wrong power OR approximate
         self.target_power_index = self.powers.index(power)
