@@ -5,6 +5,28 @@ import RPIO
 import time
 
 class Valve:
+    def __init__(self, gpio_1_2):
+        self.valve_default_way =  True
+        self.gpio_1_2 = gpio_1_2
+        RPIO.setup(self.gpio_1_2, RPIO.OUT, initial=RPIO.LOW)
+    def release(self):
+        self.default_way()
+        #RPIO.cleanup()
+    def default_way(self):
+        print("valve.default_way")
+        if self.valve_default_way:
+            pass
+        else:
+            RPIO.output(self.gpio_1_2, 0)
+            self.valve_default_way =  True
+
+    def power_on_way(self):
+        print("valve.power_on_way")
+        if self.valve_default_way:
+            RPIO.output(self.gpio_1_2, 1)
+            self.valve_default_way =  False
+
+class DoubleValve:
     v1_on = False
     v2_on = False
     def __init__(self, ways, gpio_1_2, gpio_2_3 = None):
@@ -15,7 +37,7 @@ class Valve:
         RPIO.setup(self.gpio_1_2, RPIO.OUT, initial=RPIO.HIGH)
         if self.gpio_2_3 is not None:
             RPIO.setup(self.gpio_2_3, RPIO.OUT, initial=RPIO.HIGH)
-    def __del__(self):
+    def release(self):
         RPIO.cleanup()
     def v1_turn_on(self):
         if self.v1_on:

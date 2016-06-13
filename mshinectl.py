@@ -22,26 +22,51 @@ import heads_sensor
 # c.push_note("Hello "+ c.name, "Hello My Channel")
 
 class Moonshine_controller:
-    def __init__(self):
+    def __init__(self, log):
+        self.log = log
         self.sensor = W1ThermSensor()
-        self.cooker = cooker.Cooker(gpio_on_off= 17, gpio_up = 22, gpio_down = 27)
-        self.valve = valve.Valve(ways = 2, gpio_1_2 = 23)
-        self.heads_sensor = heads_sensor.Heads_sensor(gpio_heads_start = 25, gpio_heads_stop = 14)
+        self.cooker = cooker.Cooker(gpio_on_off = 17, gpio_up = 22, gpio_down = 27)
+        self.valve = valve.Valve(gpio_1_2 = 23)
+        self.valve.default_way()
+        self.heads_sensor = heads_sensor.Heads_sensor(gpio_heads_start = 25, gpio_heads_stop = 14, timeout = 2000)
         self.pb = Pushbullet('XmJ61j9LVdjbPyKcSOUYv1k053raCeJP')
         self.pb_channel = [x for x in self.pb.channels if x.name == u"Billy's moonshine"][0]
-    def __del__(self):
+    def release(self):
+        self.cooker.release()
+        self.valve.release()
+        self.heads_sensor.release()
         RPIO.cleanup()
+    def do_nothing(self, gpio_id = -1, value = "-1"):
+        print("do_nothing "+time.strftime("%H:%M:%S")+ ", gpio_id="+str(gpio_id) +", value=" +str(value), file=self.log)
+        pass
     def start_process(self):
         self.cooker.switch_on()
         self.cooker.power_max()
     def heads_started(self, gpio_id, value):
+        try:
+            int(value)
+        except ValueError:
+            print("heads_started BAD value="+str(value))
+            value = -1
         self.pb_channel.push_note("Стартовали головы", "gpio_id="+str(gpio_id)+ ", value="+str(value))
+        self.heads_sensor.ignore_start(), 
+    def heads_finished(self, gpio_id, value):
+        try:
+            int(value)
+        except ValueError:
+            print("heads_finished BAD value="+str(value))
+            value = -1
+        self.pb_channel.push_note("Закончились головы", "gpio_id="+str(gpio_id)+ ", value="+str(value))
+        self.valve.default_way() 
+        self.heads_sensor.ignore_stop(),
 
     def start_watch_heads(self):
-        self.valve.way_1()
+        self.valve.power_on_way() 
         self.heads_sensor.watch_start(self.heads_started), 
-        self.heads_sensor.watch_stop(self.valve.way_2), 
+        self.heads_sensor.watch_stop(self.heads_finished),
     def stop_body(self):
-        self.valve.way_3()
+        #self.valve.way_3()
+        pass
     def finish(self):
         self.cooker.switch_off()
+        self.valve.default_way()

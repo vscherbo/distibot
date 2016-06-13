@@ -68,6 +68,7 @@ while loop_flag:
     step_counter += 1
     if step_counter >= step_max:
         step_counter = 0
+        print("Tcmd="+str(Tcmd.__name__))
         Tcmd()
         try:
             Talarm = Tkeys.pop(0)
