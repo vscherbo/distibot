@@ -52,14 +52,16 @@ Tsteps = {0.0 : mshinectl.start_process
 Tkeys = Tsteps.keys()
 Talarm = Tkeys.pop(0)
 Tcmd = Tsteps.pop(Talarm)
+Tcmd_prev = 'before start'
+Tcmd_last = 'before start'
 
 alarm_cnt = 0
 loop_flag = True
 while loop_flag:
     temperature_in_celsius = mshinectl.sensor.get_temperature()
-    print(time.strftime("%H:%M:%S")+ ","+ str(temperature_in_celsius), file=log)
     # print(time.strftime("%H:%M:%S")+ ","+ str(temperature_in_celsius))
     if temperature_in_celsius > Talarm:
+        Tcmd_last = Tcmd.__name__
         mshinectl.pb_channel.push_note("Превысили "+str(Talarm), str(temperature_in_celsius)+", Tcmd="+str(Tcmd.__name__))
 
         Tcmd()
@@ -73,6 +75,11 @@ while loop_flag:
             Tcmd = Tsteps.pop(Talarm, mshinectl.do_nothing)
     # debug 
     # print("alarm_cnt="+str(alarm_cnt) + " Talarm=" + str(Talarm))
+    if Tcmd_last == Tcmd_prev:
+        print(time.strftime("%H:%M:%S")+ ","+ str(temperature_in_celsius), file=log)
+    else:
+        print(time.strftime("%H:%M:%S")+ ","+ str(temperature_in_celsius) +","+Tcmd_last, file=log)
+        Tcmd_prev = Tcmd_last
     time.sleep(5)
 
 print("Exiting!")
