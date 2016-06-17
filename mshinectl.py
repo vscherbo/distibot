@@ -41,7 +41,7 @@ class Moonshine_controller:
         pass
     def start_process(self):
         self.cooker.switch_on()
-        self.cooker.power_max()
+        self.cooker.set_power_max()
     def heads_started(self, gpio_id, value):
         try:
             int(value)
