@@ -2,34 +2,39 @@
 # -*- coding: utf-8 -*-
 
 import RPIO
-import time
 
-class Valve:
+
+class Valve(object):
+
     def __init__(self, gpio_1_2):
-        self.valve_default_way =  True
+        self.valve_default_way = True
         self.gpio_1_2 = gpio_1_2
         RPIO.setup(self.gpio_1_2, RPIO.OUT, initial=RPIO.LOW)
+
     def release(self):
         self.default_way()
         #RPIO.cleanup()
+
     def default_way(self):
         print("valve.default_way")
         if self.valve_default_way:
             pass
         else:
             RPIO.output(self.gpio_1_2, 0)
-            self.valve_default_way =  True
+            self.valve_default_way = True
 
     def power_on_way(self):
         print("valve.power_on_way")
         if self.valve_default_way:
             RPIO.output(self.gpio_1_2, 1)
-            self.valve_default_way =  False
+            self.valve_default_way = False
 
-class DoubleValve:
+
+class DoubleValve(object):
     v1_on = False
     v2_on = False
-    def __init__(self, ways, gpio_1_2, gpio_2_3 = None):
+
+    def __init__(self, ways, gpio_1_2, gpio_2_3=None):
         self.way = 2
         self.ways = ways
         self.gpio_1_2 = gpio_1_2
@@ -37,8 +42,10 @@ class DoubleValve:
         RPIO.setup(self.gpio_1_2, RPIO.OUT, initial=RPIO.HIGH)
         if self.gpio_2_3 is not None:
             RPIO.setup(self.gpio_2_3, RPIO.OUT, initial=RPIO.HIGH)
+
     def release(self):
         RPIO.cleanup()
+
     def v1_turn_on(self):
         if self.v1_on:
             pass
@@ -71,18 +78,20 @@ class DoubleValve:
         if not self.way == 1:
             self.v1_turn_on()
             self.v2_turn_off()
-            self.way = 1 
+            self.way = 1
+
     def way_2(self, gpio_id, value):
-        try: 
+        try:
             int(value)
         except ValueError:
             value = -1
         if not self.way == 2:
             self.v1_turn_off()
             self.v2_turn_off()
-            self.way = 2 
+            self.way = 2
+
     def way_3(self):
         if not self.way == 3:
             self.v1_turn_off()
             self.v2_turn_on()
-            self.way = 3 
+            self.way = 3
