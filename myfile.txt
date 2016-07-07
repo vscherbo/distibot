@@ -1,0 +1,6 @@
+{
+0.0: mshinectl.start_process,
+85.0: mshinectl.start_watch_heads,
+94.5: mshinectl.stop_body,
+98.5: mshinectl.finish
+}
