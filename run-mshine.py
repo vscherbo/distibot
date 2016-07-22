@@ -43,7 +43,7 @@ Tsteps[98.5] = mshinectl.finish
 """
 Tsteps[0.0] = mshinectl.start_process
 Tsteps[75.0] = mshinectl.cooker.switch_off
-Tsteps[79.0] = mshinectl.cooker.set_power_1200
+Tsteps[79.0] = mshinectl.wait4body
 Tsteps[94.5] = mshinectl.stop_body
 Tsteps[98.5] = mshinectl.finish
 """

@@ -81,10 +81,16 @@ class Moonshine_controller(object):
         self.heads_sensor.watch_start(self.heads_started)
         self.heads_sensor.watch_stop(self.heads_finished)
 
+    def wait4body(self):
+        self.cooker.switch_on()
+        self.valve.power_on_way()
+
     def stop_body(self):
-        #self.valve.way_3()
-        pass
+        self.valve.default_way()
+        self.pb_channel.push_note("Закончилось тело",
+                                  "Клапан выключен")
 
     def finish(self):
-        self.cooker.switch_off()
-        self.valve.default_way()
+        #self.cooker.switch_off()
+        #self.valve.default_way()
+        self.release()
