@@ -85,6 +85,11 @@ class Moonshine_controller(object):
         self.cooker.switch_on()
         self.valve.power_on_way()
 
+    def stop_body_power_on(self):
+        self.valve.power_on_way()
+        self.pb_channel.push_note("Закончилось тело",
+                                  "Клапан включён")
+
     def stop_body(self):
         self.valve.default_way()
         self.pb_channel.push_note("Закончилось тело",
