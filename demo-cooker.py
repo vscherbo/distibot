@@ -1,4 +1,4 @@
-#!/usr/bin/env python -t
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import cooker
 from time import sleep
