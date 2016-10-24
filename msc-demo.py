@@ -40,7 +40,7 @@ class emu_cooker:
     def switch_on_600(self):
         self.switch_on()
         while self.current_power() > 600:
-            self.power_down():
+            self.power_down()
             print("   ", self.current_power())
     def set_1400(self):
         while self.current_power() < 1400:
