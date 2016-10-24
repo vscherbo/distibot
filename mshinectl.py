@@ -62,7 +62,7 @@ class Moonshine_controller(object):
         self.pb_channel.push_note("Стартовали головы",
                                   "gpio_id=" + str(gpio_id)
                                   + ", value=" + str(value))
-        self.heads_sensor.ignore_start()
+        self.heads_sensor.watch_stop(self.heads_finished) # including heads_sensor.ignore_start()
 
     def heads_finished(self, gpio_id, value):
         try:
@@ -79,7 +79,6 @@ class Moonshine_controller(object):
     def start_watch_heads(self):
         self.valve.power_on_way()
         self.heads_sensor.watch_start(self.heads_started)
-        self.heads_sensor.watch_stop(self.heads_finished)
 
     def wait4body(self):
         self.cooker.switch_on()
