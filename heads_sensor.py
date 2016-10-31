@@ -20,8 +20,13 @@ class Heads_sensor:
         #RPIO.cleanup()
         pass
 
+    def null_callback(self, gpio_id, val):
+        pass
+
     def ignore_start(self):
-        RPIO.del_interrupt_callback(self.gpio_heads_start)
+        RPIO.add_interrupt_callback(self.gpio_heads_start
+                ,self.null_callback
+                ,edge='rising')
 
     def watch_start(self, start_callback):
         self.ignore_stop()
@@ -34,7 +39,9 @@ class Heads_sensor:
         RPIO.wait_for_interrupts(threaded=True)
 
     def ignore_stop(self):
-        RPIO.del_interrupt_callback(self.gpio_heads_stop)
+        RPIO.add_interrupt_callback(self.gpio_heads_stop
+                ,self.null_callback
+                ,edge='rising')
 
     def watch_stop(self, stop_callback):
         self.ignore_start()
