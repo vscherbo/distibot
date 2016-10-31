@@ -33,12 +33,14 @@ mshinectl = Moonshine_controller(log=log)
 
 Tsteps = collections.OrderedDict()
 # select body #########################
+"""
 Tsteps[0.0] = mshinectl.start_process
-Tsteps[75.0] = mshinectl.cooker.switch_off
-Tsteps[79.0] = mshinectl.cooker.set_power_600
+Tsteps[73.0] = mshinectl.cooker.switch_off
+Tsteps[76.0] = mshinectl.cooker.set_power_600
 Tsteps[85.0] = mshinectl.start_watch_heads
 Tsteps[94.5] = mshinectl.stop_body_power_on
 Tsteps[98.5] = mshinectl.finish
+"""
 """
 # Raw moonshine ########################
 Tsteps[0.0] = mshinectl.start_process
@@ -49,14 +51,11 @@ Tsteps[98.5] = mshinectl.finish
 """
 
 # 2nd pass: cut tails ##################
-"""
 Tsteps[0.0] = mshinectl.start_process
-Tsteps[75.0] = mshinectl.cooker.switch_off
-Tsteps[79.0] = mshinectl.wait4body
+Tsteps[73.0] = mshinectl.cooker.switch_off
+Tsteps[76.0] = mshinectl.wait4body
 Tsteps[94.5] = mshinectl.stop_body
 Tsteps[98.5] = mshinectl.finish
-"""
-
 
 """
 Tsteps = {0.0 : mshinectl.start_process
