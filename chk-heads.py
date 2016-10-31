@@ -20,16 +20,20 @@ def do_nothing():
     pass
 
 def heads_started(gpio_id, value):
+    global hs
+    hs.ignore_start()
+    hs.watch_stop(heads_finished),
     print("Стартовали головы", "gpio_id="+str(gpio_id)+ ", value="+str(value))
 
 def heads_finished(gpio_id, value):
+    global hs
+    hs.ignore_stop()
     print("Закончились головы", "gpio_id="+str(gpio_id)+ ", value="+str(value))
 
 
 
 hs = heads_sensor.Heads_sensor(gpio_heads_start = 25, gpio_heads_stop = 14, timeout = 2000)
 hs.watch_start(heads_started),
-hs.watch_stop(heads_finished),
 
 step_max = 2
 
