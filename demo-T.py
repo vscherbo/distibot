@@ -26,7 +26,7 @@ def temperature_loop(Talarms):
     alarm_cnt = 0
     while loop_flag:
         temperature_in_celsius = sensor.get_temperature()
-        print("%s%s", time.strftime("%H:%M:%S"), temperature_in_celsius,
+        print(time.strftime("%H:%M:%S"), temperature_in_celsius,
               sep=',', file=log)
         if temperature_in_celsius > Talarm:
             c.push_note("Превысили "+str(Talarm), str(temperature_in_celsius))
