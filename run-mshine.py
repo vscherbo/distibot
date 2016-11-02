@@ -15,8 +15,6 @@ def signal_handler(signal, frame):
     print("signal_handler release")
     mshinectl.release()
     loop_flag = False
-    # log.close()
-    # sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGHUP, signal_handler)
@@ -77,7 +75,6 @@ alarm_cnt = 0
 loop_flag = True
 while loop_flag:
     temperature_in_celsius = mshinectl.sensor.get_temperature()
-    # print(time.strftime("%H:%M:%S")+ ","+ str(temperature_in_celsius))
     if temperature_in_celsius > Talarm:
         Tcmd_last = Tcmd.__name__
         mshinectl.pb_channel.push_note("Превысили " + str(Talarm),
@@ -93,8 +90,7 @@ while loop_flag:
             except IndexError:
                 Talarm = 999.0
             Tcmd = Tsteps.pop(Talarm, mshinectl.do_nothing)
-    # debug
-    # print("alarm_cnt="+str(alarm_cnt) + " Talarm=" + str(Talarm))
+
     csv_prefix = time.strftime("%H:%M:%S") + "," + str(temperature_in_celsius)
     if Tcmd_last == Tcmd_prev:
         print(csv_prefix, file=log)
