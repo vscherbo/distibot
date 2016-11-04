@@ -64,7 +64,7 @@ Tsteps = {0.0 : mshinectl.start_process
 mshinectl.set_Tsteps(Tsteps)
 
 try:
-    thread.start_new_thread(mshinectl.temperature_loop)
+    thread.start_new_thread(mshinectl.temperature_loop, ())
 except Exception, exc:
     print("Error: unable to start thread, exception=%s" % str(exc))
 

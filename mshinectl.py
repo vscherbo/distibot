@@ -26,11 +26,12 @@ import heads_sensor
 
 class Moonshine_controller(object):
 
-    def __init__(self, Tsteps):
+    def __init__(self):
         self.Tcmd_prev = 'before start'
         self.Tcmd_last = 'before start'
         self.alarm_limit = 3
         self.alarm_cnt = 0
+        self.T_sleep = 5
         self.log = open('sensor-'
                         + time.strftime("%Y-%m-%d-%H-%M")
                         + '.csv', 'w', 0)  # 0 - unbuffered write
@@ -49,13 +50,40 @@ class Moonshine_controller(object):
     def set_Tsteps(self, Tsteps):
         self.Tkeys = Tsteps.keys()
         self.Talarm = self.Tkeys.pop(0)
-        self.Tcmd = self.Tsteps.pop(self.Talarm)
+        self.Tcmd = Tsteps.pop(self.Talarm)
 
     def release(self):
         self.cooker.release()
         self.valve.release()
         self.heads_sensor.release()
         RPIO.cleanup()
+
+    def temperature_loop(self):
+        while self.loop_flag:
+            temperature_in_celsius = self.sensor.get_temperature()
+            if temperature_in_celsius > self.Talarm:
+                self.Tcmd_last = self.Tcmd.__name__
+                self.pb_channel.push_note("Превысили " + str(self.Talarm),
+                                          str(temperature_in_celsius)
+                                          + ", Tcmd=" + str(self.Tcmd.__name__))
+
+                self.Tcmd()
+                self.alarm_cnt += 1
+                if self.alarm_cnt >= self.alarm_limit:
+                    self.alarm_cnt = 0
+                    try:
+                        self.Talarm = self.Tkeys.pop(0)
+                    except IndexError:
+                        self.Talarm = 999.0
+                        self.Tcmd = self.do_nothing
+
+            csv_prefix = time.strftime("%H:%M:%S") + "," + str(temperature_in_celsius)
+            if self.Tcmd_last == self.Tcmd_prev:
+                print(csv_prefix, file=self.log)
+            else:
+                print(csv_prefix + "," + self.Tcmd_last, file=self.log)
+                self.Tcmd_prev = self.Tcmd_last
+            time.sleep(self.T_sleep)
 
     def do_nothing(self, gpio_id=-1, value="-1"):
         print("do_nothing "
@@ -79,32 +107,6 @@ class Moonshine_controller(object):
                                   + ", value=" + str(value))
         self.heads_sensor.watch_stop(self.heads_finished)
         # including heads_sensor.ignore_start()
-
-    def temperature_loop(self):
-        temperature_in_celsius = self.sensor.get_temperature()
-        if temperature_in_celsius > self.Talarm:
-            self.Tcmd_last = self.Tcmd.__name__
-            self.pb_channel.push_note("Превысили " + str(self.Talarm),
-                                      str(temperature_in_celsius)
-                                      + ", Tcmd=" + str(self.Tcmd.__name__))
-
-            self.Tcmd()
-            self.alarm_cnt += 1
-            if self.alarm_cnt >= self.alarm_limit:
-                self.alarm_cnt = 0
-                try:
-                    self.Talarm = self.Tkeys.pop(0)
-                except IndexError:
-                    self.Talarm = 999.0
-                self.Tcmd = self.Tsteps.pop(self.Talarm, self.do_nothing)
-
-        csv_prefix = time.strftime("%H:%M:%S") + "," + str(temperature_in_celsius)
-        if self.Tcmd_last == self.Tcmd_prev:
-            print(csv_prefix, file=self.log)
-        else:
-            print(csv_prefix + "," + self.Tcmd_last, file=self.log)
-            self.Tcmd_prev = self.Tcmd_last
-        time.sleep(5)
 
     def heads_finished(self, gpio_id, value):
         try:
