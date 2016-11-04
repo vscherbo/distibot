@@ -5,6 +5,9 @@ from __future__ import print_function
 from w1thermsensor import W1ThermSensor
 from pushbullet import Pushbullet
 import time
+import logging
+log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
+logging.basicConfig(format=log_format, level=logging.DEBUG)
 import RPIO
 import cooker
 import valve
@@ -23,9 +26,16 @@ import heads_sensor
 
 class Moonshine_controller(object):
 
-    def __init__(self, log):
-        self.log = log
+    def __init__(self, Tsteps):
+        self.Tcmd_prev = 'before start'
+        self.Tcmd_last = 'before start'
+        self.alarm_limit = 3
+        self.alarm_cnt = 0
+        self.log = open('sensor-'
+                        + time.strftime("%Y-%m-%d-%H-%M")
+                        + '.csv', 'w', 0)  # 0 - unbuffered write
         self.sensor = W1ThermSensor()
+        self.loop_flag = True
         self.cooker = cooker.Cooker(gpio_on_off=17, gpio_up=22, gpio_down=27)
         self.valve = valve.Valve(gpio_1_2=23)
         self.valve.default_way()
@@ -35,6 +45,11 @@ class Moonshine_controller(object):
         self.pb = Pushbullet('XmJ61j9LVdjbPyKcSOUYv1k053raCeJP')
         self.pb_channel = [x for x in self.pb.channels
                            if x.name == u"Billy's moonshine"][0]
+
+    def set_Tsteps(self, Tsteps):
+        self.Tkeys = Tsteps.keys()
+        self.Talarm = self.Tkeys.pop(0)
+        self.Tcmd = self.Tsteps.pop(self.Talarm)
 
     def release(self):
         self.cooker.release()
@@ -62,7 +77,34 @@ class Moonshine_controller(object):
         self.pb_channel.push_note("Стартовали головы",
                                   "gpio_id=" + str(gpio_id)
                                   + ", value=" + str(value))
-        self.heads_sensor.watch_stop(self.heads_finished) # including heads_sensor.ignore_start()
+        self.heads_sensor.watch_stop(self.heads_finished)
+        # including heads_sensor.ignore_start()
+
+    def temperature_loop(self):
+        temperature_in_celsius = self.sensor.get_temperature()
+        if temperature_in_celsius > self.Talarm:
+            self.Tcmd_last = self.Tcmd.__name__
+            self.pb_channel.push_note("Превысили " + str(self.Talarm),
+                                      str(temperature_in_celsius)
+                                      + ", Tcmd=" + str(self.Tcmd.__name__))
+
+            self.Tcmd()
+            self.alarm_cnt += 1
+            if self.alarm_cnt >= self.alarm_limit:
+                self.alarm_cnt = 0
+                try:
+                    self.Talarm = self.Tkeys.pop(0)
+                except IndexError:
+                    self.Talarm = 999.0
+                self.Tcmd = self.Tsteps.pop(self.Talarm, self.do_nothing)
+
+        csv_prefix = time.strftime("%H:%M:%S") + "," + str(temperature_in_celsius)
+        if self.Tcmd_last == self.Tcmd_prev:
+            print(csv_prefix, file=self.log)
+        else:
+            print(csv_prefix + "," + self.Tcmd_last, file=self.log)
+            self.Tcmd_prev = self.Tcmd_last
+        time.sleep(5)
 
     def heads_finished(self, gpio_id, value):
         try:
@@ -95,6 +137,6 @@ class Moonshine_controller(object):
                                   "Клапан выключен")
 
     def finish(self):
-        #self.cooker.switch_off()
-        #self.valve.default_way()
+        # self.cooker.switch_off()
+        # self.valve.default_way()
         self.release()
