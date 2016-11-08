@@ -36,6 +36,9 @@ class Moonshine_controller(object):
                         + time.strftime("%Y-%m-%d-%H-%M")
                         + '.csv', 'w', 0)  # 0 - unbuffered write
         self.sensor = W1ThermSensor()
+        self.temperature_in_celsius = 0
+        self.T_prev = 0
+        self.T_curr = 0
         self.loop_flag = True
         self.cooker = cooker.Cooker(gpio_on_off=17, gpio_up=22, gpio_down=27)
         self.valve = valve.Valve(gpio_1_2=23)
@@ -59,12 +62,23 @@ class Moonshine_controller(object):
         RPIO.cleanup()
 
     def temperature_loop(self):
+        downcount = 0
         while self.loop_flag:
-            temperature_in_celsius = self.sensor.get_temperature()
-            if temperature_in_celsius > self.Talarm:
+            self.temperature_in_celsius = self.sensor.get_temperature()
+            if self.T_prev > self.temperature_in_celsius:
+                downcount += 1
+                if downcount >= 3:
+                    self.pb_channel.push_note("Снижение", "Включаю плитку") 
+                    self.cooker.set_power_600()
+                    downcount = 0
+            else:
+                self.T_prev = self.temperature_in_celsius
+                downcount = 0
+
+            if self.temperature_in_celsius > self.Talarm:
                 self.Tcmd_last = self.Tcmd.__name__
                 self.pb_channel.push_note("Превысили " + str(self.Talarm),
-                                          str(temperature_in_celsius)
+                                          str(self.temperature_in_celsius)
                                           + ", Tcmd=" + str(self.Tcmd.__name__))
 
                 self.Tcmd()
@@ -77,7 +91,7 @@ class Moonshine_controller(object):
                         self.Talarm = 999.0
                         self.Tcmd = self.do_nothing
 
-            csv_prefix = time.strftime("%H:%M:%S") + "," + str(temperature_in_celsius)
+            csv_prefix = time.strftime("%H:%M:%S") + "," + str(self.temperature_in_celsius)
             if self.Tcmd_last == self.Tcmd_prev:
                 print(csv_prefix, file=self.log)
             else:
