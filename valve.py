@@ -44,6 +44,8 @@ class DoubleValve(object):
             RPIO.setup(self.gpio_v2, RPIO.OUT, initial=RPIO.HIGH)
 
     def release(self):
+        self.v1_turn_off()
+        self.v2_turn_off()
         RPIO.cleanup()
 
     def v1_turn_on(self):
