@@ -34,18 +34,36 @@ def socket_callback(socket, val):
     # RPIO.close_tcp_client(socket.fileno())
 
 # TCP socket server callback on port 8080
-RPIO.add_tcp_callback(8080, socket_callback, threaded_callback=True)
+# RPIO.add_tcp_callback(8080, socket_callback, threaded_callback=True)
 
 # Blocking main epoll loop
-RPIO.wait_for_interrupts(threaded=True)
+# RPIO.wait_for_interrupts(threaded=True)
 
-do_flag = True
-
+# do_flag = True
 # main loop
-while do_flag:
-    print "wait for cmd on port 8080"
-    time.sleep(2)
+# while do_flag:
+#    print "wait for cmd on port 8080"
+#    time.sleep(2)
 
+way_time = 3
 
+print("way_1")
+v1.way_1()
+time.sleep(way_time)
+
+print("way_2")
+v1.way_2()
+time.sleep(way_time)
+
+# default way, both valves are off
+print("way_3")
+v1.way_3()
+time.sleep(way_time)
+
+print("way_1 again")
+v1.way_1()
+time.sleep(way_time)
+
+print("release")
 v1.release()
 sys.exit()
