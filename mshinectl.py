@@ -12,6 +12,7 @@ import RPIO
 import cooker
 import valve
 import heads_sensor
+import collections
 
 # one_plus_one = pb.get_device('OnePlus One')
 # Title, Message_body
@@ -50,6 +51,12 @@ class Moonshine_controller(object):
         self.pb_channel = [x for x in self.pb.channels
                            if x.name == u"Billy's moonshine"][0]
 
+    def load_config(self, conf_file_name): 
+        conf = open(conf_file_name, 'r')
+        Tsteps = collections.OrderedDict(sorted(eval(conf.read()).items(), key=lambda t: t[0]))
+        conf.close()
+        self.set_Tsteps(Tsteps)
+
     def set_Tsteps(self, Tsteps):
         self.Tkeys = Tsteps.keys()
         self.Talarm = self.Tkeys.pop(0)
@@ -68,7 +75,7 @@ class Moonshine_controller(object):
             if self.T_prev > self.temperature_in_celsius:
                 downcount += 1
                 if downcount >= 3:
-                    self.pb_channel.push_note("Снижение", "Включаю плитку") 
+                    self.pb_channel.push_note("Снижение температуры", "Включаю плитку") 
                     self.cooker.set_power_600()
                     downcount = 0
             else:

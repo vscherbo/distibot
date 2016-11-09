@@ -8,6 +8,18 @@ class Moonshine_controller(object):
 
     def __init__(self, log):
         self.log = log
+        self.Tsteps = collections.OrderedDict()
+
+    def load_config(self, conf_file_name):
+        conf = open(conf_file_name, 'r')
+        self.Tsteps = collections.OrderedDict(sorted(eval(conf.read()).items(), key=lambda t: t[0]))
+        conf.close()
+        self.set_Tsteps(self.Tsteps)
+
+    def set_Tsteps(self, Tsteps):
+        self.Tkeys = Tsteps.keys()
+        self.Talarm = self.Tkeys.pop(0)
+        self.Tcmd = Tsteps.pop(self.Talarm)
 
     def start_process(self):
         print "start_process"
@@ -26,26 +38,26 @@ class Moonshine_controller(object):
 
 mshinectl = Moonshine_controller(None)
 
-inf = open('myfile.txt','r')
-dict_from_file = eval(inf.read())
-inf.close()
-
-print dict_from_file
-
+"""
 Tsteps = collections.OrderedDict()
-#Tsteps = dict_from_file
-Tsteps = collections.OrderedDict(sorted(dict_from_file.items(), key=lambda t: t[0]))
+
+inf = open('myfile.txt','r')
+# dict_from_file = eval(inf.read())
+Tsteps = collections.OrderedDict(sorted(eval(inf.read()).items(), key=lambda t: t[0]))
+inf.close()
+"""
+mshinectl.load_config('myfile.txt')
 
 print "=== Tsteps"
-print Tsteps
+print mshinectl.Tsteps
 
-Tkeys = Tsteps.keys()
+Tkeys = mshinectl.Tsteps.keys()
 print "=== Tkeys"
 print Tkeys
 
 
 Talarm = Tkeys.pop(0)
-Tcmd = Tsteps.pop(Talarm)
+Tcmd = mshinectl.Tsteps.pop(Talarm)
 
 while True:
 
@@ -56,5 +68,5 @@ while True:
         Talarm = 999.0
         break
 
-    Tcmd = Tsteps.pop(Talarm, mshinectl.do_nothing)
+    Tcmd = mshinectl.Tsteps.pop(Talarm, mshinectl.do_nothing)
     time.sleep(2)
