@@ -14,7 +14,7 @@ RPIO.setmode(RPIO.BCM)
 # print "res=",str(res)
 # sys.exit()
 
-v1 = valve.DoubleValve(gpio_v1=24, gpio_v2=23)
+v1 = valve.DoubleValve(gpio_v1=23, gpio_v2=24)
 
 
 def socket_callback(socket, val):
