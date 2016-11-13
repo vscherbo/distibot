@@ -39,9 +39,9 @@ class DoubleValve(object):
         # TODO check initial values
         self.gpio_v1 = gpio_v1
         self.gpio_v2 = gpio_v2
-        RPIO.setup(self.gpio_v1, RPIO.OUT, initial=RPIO.HIGH)
+        RPIO.setup(self.gpio_v1, RPIO.OUT, initial=RPIO.LOW)
         if self.gpio_v2 is not None:
-            RPIO.setup(self.gpio_v2, RPIO.OUT, initial=RPIO.HIGH)
+            RPIO.setup(self.gpio_v2, RPIO.OUT, initial=RPIO.LOW)
 
     def release(self):
         self.v1_turn_off()
@@ -50,22 +50,22 @@ class DoubleValve(object):
 
     def v1_turn_on(self):
         if not self.v1_on:
-            RPIO.output(self.gpio_v1, 0)
+            RPIO.output(self.gpio_v1, 1)
             self.v1_on = True
 
     def v1_turn_off(self):
         if self.v1_on:
-            RPIO.output(self.gpio_v1, 1)
+            RPIO.output(self.gpio_v1, 0)
             self.v1_on = False
 
     def v2_turn_on(self):
         if not self.v2_on:
-            RPIO.output(self.gpio_v2, 0)
+            RPIO.output(self.gpio_v2, 1)
             self.v2_on = True
 
     def v2_turn_off(self):
         if self.v2_on:
-            RPIO.output(self.gpio_v2, 1)
+            RPIO.output(self.gpio_v2, 0)
             self.v2_on = False
 
     def way_1(self):
