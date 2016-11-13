@@ -22,9 +22,8 @@ signal.signal(signal.SIGHUP, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
 
 mshinectl = Moonshine_controller()
-#mshinectl.load_config('msc-body-from-raw.conf')
-mshinectl.load_config('msc-now.conf')
-mshinectl.set_Tsteps()
+mshinectl.load_config('msc-body-from-raw.conf')
+# mshinectl.load_config('msc-now.conf')
 
 try:
     thread.start_new_thread(mshinectl.temperature_loop, ())
