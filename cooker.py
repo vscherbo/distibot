@@ -34,13 +34,13 @@ class Cooker(object):
         RPIO.output(gpio_port_num, 1)
 
     def switch_on(self):
-        if not self.state_on:
+        if true: # not self.state_on:
             self.click_button(self.gpio_on_off)
             self.power_index = 6  # 1400W
             self.state_on = True
 
     def switch_off(self):
-        if self.state_on:
+        if true: # self.state_on:
             print("switch_OFF")
             self.click_button(self.gpio_on_off)
             self.state_on = False
