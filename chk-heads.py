@@ -29,14 +29,14 @@ def heads_started(gpio_id, value):
     global hs
     hs.ignore_start()
     hs.watch_stop(heads_finished),
-    print("Стартовали головы", "gpio_id="+str(gpio_id) +
+    print("Стартовали головы", "gpio_id=" + str(gpio_id) +
           ", value=" + str(value))
 
 
 def heads_finished(gpio_id, value):
     global hs
     hs.ignore_stop()
-    print("Закончились головы", "gpio_id="+str(gpio_id) +
+    print("Закончились головы", "gpio_id=" + str(gpio_id) +
           ", value=" + str(value))
 
 
@@ -51,8 +51,8 @@ step_counter = 0
 while loop_flag:
     step_counter += 1
     print(step_counter)
-    time.sleep(1)
+    time.sleep(2)
 
-RPIO.cleanup()
+# RPIO.cleanup()
 print("Exiting")
-sys.exit(0)
+# sys.exit(0)
