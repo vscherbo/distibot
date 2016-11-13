@@ -42,8 +42,7 @@ class Moonshine_controller(object):
         self.T_curr = 0
         self.loop_flag = True
         self.cooker = cooker.Cooker(gpio_on_off=17, gpio_up=22, gpio_down=27)
-        self.valve = valve.Valve(gpio_1_2=23)
-        self.valve.default_way()
+        self.valve = valve.DoubleValve(gpio_v1=23, gpio_v2=24)
         self.heads_sensor = heads_sensor.Heads_sensor(gpio_heads_start=25,
                                                       gpio_heads_stop=14,
                                                       timeout=2000)
@@ -75,7 +74,7 @@ class Moonshine_controller(object):
             if self.T_prev > self.temperature_in_celsius:
                 downcount += 1
                 if downcount >= 3:
-                    self.pb_channel.push_note("Снижение температуры", "Включаю плитку") 
+                    self.pb_channel.push_note("Снижение температуры", "Включаю нагрев") 
                     self.cooker.set_power_600()
                     downcount = 0
             else:
@@ -97,6 +96,8 @@ class Moonshine_controller(object):
                     except IndexError:
                         self.Talarm = 999.0
                         self.Tcmd = self.do_nothing
+                    else:
+                        self.Tcmd = Tsteps.pop(self.Talarm)
 
             csv_prefix = time.strftime("%H:%M:%S") + "," + str(self.temperature_in_celsius)
             if self.Tcmd_last == self.Tcmd_prev:
@@ -138,24 +139,22 @@ class Moonshine_controller(object):
         self.pb_channel.push_note("Закончились головы",
                                   "gpio_id=" + str(gpio_id)
                                   + ", value=" + str(value))
-        self.valve.default_way()
+        self.valve.way_2()
         self.heads_sensor.ignore_stop(),
 
     def start_watch_heads(self):
-        self.valve.power_on_way()
+        self.valve.way_1()
         self.heads_sensor.watch_start(self.heads_started)
 
     def wait4body(self):
         self.cooker.switch_on()
-        self.valve.power_on_way()
+        self.valve.way_1()
 
     def stop_body_power_on(self):
-        self.valve.power_on_way()
-        self.pb_channel.push_note("Закончилось тело",
-                                  "Клапан включён")
+        self.stop_body()
 
     def stop_body(self):
-        self.valve.default_way()
+        self.valve.way_3()
         self.pb_channel.push_note("Закончилось тело",
                                   "Клапан выключен")
 
