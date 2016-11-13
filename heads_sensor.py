@@ -24,13 +24,29 @@ class Heads_sensor:
         pass
 
     def ignore_start(self):
-        # RPIO.add_interrupt_callback(self.gpio_heads_start
-        #         ,self.null_callback
-        #         ,edge='rising')
-        RPIO.del_interrupt_callback(self.gpio_heads_start)
+        try:
+            RPIO.del_interrupt_callback(self.gpio_heads_start)
+        except KeyError:
+            pass
+        """
+        RPIO.add_interrupt_callback(self.gpio_heads_start,
+                                    self.null_callback,
+                                    edge='rising')
+        """
+
+    def ignore_stop(self):
+        try:
+            RPIO.del_interrupt_callback(self.gpio_heads_stop)
+        except KeyError:
+            pass
+        """
+        RPIO.add_interrupt_callback(self.gpio_heads_stop,
+                                    self.null_callback,
+                                    edge='rising')
+        """
 
     def watch_start(self, start_callback):
-        self.ignore_stop()
+        # self.ignore_stop()
         RPIO.setup(self.gpio_heads_start, RPIO.IN, pull_up_down=RPIO.PUD_DOWN)
         RPIO.add_interrupt_callback(self.gpio_heads_start,
                                     start_callback,
@@ -38,12 +54,6 @@ class Heads_sensor:
                                     debounce_timeout_ms=self.timeout,
                                     pull_up_down=RPIO.PUD_DOWN)
         RPIO.wait_for_interrupts(threaded=True)
-
-    def ignore_stop(self):
-        RPIO.del_interrupt_callback(self.gpio_heads_stop)
-        # RPIO.add_interrupt_callback(self.gpio_heads_stop
-        #        ,self.null_callback
-        #        ,edge='rising')
 
     def watch_stop(self, stop_callback):
         self.ignore_start()
