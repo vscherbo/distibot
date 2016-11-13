@@ -3,7 +3,7 @@
 
 from __future__ import print_function
 from w1thermsensor import W1ThermSensor
-from pushbullet import Pushbullet
+# from pushbullet import Pushbullet
 import time
 import logging
 log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
@@ -50,9 +50,10 @@ class Moonshine_controller(object):
         # self.pb_channel = [x for x in self.pb.channels
         #                   if x.name == u"Billy's moonshine"][0]
 
-    def load_config(self, conf_file_name): 
+    def load_config(self, conf_file_name):
         conf = open(conf_file_name, 'r')
-        self.Tsteps = collections.OrderedDict(sorted(eval(conf.read()).items(), key=lambda t: t[0]))
+        self.Tsteps = collections.OrderedDict(sorted(eval(conf.read()).items(),
+                                              key=lambda t: t[0]))
         conf.close()
         self.set_Tsteps()
 
@@ -74,7 +75,7 @@ class Moonshine_controller(object):
             if self.T_prev > self.temperature_in_celsius:
                 downcount += 1
                 if downcount >= 5:
-                    # self.pb_channel.push_note("Снижение температуры", "Включаю нагрев") 
+                    # self.pb_channel.push_note("Снижение температуры", "Включаю нагрев")
                     self.cooker.set_power_600()
                     downcount = 0
             else:
@@ -83,7 +84,7 @@ class Moonshine_controller(object):
 
             if self.temperature_in_celsius > self.Talarm:
                 self.Tcmd_last = self.Tcmd.__name__
-                #self.pb_channel.push_note("Превысили " + str(self.Talarm),
+                # self.pb_channel.push_note("Превысили " + str(self.Talarm),
                 #                          str(self.temperature_in_celsius)
                 #                          + ", Tcmd=" + str(self.Tcmd.__name__))
 
@@ -124,9 +125,9 @@ class Moonshine_controller(object):
         except ValueError:
             print("heads_started BAD value="+str(value))
             value = -1
-        #self.pb_channel.push_note("Стартовали головы",
-                                  #"gpio_id=" + str(gpio_id)
-                                  #+ ", value=" + str(value))
+        # self.pb_channel.push_note("Стартовали головы",
+        #                          "gpio_id=" + str(gpio_id)
+        #                          + ", value=" + str(value))
         self.heads_sensor.watch_stop(self.heads_finished)
         # including heads_sensor.ignore_start()
 
@@ -136,9 +137,9 @@ class Moonshine_controller(object):
         except ValueError:
             print("heads_finished BAD value="+str(value))
             value = -1
-        #self.pb_channel.push_note("Закончились головы",
-              #                    "gpio_id=" + str(gpio_id)
-              #                    + ", value=" + str(value))
+        # self.pb_channel.push_note("Закончились головы",
+        #                          "gpio_id=" + str(gpio_id)
+        #                          + ", value=" + str(value))
         self.valve.way_2()
         self.heads_sensor.ignore_stop(),
 
@@ -155,8 +156,8 @@ class Moonshine_controller(object):
 
     def stop_body(self):
         self.valve.way_3()
-        #self.pb_channel.push_note("Закончилось тело",
-              #                    "Клапан выключен")
+        # self.pb_channel.push_note("Закончилось тело",
+        #                           "Клапан выключен")
 
     def finish(self):
         # self.cooker.switch_off()
