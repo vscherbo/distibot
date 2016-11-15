@@ -15,10 +15,9 @@ class Heads_sensor:
         self.heads = -1  # -1 - before heads, 0 - heads, 1 - after heads
 
     def release(self):
-        #self.ignore_start()
-        #self.ignore_stop()
-        #RPIO.cleanup()
-        pass
+        RPIO.stop_waiting_for_interrupts()
+        # self.ignore_start()
+        # self.ignore_stop()
 
     def null_callback(self, gpio_id, val):
         pass
