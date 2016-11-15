@@ -46,7 +46,6 @@ class DoubleValve(object):
     def release(self):
         self.v1_turn_off()
         self.v2_turn_off()
-        RPIO.cleanup()
 
     def v1_turn_on(self):
         if not self.v1_on:
