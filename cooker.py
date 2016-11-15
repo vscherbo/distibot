@@ -26,7 +26,6 @@ class Cooker(object):
     def release(self):
         print("cooker.release")
         self.switch_off()
-        #RPIO.cleanup()
 
     def click_button(self, gpio_port_num):
         RPIO.output(gpio_port_num, 0)
