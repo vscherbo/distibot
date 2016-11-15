@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import collections
 from mshinectl import Moonshine_controller
 import signal
 import sys
