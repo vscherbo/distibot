@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-from w1thermsensor import W1ThermSensor
+import w1thermsensor
 from pushbullet import Pushbullet
 import time
 import logging
@@ -13,6 +13,7 @@ import cooker
 import valve
 import heads_sensor
 import collections
+import tsensor
 
 # one_plus_one = pb.get_device('OnePlus One')
 # Title, Message_body
@@ -33,10 +34,10 @@ class Moonshine_controller(object):
         self.alarm_limit = 3
         self.alarm_cnt = 0
         self.T_sleep = 5
-        self.log = open('sensor-'
+        self.sensor = tsensor.tsensor()
+        self.log = open('sensor-' + ('emu-' if self.sensor.emu_mode else '')
                         + time.strftime("%Y-%m-%d-%H-%M")
                         + '.csv', 'w', 0)  # 0 - unbuffered write
-        self.sensor = W1ThermSensor()
         self.temperature_in_celsius = 0
         self.T_prev = 0
         self.T_curr = 0
