@@ -7,15 +7,20 @@ import sys
 import socket
 import signal
 import thread
-from bottle import route, run, debug, template, static_file, get
-# request, post
+import time
+import mshine_httpd
+# from bottle import Bottle
+from bottle import route, run, debug, template, static_file, request, get, post, ServerAdapter, Bottle
 
 
 def signal_handler(signal, frame):
-    global do_flag
     global mshinectl
+    global do_flag
+    global server
     print("signal_handler release")
+    mshinectl.stop_process()
     mshinectl.release()
+    server.stop()
     do_flag = False
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -31,41 +36,58 @@ try:
 except Exception, exc:
     print("Error: unable to start thread, exception=%s" % str(exc))
 
+# ################################
+loc_host = socket.gethostbyname(socket.gethostname())
+app = Bottle()
 
-# Static Routes
-@get('/<filename:re:.*\.js>')
+@app.get('/<filename:re:.*\.css>')
+def stylesheets(filename):
+    print("CSS")
+    return static_file(filename, root='webapp/static/css')
+
+@app.get('/<filename:re:.*\.js>')
 def javascripts(filename):
-        return static_file(filename, root='static/js')
+    return static_file(filename, root='webapp/static/js')
 
-
-@get('/<filename:re:.*\.css>')
+@app.get('/<filename:re:.*\.wav>')
 def stylesheets(filename):
-    return static_file(filename, root='static/css')
+    return static_file(filename, root='webapp/static/sound')
 
-"""
-@get('/<filename:re:.*\.png>')
+@app.get('/<filename:re:.*\.png>')
 def stylesheets(filename):
-    return static_file(filename, root='static/images')
-"""
-
+    return static_file(filename, root='webapp/static/images')
 
 # it works
-@route('/tsensor')
+@app.route('/tsensor')
 def t_show():
-    output = template('temperature_show')
+    output = template('webapp/temperature_show')
     return output
 
-
-@route('/ask_t')
+@app.route('/ask_t')
 def ask_temperature():
-    curr_temperature = mshinectl.sensor.get_temperature()
+    global mshinectl
+    curr_temperature = mshinectl.temperature_in_celsius
     return str(curr_temperature)
 
-# add this at the very end:
+#add this at the very end:
 debug(True)
 
-loc_host = socket.gethostbyname(socket.gethostname())
-run(host=loc_host, reloader=True)
+
+
+server = mshine_httpd.MshineHTTPD(host=loc_host, port=8080)
+server.set_msc(mshinectl=mshinectl)
+
+try:
+    app.run(server=server)
+except Exception,ex:
+    print(ex)
+
+"""
+do_flag = True
+while do_flag:
+    time.sleep(1)
+    pass
+"""
 
 print("Exiting!")
 sys.exit(0)

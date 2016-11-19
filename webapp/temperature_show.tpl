@@ -1,7 +1,7 @@
 %#template to generate a HTML table from a list of tuples (or list of lists, or tuple of tuples or ...)
 <head>
 <link type="text/css" href="main.css" rel="stylesheet">
-<script type="text/javascript" src="/jquery.js"></script>  
+<script type="text/javascript" src="jquery.js"></script>  
 
     <script> 
 
@@ -27,6 +27,7 @@
             });  
         }  
       
+/**
         function click_play() {
             var button = document.getElementById('button_start');
             var audio = document.getElementById('alarm_sound');
@@ -35,6 +36,7 @@
             button.style.display="none";
             div_t.style.display="block";
         };
+**/
 
         $(document).ready(function(){  
             show();  
@@ -54,9 +56,11 @@
 <html>
 <body>
 <audio id="alarm_sound" autoplay src="silence-1sec.wav"></audio>
+<!--
 <button id="button_start" autofocus type="button" onclick="click_play()">Start</button>
+-->
 
-<div id="div_t" style="display:none">
+<div id="div_t" style="display:block"> <!-- none -->
     <div id="t_label">Температура</div> 
     <div id="content"></div> 
 </div> 
