@@ -32,10 +32,10 @@ class Moonshine_controller(object):
         self.Tcmd_last = 'before start'
         self.alarm_limit = 3
         self.downcount_limit = 5
-        self.csv_write_period = 30
+        self.csv_write_period = 3
         self.alarm_cnt = 0
         self.T_sleep = 1
-        self.sensor = tsensor.tsensor()
+        self.sensor = tsensor.Tsensor()
         self.log = open('sensor-' + ('emu-' if self.sensor.emu_mode else '')
                         + time.strftime("%Y-%m-%d-%H-%M")
                         + '.csv', 'w', 0)  # 0 - unbuffered write
@@ -63,6 +63,7 @@ class Moonshine_controller(object):
         self.Tkeys = self.Tsteps.keys()
         self.Talarm = self.Tkeys.pop(0)
         self.Tcmd = self.Tsteps.pop(self.Talarm)
+        # print(self.Tsteps)
 
     def release(self):
         self.cooker.release()
@@ -76,6 +77,7 @@ class Moonshine_controller(object):
         print_str = []
         while self.loop_flag:
             self.temperature_in_celsius = self.sensor.get_temperature()
+            print('___debug temperature_in_celsius=' + str(self.temperature_in_celsius))
             if self.T_prev - self.temperature_in_celsius > 1.0:
                 downcount += 1
                 if downcount >= self.downcount_limit:
@@ -122,6 +124,7 @@ class Moonshine_controller(object):
                 print(','.join(print_str), file=self.log)
 
             time.sleep(self.T_sleep)
+            print_str = []
             csv_delay += self.T_sleep
 
     def do_nothing(self, gpio_id=-1, value="-1"):
@@ -134,6 +137,10 @@ class Moonshine_controller(object):
     def start_process(self):
         self.cooker.switch_on()
         self.cooker.set_power_max()
+
+    def stop_process(self):
+        self.loop_flag = False
+        time.sleep(self.T_sleep+1)
 
     def heads_started(self, gpio_id, value):
         try:
