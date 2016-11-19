@@ -18,6 +18,8 @@ class Heads_sensor:
         RPIO.stop_waiting_for_interrupts()
         # self.ignore_start()
         # self.ignore_stop()
+        print "heads_sensor stop_waiting_for_interrupts"
+        RPIO.cleanup()
 
     def null_callback(self, gpio_id, val):
         pass
