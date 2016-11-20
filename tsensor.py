@@ -3,6 +3,13 @@
 
 # from __future__ import print_function
 import w1thermsensor
+import logging
+log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
+logger = logging.getLogger(__name__)
+file_handler = logging.FileHandler('run-moonshine.log')
+formatter = logging.Formatter(log_format)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 
 class Tsensor(w1thermsensor.W1ThermSensor):
@@ -18,7 +25,10 @@ class Tsensor(w1thermsensor.W1ThermSensor):
             self.emu_iterator = iter(self.Trange)
 
     def get_temperature(self, unit=w1thermsensor.W1ThermSensor.DEGREES_C):
+        logger.debug('get_temperature emu_mode={}'.format(self.emu_mode))
         if self.emu_mode:
             return self.emu_iterator.next()
         else:
-            return self.sensor.get_temperature(unit)
+            loc_T =self.sensor.get_temperature(unit)
+            logger.debug('get_temperature loc_Te={}'.format(loc_T))
+            return loc_T

@@ -18,17 +18,19 @@ webapp_path = 'webapp'
 
 def signal_handler(signal, frame):
     global mshinectl
-    global do_flag
+    # global do_flag
     global server
+    global app
     print("signal_handler release")
     mshinectl.stop_process()
     mshinectl.release()
+    app.close()
     server.stop()
     # do_flag = False
 
-signal.signal(signal.SIGINT, signal_handler)
-signal.signal(signal.SIGHUP, signal_handler)
-signal.signal(signal.SIGTERM, signal_handler)
+#signal.signal(signal.SIGINT, signal_handler)
+#signal.signal(signal.SIGHUP, signal_handler)
+#signal.signal(signal.SIGTERM, signal_handler)
 
 mshinectl = Moonshine_controller()
 mshinectl.load_config('msc-body-from-raw.conf')
@@ -40,7 +42,6 @@ except Exception, exc:
     print("Error: unable to start thread, exception=%s" % str(exc))
 
 # ################################
-loc_host = socket.gethostbyname(socket.gethostname())
 app = Bottle()
 
 
@@ -78,11 +79,11 @@ def ask_temperature():
     curr_temperature = mshinectl.temperature_in_celsius
     return str(curr_temperature)
 
+loc_host = socket.gethostbyname(socket.gethostname())
+server = mshine_httpd.MshineHTTPD(host=loc_host, port=8080)
+
 # add this at the very end:
 debug(True)
-
-server = mshine_httpd.MshineHTTPD(host=loc_host, port=8080)
-server.set_msc(mshinectl=mshinectl)
 
 try:
     app.run(server=server)
@@ -97,4 +98,6 @@ while do_flag:
 """
 
 print("Exiting!")
+mshinectl.stop_process()
+mshinectl.release()
 sys.exit(0)

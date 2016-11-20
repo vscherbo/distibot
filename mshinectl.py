@@ -30,7 +30,7 @@ class Moonshine_controller(object):
     def __init__(self):
         self.Tcmd_prev = 'before start'
         self.Tcmd_last = 'before start'
-        self.alarm_limit = 3
+        self.alarm_limit = 1
         self.downcount_limit = 5
         self.csv_write_period = 3
         self.alarm_cnt = 0
@@ -77,7 +77,6 @@ class Moonshine_controller(object):
         print_str = []
         while self.loop_flag:
             self.temperature_in_celsius = self.sensor.get_temperature()
-            print('___debug temperature_in_celsius=' + str(self.temperature_in_celsius))
             if self.T_prev - self.temperature_in_celsius > 1.0:
                 downcount += 1
                 if downcount >= self.downcount_limit:
@@ -119,13 +118,14 @@ class Moonshine_controller(object):
             if self.Tcmd_last != self.Tcmd_prev:
                 print_str.append(self.Tcmd_last)
                 self.Tcmd_prev = self.Tcmd_last
+                print(','.join(print_str), file=self.log)
             if csv_delay >= self.csv_write_period:
                 csv_delay = 0
                 print(','.join(print_str), file=self.log)
 
-            time.sleep(self.T_sleep)
             print_str = []
             csv_delay += self.T_sleep
+            time.sleep(self.T_sleep)
 
     def do_nothing(self, gpio_id=-1, value="-1"):
         print("do_nothing "

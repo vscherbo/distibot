@@ -2,15 +2,20 @@
 # -*- coding: utf-8 -*-
 
 import logging
-log_format = 'ckr: %(levelname)s | %(asctime)-15s | %(message)s'
+log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
 logging.basicConfig(format=log_format, level=logging.DEBUG)
 import RPIO
 import time
+logger = logging.getLogger(__name__)
+file_handler = logging.FileHandler('run-moonshine.log')
+formatter = logging.Formatter(log_format)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 
 class Cooker(object):
     powers = (120, 300, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000)
-    press_timeout = 1.5
+    press_timeout = 1
     max_power_index = len(powers)-1
     power_max = powers[-1]
     power_min = powers[0]
@@ -33,8 +38,9 @@ class Cooker(object):
 
     def click_button(self, gpio_port_num):
         RPIO.output(gpio_port_num, 0)
-        time.sleep(0.1)
+        time.sleep(0.5)
         RPIO.output(gpio_port_num, 1)
+        logger.debug('clicked GPIO_port={gpio}'.format(gpio=gpio_port_num))
 
     def switch_on(self, force_mode=False):
         if force_mode:
@@ -56,18 +62,17 @@ class Cooker(object):
         if self.power_index < self.max_power_index:
             self.click_button(self.gpio_up)
             self.power_index += 1
-            # print("  power_up, index="+str(self.power_index))
+            logger.debug("power_up, new_index={}".format(self.power_index))
             return True
         else:
-            # print("  power_up False, index="+str(self.power_index))
+            logger.debug("power_up False, index={}".format(self.power_index))
             return False
 
     def set_power_max(self):
         time.sleep(self.press_timeout)
         while self.power_up():
-            # print("power_max loop, power="+str(self.current_power()))
+            logger.debug("set_power_max loop, power={}".format(self.current_power()))
             time.sleep(self.press_timeout)
-            pass
 
     def power_down(self):
         if self.power_index > 0:
@@ -81,14 +86,13 @@ class Cooker(object):
         time.sleep(self.press_timeout)
         while self.power_down():
             time.sleep(self.press_timeout)
-            pass
 
     def set_power_600(self):
         self.switch_on()
         time.sleep(self.press_timeout)
         while self.current_power() > 600:
             self.power_down()
-            # print("power_600 loop, power="+str(self.current_power()))
+            logger.debug("power_600 loop, power={}".format(self.current_power()))
             time.sleep(self.press_timeout)
 
     def set_power(self, power):
