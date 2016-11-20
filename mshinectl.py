@@ -39,9 +39,7 @@ class Moonshine_controller(object):
         self.log = open('sensor-' + ('emu-' if self.sensor.emu_mode else '')
                         + time.strftime("%Y-%m-%d-%H-%M")
                         + '.csv', 'w', 0)  # 0 - unbuffered write
-        self.temperature_in_celsius = 0
-        self.T_prev = 0
-        self.T_curr = 0
+        self.T_prev = self.sensor.get_temperature()
         self.loop_flag = True
         self.cooker = cooker.Cooker(gpio_on_off=17, gpio_up=22, gpio_down=27)
         self.valve = valve.DoubleValve(gpio_v1=23, gpio_v2=24)
