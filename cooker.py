@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+log_format = 'ckr: %(levelname)s | %(asctime)-15s | %(message)s'
+logging.basicConfig(format=log_format, level=logging.DEBUG)
 import RPIO
 import time
 
@@ -33,14 +36,18 @@ class Cooker(object):
         time.sleep(0.1)
         RPIO.output(gpio_port_num, 1)
 
-    def switch_on(self):
-        if True: # not self.state_on:
+    def switch_on(self, force_mode=False):
+        if force_mode:
+            self.state_on = False
+        if not self.state_on:
             self.click_button(self.gpio_on_off)
             self.power_index = 6  # 1400W
             self.state_on = True
 
-    def switch_off(self):
-        if True: # self.state_on:
+    def switch_off(self, force_mode=False):
+        if force_mode:
+            self.state_on = True
+        if self.state_on:
             print("switch_OFF")
             self.click_button(self.gpio_on_off)
             self.state_on = False
@@ -49,16 +56,16 @@ class Cooker(object):
         if self.power_index < self.max_power_index:
             self.click_button(self.gpio_up)
             self.power_index += 1
-            #print("  power_up, index="+str(self.power_index))
+            # print("  power_up, index="+str(self.power_index))
             return True
         else:
-            #print("  power_up False, index="+str(self.power_index))
+            # print("  power_up False, index="+str(self.power_index))
             return False
 
     def set_power_max(self):
         time.sleep(self.press_timeout)
         while self.power_up():
-            #print("power_max loop, power="+str(self.current_power()))
+            # print("power_max loop, power="+str(self.current_power()))
             time.sleep(self.press_timeout)
             pass
 
@@ -81,11 +88,11 @@ class Cooker(object):
         time.sleep(self.press_timeout)
         while self.current_power() > 600:
             self.power_down()
-            #print("power_600 loop, power="+str(self.current_power()))
+            # print("power_600 loop, power="+str(self.current_power()))
             time.sleep(self.press_timeout)
 
     def set_power(self, power):
-        #TODO detect wrong power OR approximate
+        # TODO detect wrong power OR approximate
         self.target_power_index = self.powers.index(power)
         if self.power_index > self.target_power_index:
             change_power = self.power_down()
