@@ -140,7 +140,7 @@ class Moonshine_controller(object):
 
     def stop_process(self):
         self.loop_flag = False
-        time.sleep(self.T_sleep+1)
+        time.sleep(self.T_sleep+0.5)
 
     def heads_started(self, gpio_id, value):
         try:
