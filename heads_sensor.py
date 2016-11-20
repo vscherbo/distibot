@@ -1,7 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
+logging.basicConfig(format=log_format, level=logging.DEBUG)
 import RPIO
+logger = logging.getLogger(__name__)
+file_handler = logging.FileHandler('run-moonshine.log')
+formatter = logging.Formatter(log_format)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 
 class Heads_sensor:
@@ -13,6 +21,8 @@ class Heads_sensor:
         self.gpio_heads_stop = gpio_heads_stop
         RPIO.setup(self.gpio_heads_stop, RPIO.IN, pull_up_down=RPIO.PUD_DOWN)
         self.heads = -1  # -1 - before heads, 0 - heads, 1 - after heads
+        hs_gpios = {'gpio_start': gpio_heads_start, 'gpio_stop': gpio_heads_stop}
+        logger.debug('init heads-sensor GPIO_start={gpio_start}, GPIO_stop={gpio_stop}'.format(**hs_gpios))
 
     def release(self):
         RPIO.stop_waiting_for_interrupts()
