@@ -6,10 +6,11 @@ log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
 logging.basicConfig(format=log_format, level=logging.DEBUG)
 import RPIO
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler('run-moonshine.log')
+# hs_handler = logging.FileHandler('run-moonshine.log')
+hs_handler = logging.StreamHandler()
 formatter = logging.Formatter(log_format)
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
+hs_handler.setFormatter(formatter)
+logger.addHandler(hs_handler)
 
 
 class Heads_sensor:
@@ -17,17 +18,17 @@ class Heads_sensor:
     def __init__(self, gpio_heads_start, gpio_heads_stop, timeout):
         self.timeout = timeout
         self.gpio_heads_start = gpio_heads_start
-        RPIO.setup(self.gpio_heads_start, RPIO.IN, pull_up_down=RPIO.PUD_DOWN)
+        # RPIO.setup(self.gpio_heads_start, RPIO.IN, pull_up_down=RPIO.PUD_DOWN)
         self.gpio_heads_stop = gpio_heads_stop
-        RPIO.setup(self.gpio_heads_stop, RPIO.IN, pull_up_down=RPIO.PUD_DOWN)
+        # RPIO.setup(self.gpio_heads_stop, RPIO.IN, pull_up_down=RPIO.PUD_DOWN)
         self.heads = -1  # -1 - before heads, 0 - heads, 1 - after heads
         hs_gpios = {'gpio_start': gpio_heads_start, 'gpio_stop': gpio_heads_stop}
         logger.debug('init heads-sensor GPIO_start={gpio_start}, GPIO_stop={gpio_stop}'.format(**hs_gpios))
 
     def release(self):
+        self.ignore_start()
+        self.ignore_stop()
         RPIO.stop_waiting_for_interrupts()
-        # self.ignore_start()
-        # self.ignore_stop()
         print "heads_sensor stop_waiting_for_interrupts"
         RPIO.cleanup()
 
