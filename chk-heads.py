@@ -29,22 +29,20 @@ def heads_started(gpio_id, value):
     global hs
     hs.ignore_start()
     hs.watch_stop(heads_finished),
-    print("Стартовали головы", "gpio_id=" + str(gpio_id) +
+    print(time.strftime("%Y-%m-%d-%H-%M-%S ") + "Стартовали головы", "gpio_id=" + str(gpio_id) +
           ", value=" + str(value))
 
 
 def heads_finished(gpio_id, value):
     global hs
     hs.ignore_stop()
-    print("Закончились головы", "gpio_id=" + str(gpio_id) +
+    print(time.strftime("%Y-%m-%d-%H-%M-%S ") + "Закончились головы", "gpio_id=" + str(gpio_id) +
           ", value=" + str(value))
 
 
 hs = heads_sensor.Heads_sensor(gpio_heads_start=25, gpio_heads_stop=14,
                                timeout=2000)
 hs.watch_start(heads_started),
-
-step_max = 2
 
 loop_flag = True
 step_counter = 0
@@ -53,6 +51,7 @@ while loop_flag:
     print(step_counter)
     time.sleep(2)
 
-# RPIO.cleanup()
+# hs.release()
+RPIO.cleanup()
 print("Exiting")
-# sys.exit(0)
+#sys.exit(0)
