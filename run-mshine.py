@@ -5,7 +5,7 @@ from __future__ import print_function
 from mshinectl import Moonshine_controller
 import sys
 import socket
-import signal
+# import signal
 import thread
 # import time
 import mshine_httpd
@@ -28,9 +28,9 @@ def signal_handler(signal, frame):
     server.stop()
     # do_flag = False
 
-#signal.signal(signal.SIGINT, signal_handler)
-#signal.signal(signal.SIGHUP, signal_handler)
-#signal.signal(signal.SIGTERM, signal_handler)
+# signal.signal(signal.SIGINT, signal_handler)
+# signal.signal(signal.SIGHUP, signal_handler)
+# signal.signal(signal.SIGTERM, signal_handler)
 
 mshinectl = Moonshine_controller()
 mshinectl.load_config('msc-body-from-raw.conf')
