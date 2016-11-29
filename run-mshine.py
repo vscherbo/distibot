@@ -12,8 +12,14 @@ import mshine_httpd
 # from bottle import Bottle
 # from bottle import route, run, debug, template, static_file, request, get, post, ServerAdapter, Bottle
 from bottle import debug, template, static_file, Bottle
+import argparse
 
 webapp_path = 'webapp'
+
+parser = argparse.ArgumentParser(description='Moonshine controller .')
+parser.add_argument('--conf', type=str, help='config file')
+parser.add_argument('--log', type=str, default="DEBUG", help='log level')
+args = parser.parse_args()
 
 
 def signal_handler(signal, frame):
@@ -33,7 +39,8 @@ def signal_handler(signal, frame):
 # signal.signal(signal.SIGTERM, signal_handler)
 
 mshinectl = Moonshine_controller()
-mshinectl.load_config('msc-body-from-raw.conf')
+mshinectl.load_config(args.conf)
+# mshinectl.load_config('msc-body-from-raw.conf')
 # mshinectl.load_config('msc-now.conf')
 
 try:
