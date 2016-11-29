@@ -72,17 +72,20 @@ class Moonshine_controller(object):
     def temperature_loop(self):
         downcount = 0
         csv_delay = 0
+        T_increase = 0
         print_str = []
         while self.loop_flag:
             self.temperature_in_celsius = self.sensor.get_temperature()
-            if self.T_prev - self.temperature_in_celsius > 1.0:
+            # слежение за снижением температуры
+            if self.T_prev > self.temperature_in_celsius:
                 downcount += 1
                 if downcount >= self.downcount_limit:
                     self.pb_channel.push_note("Снижение температуры", "Включаю нагрев")
                     self.cooker.set_power_600()
                     downcount = 0
-            else:
+            elif self.T_prev < self.temperature_in_celsius:
                 downcount = 0
+                T_increase = self.temperature_in_celsius
             self.T_prev = self.temperature_in_celsius
 
             if self.temperature_in_celsius > self.Talarm:
@@ -102,14 +105,6 @@ class Moonshine_controller(object):
                         self.Tcmd = self.do_nothing
                     else:
                         self.Tcmd = self.Tsteps.pop(self.Talarm)
-            """
-            csv_prefix = time.strftime("%H:%M:%S") + "," + str(self.temperature_in_celsius)
-            if self.Tcmd_last == self.Tcmd_prev:
-                print(csv_prefix, file=self.log)
-            else:
-                print(csv_prefix + "," + self.Tcmd_last, file=self.log)
-                self.Tcmd_prev = self.Tcmd_last
-            """
 
             print_str.append(time.strftime("%H:%M:%S"))
             print_str.append(str(self.temperature_in_celsius))
