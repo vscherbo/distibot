@@ -27,7 +27,7 @@ import tsensor
 
 class Moonshine_controller(object):
 
-    def __init__(self):
+    def __init__(self, emu_mode=False):
         self.Tcmd_prev = 'before start'
         self.Tcmd_last = 'before start'
         self.alarm_limit = 1
@@ -35,7 +35,7 @@ class Moonshine_controller(object):
         self.csv_write_period = 3
         self.alarm_cnt = 0
         self.T_sleep = 1
-        self.sensor = tsensor.Tsensor()
+        self.sensor = tsensor.Tsensor(emu_mode)
         self.log = open('sensor-' + ('emu-' if self.sensor.emu_mode else '')
                         + time.strftime("%Y-%m-%d-%H-%M")
                         + '.csv', 'w', 0)  # 0 - unbuffered write
@@ -72,7 +72,7 @@ class Moonshine_controller(object):
     def temperature_loop(self):
         downcount = 0
         csv_delay = 0
-        T_increase = 0
+        # T_increase = 0
         print_str = []
         while self.loop_flag:
             self.temperature_in_celsius = self.sensor.get_temperature()
@@ -85,7 +85,7 @@ class Moonshine_controller(object):
                     downcount = 0
             elif self.T_prev < self.temperature_in_celsius:
                 downcount = 0
-                T_increase = self.temperature_in_celsius
+                # T_increase = self.temperature_in_celsius
             self.T_prev = self.temperature_in_celsius
 
             if self.temperature_in_celsius > self.Talarm:
