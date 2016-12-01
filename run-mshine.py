@@ -97,6 +97,10 @@ try:
     app.run(server=server)
 except Exception, ex:
     print(ex)
+finally:
+    mshinectl.stop_process()
+    mshinectl.release()
+
 
 """
 do_flag = True
