@@ -18,6 +18,7 @@ webapp_path = 'webapp'
 
 parser = argparse.ArgumentParser(description='Moonshine controller .')
 parser.add_argument('--conf', type=str, help='config file')
+parser.add_argument('--emu', action="store_true",  help='emu mode')
 parser.add_argument('--log', type=str, default="DEBUG", help='log level')
 args = parser.parse_args()
 
@@ -38,7 +39,7 @@ def signal_handler(signal, frame):
 # signal.signal(signal.SIGHUP, signal_handler)
 # signal.signal(signal.SIGTERM, signal_handler)
 
-mshinectl = Moonshine_controller()
+mshinectl = Moonshine_controller(args.emu)
 mshinectl.load_config(args.conf)
 # mshinectl.load_config('msc-body-from-raw.conf')
 # mshinectl.load_config('msc-now.conf')
