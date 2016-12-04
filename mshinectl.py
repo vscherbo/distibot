@@ -7,7 +7,7 @@ import time
 import logging
 log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
 logging.basicConfig(format=log_format, level=logging.DEBUG)
-import RPIO
+import RPIO_wrap.RPIO as RPIO
 import cooker
 import valve
 import heads_sensor
@@ -23,6 +23,28 @@ import tsensor
 #                     device=one_plus_one)
 # to channel
 # c.push_note("Hello "+ c.name, "Hello My Channel")
+
+
+class pb_wrap(Pushbullet):
+
+    def __init__(self, api_key, emu_mode=False):
+        self.emu_mode = emu_mode
+        if emu_mode:
+            self.channels = []
+        else:
+            super(pb_wrap, self).__init__(api_key)
+
+    def get_channel(self, channel_name=u"Billy's moonshine"):
+        if self.emu_mode:
+            return pb_channel_emu()
+        else:
+            return [x for x in self.channels if x.name == channel_name][0]
+
+
+class pb_channel_emu(object):
+
+    def push_note(self, subject, body):
+        pass
 
 
 class Moonshine_controller(object):
@@ -46,9 +68,8 @@ class Moonshine_controller(object):
         self.heads_sensor = heads_sensor.Heads_sensor(gpio_heads_start=25,
                                                       gpio_heads_stop=14,
                                                       timeout=2000)
-        self.pb = Pushbullet('XmJ61j9LVdjbPyKcSOUYv1k053raCeJP')
-        self.pb_channel = [x for x in self.pb.channels
-                           if x.name == u"Billy's moonshine"][0]
+        self.pb = pb_wrap('XmJ61j9LVdjbPyKcSOUYv1k053raCeJP', emu_mode)
+        self.pb_channel = self.pb.get_channel()
 
     def load_config(self, conf_file_name):
         conf = open(conf_file_name, 'r')
