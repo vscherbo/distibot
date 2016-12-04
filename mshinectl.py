@@ -56,6 +56,7 @@ class Moonshine_controller(object):
         self.downcount_limit = 5
         self.csv_write_period = 3
         self.alarm_cnt = 0
+        self.stage = 0  # pre-start
         self.T_sleep = 1
         self.sensor = tsensor.Tsensor(emu_mode)
         self.log = open('sensor-' + ('emu-' if self.sensor.emu_mode else '')

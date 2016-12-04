@@ -63,15 +63,33 @@ def stylesheets(filename):
 def javascripts(filename):
     return static_file(filename, root=webapp_path + '/static/js')
 
+
+@app.get('/<filename:re:.*\.png>')
+def images(filename):
+    return static_file(filename, root=webapp_path + '/static/images')
+
 """
 @app.get('/<filename:re:.*\.wav>')
 def stylesheets(filename):
     return static_file(filename, root=webapp_path + '/static/sound')
-
-@app.get('/<filename:re:.*\.png>')
-def stylesheets(filename):
-    return static_file(filename, root=webapp_path + '/static/images')
 """
+
+
+@app.route('/push_accepted', methods=['GET', 'POST'])
+def push_accepted():
+    global ack_button_display
+    # do something
+    # new = request.POST.get('value', '').strip()
+    # print new
+    ack_button_display = False
+
+    hide_btn = """
+        <script>
+        var button_ack = document.getElementById('button_ack');
+        button_ack.style.display = 'none'
+        </script>
+    """
+    return hide_btn
 
 
 # it works
@@ -86,6 +104,19 @@ def ask_temperature():
     global mshinectl
     curr_temperature = mshinectl.temperature_in_celsius
     return str(curr_temperature)
+
+
+@app.route('/ask_stage')
+def ask_stage():
+    global mshinectl
+    # curr_stage = mshinectl.stage
+    hide_btn = """
+        <script>
+        var icon_enable = document.getElementById('div_poison_icon');
+        icon_enable.style.disabled = true
+        </script>
+    """
+    return hide_btn
 
 loc_host = socket.gethostbyname(socket.gethostname())
 server = mshine_httpd.MshineHTTPD(host=loc_host, port=8080)
