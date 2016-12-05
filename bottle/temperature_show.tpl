@@ -62,6 +62,10 @@
 </div> 
 
 <div>
+  <input alt="" src="/Finish Flag.png" type="image" />
+</div> 
+
+<div>
     <button id="button_ack" type="button" style="display:none; margin-top: 100px;" onclick="push_accepted()">Принято</button>
 </div>
 

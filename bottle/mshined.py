@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -
 
 import socket, sys, os
-import sqlite3
-from datetime import datetime
-from bottle import route, run, debug, template, static_file, request, get, post
+#from datetime import datetime
+#from bottle import route, run, debug, template, static_file, request, get, post
 #from w1thermsensor import W1ThermSensor
 import w1thermsensor
 
