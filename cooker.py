@@ -78,8 +78,10 @@ class Cooker(object):
         if self.power_index > 0:
             self.click_button(self.gpio_down)
             self.power_index -= 1
+            logger.debug("power_down, new_index={}".format(self.power_index))
             return True
         else:
+            logger.debug("power_down False, index={}".format(self.power_index))
             return False
 
     def set_power_min(self):
