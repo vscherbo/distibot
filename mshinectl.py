@@ -56,7 +56,7 @@ class Moonshine_controller(object):
         self.downcount_limit = 5
         self.csv_write_period = 3
         self.alarm_cnt = 0
-        self.stage = 0  # pre-start
+        self.stage = 'start'
         self.T_sleep = 1
         self.sensor = tsensor.Tsensor(emu_mode)
         self.log = open('sensor-' + ('emu-' if self.sensor.emu_mode else '')
@@ -152,18 +152,23 @@ class Moonshine_controller(object):
     def start_process(self):
         self.cooker.switch_on()
         self.cooker.set_power_max()
-        self.stage = 1
+        self.stage = 'heat'
 
     def stop_process(self):
         self.loop_flag = False
         time.sleep(self.T_sleep+0.5)
-        self.stage = -1
+        self.stage = 'finish'
 
     def heat_on_pause(self):
         self.cooker.switch_off()
-        self.stage = 2
+        self.stage = 'pause'
+
+    def heat_for_heads(self):
+        self.cooker.set_power_600()
+        self.stage = 'heat'
 
     def heads_started(self, gpio_id, value):
+        self.stage = 'heads'
         try:
             int(value)
         except ValueError:
@@ -176,6 +181,7 @@ class Moonshine_controller(object):
         # including heads_sensor.ignore_start()
 
     def heads_finished(self, gpio_id, value):
+        self.stage = 'body'
         try:
             int(value)
         except ValueError:
@@ -194,14 +200,17 @@ class Moonshine_controller(object):
     def wait4body(self):
         self.cooker.switch_on()
         self.valve.way_2()
+        self.stage = 'heat'
 
-    def stop_body_power_on(self):
-        self.stop_body()
+#    def stop_body_power_on(self):
+#        self.stop_body()
 
     def stop_body(self):
+        self.stage = 'tail'
         self.valve.way_3()
         self.pb_channel.push_note("Закончилось тело",
                                   "Клапан выключен")
 
     def finish(self):
+        self.stop_process()
         self.release()
