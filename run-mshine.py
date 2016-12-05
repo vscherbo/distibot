@@ -110,13 +110,13 @@ def ask_temperature():
 def ask_stage():
     global mshinectl
     # curr_stage = mshinectl.stage
-    hide_btn = """
+    enabled_icon = """
         <script>
-        var icon_enable = document.getElementById('div_poison_icon');
-        icon_enable.style.disabled = true
+        var icon_enable = document.getElementById('""" + mshinectl.stage + """_stage');
+        icon_enable.disabled = false;
         </script>
     """
-    return hide_btn
+    return enabled_icon
 
 loc_host = socket.gethostbyname(socket.gethostname())
 server = mshine_httpd.MshineHTTPD(host=loc_host, port=8080)

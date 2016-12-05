@@ -62,8 +62,9 @@
 
         $(document).ready(function(){  
             show();  
-            show_icon();  
             setInterval('show()',2000);
+            show_icon();  
+            setInterval('show_icon()',2000);
             /**
             var button = document.getElementById('button_start');
             var audio = document.getElementById('alarm_sound');
@@ -74,12 +75,13 @@
             **/ 
         });  
     </script>  
+
 </head>      
 
 <html>
 <body>
-<audio id="alarm_sound" autoplay src="silence-1sec.wav"></audio>
 <!--
+<audio id="alarm_sound" autoplay src="silence-1sec.wav"></audio>
 <button id="button_start" autofocus type="button" onclick="click_play()">Start</button>
 -->
 
@@ -88,27 +90,31 @@
     <div id="div_content"></div> 
 </div> 
 
+<div id="div_stage">
+</div>
 
 <div id="div_icons">
-  <div id="div_start_button">
-    <button id="start_button" type="button" onclick="push_start()" disabled><img src="Firing Gun Filled-50.png"></button>
+  <div id="div_start_stage">
+    <button id="start_stage" type="button" onclick="push_start()" disabled=true><img src="Firing Gun Filled-50.png"></button>
   </div><br>
-  <div id="div_poison_icon">
-	<input type="image" src="Poison Filled.png" disabled>
+  <div id="div_heat_stage">
+	<input id="heat_stage" type="image" src="Temperature.png" disabled=true>
   </div><br>
-  <div id="div_torso_icon">
-	<input type="image" src="Torso Filled.png" disabled>
+  <div id="div_pause_stage">
+	<input id="pause_stage" type="image" src="Timer.png" disabled=true>
   </div><br>
-  <div id="div_tail_icon">
-	<input type="image" src="Tail Of Whale Filled.png" disabled>
+  <div id="div_heads_stage">
+	<input id="heads_stage" type="image" src="Poison Filled.png" disabled>
   </div><br>
-  <div id="div_finish_icon">
-	<input type="image" src="Finish Flag.png" disabled>
+  <div id="div_body_stage">
+	<input id="body_stage" type="image" src="Torso Filled.png" disabled>
   </div><br>
-</div> 
-
-<div>
-  <input alt="" src="/Finish Flag.png" type="image" />
+  <div id="div_tail_stage">
+	<input id="tail_stage" type="image" src="Tail Of Whale Filled.png" disabled>
+  </div><br>
+  <div id="div_finish_stage">
+	<input id="finish_stage" type="image" src="Finish Flag.png" disabled>
+  </div><br>
 </div> 
 
 <div>
