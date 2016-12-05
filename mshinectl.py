@@ -159,6 +159,10 @@ class Moonshine_controller(object):
         time.sleep(self.T_sleep+0.5)
         self.stage = -1
 
+    def heat_on_pause(self):
+        self.cooker.switch_off()
+        self.stage = 2
+
     def heads_started(self, gpio_id, value):
         try:
             int(value)
