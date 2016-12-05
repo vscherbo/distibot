@@ -152,10 +152,12 @@ class Moonshine_controller(object):
     def start_process(self):
         self.cooker.switch_on()
         self.cooker.set_power_max()
+        self.stage = 1
 
     def stop_process(self):
         self.loop_flag = False
         time.sleep(self.T_sleep+0.5)
+        self.stage = -1
 
     def heads_started(self, gpio_id, value):
         try:
