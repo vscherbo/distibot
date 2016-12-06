@@ -36,10 +36,6 @@
                     $("#div_content").html(html);  
                 }  
             });  
-        }  
-      
-        function show_icon()
-        {  
             $.ajax({  
                 url: '/ask_stage',
                 cache: false,  
@@ -63,8 +59,6 @@
         $(document).ready(function(){  
             show();  
             setInterval('show()',2000);
-            show_icon();  
-            setInterval('show_icon()',2000);
             /**
             var button = document.getElementById('button_start');
             var audio = document.getElementById('alarm_sound');
