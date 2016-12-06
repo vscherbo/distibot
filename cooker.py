@@ -7,7 +7,7 @@ logging.basicConfig(format=log_format, level=logging.DEBUG)
 import RPIO_wrap.RPIO as RPIO
 import time
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler('run-moonshine.log')
+file_handler = logging.FileHandler('moonshine.log')
 formatter = logging.Formatter(log_format)
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)

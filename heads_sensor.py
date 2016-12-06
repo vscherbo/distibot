@@ -6,7 +6,7 @@ log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
 logging.basicConfig(format=log_format, level=logging.DEBUG)
 import RPIO_wrap.RPIO as RPIO
 logger = logging.getLogger(__name__)
-# hs_handler = logging.FileHandler('run-moonshine.log')
+# hs_handler = logging.FileHandler('moonshine.log')
 hs_handler = logging.StreamHandler()
 formatter = logging.Formatter(log_format)
 hs_handler.setFormatter(formatter)

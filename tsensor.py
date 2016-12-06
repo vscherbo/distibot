@@ -6,7 +6,7 @@ import w1thermsensor
 import logging
 log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler('run-moonshine.log')
+file_handler = logging.FileHandler('moonshine.log')
 formatter = logging.Formatter(log_format)
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
