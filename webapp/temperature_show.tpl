@@ -95,25 +95,25 @@
 
 <div id="div_icons">
   <div id="div_start_stage">
-    <button id="start_stage" type="button" onclick="push_start()" disabled=true><img src="Firing Gun Filled-50.png"></button>
+    <button class="stage" id="start_stage" type="button" onclick="push_start()" disabled=true><img src="Firing Gun Filled-50.png"></button>
   </div><br>
-  <div id="div_heat_stage">
-	<input id="heat_stage" type="image" src="Temperature.png" disabled=true>
+  <div>
+	<input class="stage" id="heat_stage" type="image" src="Temperature.png" disabled=true>
   </div><br>
-  <div id="div_pause_stage">
-	<input id="pause_stage" type="image" src="Timer.png" disabled=true>
+  <div>
+	<input class="stage" id="pause_stage" type="image" src="Timer.png" disabled=true>
   </div><br>
-  <div id="div_heads_stage">
-	<input id="heads_stage" type="image" src="Poison Filled.png" disabled>
+  <div>
+	<input class="stage" id="heads_stage" type="image" src="Poison Filled.png" disabled>
   </div><br>
-  <div id="div_body_stage">
-	<input id="body_stage" type="image" src="Torso Filled.png" disabled>
+  <div>
+	<input class="stage" id="body_stage" type="image" src="Torso Filled.png" disabled>
   </div><br>
-  <div id="div_tail_stage">
-	<input id="tail_stage" type="image" src="Tail Of Whale Filled.png" disabled>
+  <div>
+	<input class="stage" id="tail_stage" type="image" src="Tail Of Whale Filled.png" disabled>
   </div><br>
-  <div id="div_finish_stage">
-	<input id="finish_stage" type="image" src="Finish Flag.png" disabled>
+  <div>
+	<input class="stage" id="finish_stage" type="image" src="Finish Flag.png" disabled>
   </div><br>
 </div> 
 

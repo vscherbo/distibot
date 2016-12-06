@@ -109,11 +109,25 @@ def ask_temperature():
 @app.route('/ask_stage')
 def ask_stage():
     global mshinectl
-    # curr_stage = mshinectl.stage
     enabled_icon = """
-        <script>
+        <script type="text/javascript">
         var icon_enable = document.getElementById('""" + mshinectl.stage + """_stage');
         icon_enable.disabled = false;
+        </script>
+    """
+    enabled_icon = """
+        <script>
+        var div_icons = document.getElementById('div_icons');
+        var list_stages = div_icons.getElementsByClassName('stage');
+        alert(list_stages.childNodes.length);
+        for (var i=0; i < list_stages.childNodes.length; i++) {
+            var stage = list_stages.childNodes[i];
+            if ( stage.id = """ + mshinectl.stage + """) {
+                 stage.disabled = false;
+            } else {
+                 stage.disabled = true;
+            }
+        }
         </script>
     """
     return enabled_icon
