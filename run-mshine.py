@@ -109,16 +109,9 @@ def ask_temperature():
 @app.route('/ask_stage')
 def ask_stage():
     global mshinectl
-    enabled_icon = """
-        <script type="text/javascript">
-        var icon_enable = document.getElementById('""" + mshinectl.stage + """_stage');
-        icon_enable.disabled = false;
-        </script>
-    """
-    enabled_icon = """
+    enable_icon = """
         <script type="text/javascript">
         var div_icons = document.getElementsByClassName('stage');
-/**/
         for (var i=0; i < div_icons.length; i++) {
             var stage = div_icons[i];
             if ('""" + mshinectl.stage + """_stage' == stage.id) {
@@ -126,11 +119,10 @@ def ask_stage():
             } else {
                  stage.disabled = true;
             }
-            
         }
         </script>
     """
-    return enabled_icon
+    return enable_icon
 
 loc_host = socket.gethostbyname(socket.gethostname())
 server = mshine_httpd.MshineHTTPD(host=loc_host, port=8080)
@@ -146,15 +138,6 @@ finally:
     mshinectl.stop_process()
     mshinectl.release()
 
-
-"""
-do_flag = True
-while do_flag:
-    time.sleep(1)
-    pass
-"""
-
 print("Exiting!")
-mshinectl.stop_process()
 mshinectl.release()
 sys.exit(0)
