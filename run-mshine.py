@@ -116,17 +116,17 @@ def ask_stage():
         </script>
     """
     enabled_icon = """
-        <script>
-        var div_icons = document.getElementById('div_icons');
-        var list_stages = div_icons.getElementsByClassName('stage');
-        alert(list_stages.childNodes.length);
-        for (var i=0; i < list_stages.childNodes.length; i++) {
-            var stage = list_stages.childNodes[i];
-            if ( stage.id = """ + mshinectl.stage + """) {
+        <script type="text/javascript">
+        var div_icons = document.getElementsByClassName('stage');
+/**/
+        for (var i=0; i < div_icons.length; i++) {
+            var stage = div_icons[i];
+            if ( stage.id = '""" + mshinectl.stage + """_stage') {
                  stage.disabled = false;
             } else {
                  stage.disabled = true;
             }
+            
         }
         </script>
     """
