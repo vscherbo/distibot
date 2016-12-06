@@ -121,7 +121,7 @@ def ask_stage():
 /**/
         for (var i=0; i < div_icons.length; i++) {
             var stage = div_icons[i];
-            if ( stage.id = '""" + mshinectl.stage + """_stage') {
+            if ('""" + mshinectl.stage + """_stage' == stage.id) {
                  stage.disabled = false;
             } else {
                  stage.disabled = true;
