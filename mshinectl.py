@@ -213,4 +213,3 @@ class Moonshine_controller(object):
 
     def finish(self):
         self.stop_process()
-        self.release()
