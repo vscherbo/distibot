@@ -7,9 +7,9 @@ from plotly.graph_objs import Box
 # import plotly.graph_objs
 
 
-for i in range(10):
+for i in range(3):
     time.sleep(1)
-    plotly.offline.plot([Box(y=np.random.randn(50), showlegend=False) for i in range(45)], show_link=False)
+    print plotly.offline.plot([Box(y=np.random.randn(50), showlegend=False) for i in range(10)], show_link=False, auto_open=False)
 
 """
 plotly.offline.plot({
