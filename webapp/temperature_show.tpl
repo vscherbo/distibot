@@ -43,6 +43,13 @@
                     $("#div_stage").html(html);  
                 }  
             });  
+            $.ajax({  
+                url: '/plot',
+                cache: false,  
+                success: function(html){  
+                    $("#div_plot").html(html);  
+                }  
+            });  
         }  
 
 /**
@@ -85,6 +92,9 @@
 </div> 
 
 <div id="div_stage">
+</div>
+
+<div id="div_plot" width="200" height="100">
 </div>
 
 <div id="div_icons">

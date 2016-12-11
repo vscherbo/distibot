@@ -14,6 +14,11 @@ import webapp.mshine_httpd as mshine_httpd
 from bottle import debug, template, static_file, Bottle
 import argparse
 
+# import numpy as np
+import plotly
+# from plotly.graph_objs import Box
+from plotly.graph_objs import Scatter
+
 webapp_path = 'webapp'
 
 parser = argparse.ArgumentParser(description='Moonshine controller .')
@@ -43,6 +48,9 @@ mshinectl = Moonshine_controller(args.emu)
 mshinectl.load_config(args.conf)
 # mshinectl.load_config('msc-body-from-raw.conf')
 # mshinectl.load_config('msc-now.conf')
+x = []
+y = []
+
 
 try:
     thread.start_new_thread(mshinectl.temperature_loop, ())
@@ -67,6 +75,11 @@ def javascripts(filename):
 @app.get('/<filename:re:.*\.png>')
 def images(filename):
     return static_file(filename, root=webapp_path + '/static/images')
+
+
+@app.get('/<filename:re:.*\.html>')
+def html_pages(filename):
+    return static_file(filename, root=webapp_path + '/static/html')
 
 """
 @app.get('/<filename:re:.*\.wav>')
@@ -123,6 +136,36 @@ def ask_stage():
         </script>
     """
     return enable_icon
+
+
+@app.route('/plot')
+def submit():
+    global mshinectl
+    global x
+    global y
+
+    x.append(mshinectl.current_ts)
+    y.append(mshinectl.temperature_in_celsius)
+    # div_plot = plotly.offline.plot([Box(y=np.random.randn(50), showlegend=False) for i in range(10)],
+    div_plot = plotly.offline.plot({
+                                   "data": [Scatter(x=x, y=y)]
+                                   },
+                                   show_link=False, auto_open=False, output_type='div')
+    # show_link=False, auto_open=False, filename='webapp/static/html/msc-plot.html')
+
+    """reload_plot =
+        <script type="text/javascript">
+        document.getElementById('iplot').contentDocument.location.reload(true);
+        </script>
+    """
+
+    """
+    plotly.offline.plot({
+            "data": [Scatter(x=[1, 2, 3, 4], y=[4, 3, 2, 1])],
+            "layout": Layout(title="hello world")
+    })
+    """
+    return div_plot
 
 loc_host = socket.gethostbyname(socket.gethostname())
 server = mshine_httpd.MshineHTTPD(host=loc_host, port=8080)
