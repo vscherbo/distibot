@@ -57,6 +57,8 @@ class Moonshine_controller(object):
         self.csv_write_period = 3
         self.alarm_cnt = 0
         self.stage = 'start'
+        self.temperature_in_celsius = 0
+        self.current_ts = 0
         self.T_sleep = 1
         self.sensor = tsensor.Tsensor(emu_mode)
         self.log = open('sensor-' + ('emu-' if self.sensor.emu_mode else '')
@@ -98,6 +100,7 @@ class Moonshine_controller(object):
         print_str = []
         while self.loop_flag:
             self.temperature_in_celsius = self.sensor.get_temperature()
+            self.current_ts = time.time()
             # слежение за снижением температуры
             if self.T_prev > self.temperature_in_celsius:
                 downcount += 1
@@ -128,7 +131,7 @@ class Moonshine_controller(object):
                     else:
                         self.Tcmd = self.Tsteps.pop(self.Talarm)
 
-            print_str.append(time.strftime("%H:%M:%S"))
+            print_str.append(self.current_ts.strftime("%H:%M:%S"))
             print_str.append(str(self.temperature_in_celsius))
             if self.Tcmd_last != self.Tcmd_prev:
                 print_str.append(self.Tcmd_last)
