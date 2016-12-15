@@ -94,9 +94,6 @@
 <div id="div_stage">
 </div>
 
-<div id="div_plot" width="200" height="100">
-</div>
-
 <div id="div_icons">
   <div id="div_start_stage">
     <button class="stage" id="start_stage" type="button" onclick="push_start()" disabled=true><img src="Firing Gun Filled-50.png"></button>
@@ -125,6 +122,9 @@
     <button id="button_ack" type="button" style="display:none; margin-top: 100px;" onclick="push_accepted()">Принято</button>
 </div>
 
+
+<div id="div_plot">
+</div>
 
 </body>  
 </html>

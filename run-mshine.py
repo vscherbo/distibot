@@ -7,7 +7,7 @@ import sys
 import socket
 # import signal
 import thread
-# import time
+import time
 import webapp.mshine_httpd as mshine_httpd
 # from bottle import Bottle
 # from bottle import route, run, debug, template, static_file, request, get, post, ServerAdapter, Bottle
@@ -17,7 +17,7 @@ import argparse
 # import numpy as np
 import plotly
 # from plotly.graph_objs import Box
-from plotly.graph_objs import Scatter
+from plotly.graph_objs import Scatter, Layout
 
 webapp_path = 'webapp'
 
@@ -144,27 +144,14 @@ def submit():
     global x
     global y
 
-    x.append(mshinectl.current_ts)
+    x.append(time.strftime("%M:%S", mshinectl.current_ts))
     y.append(mshinectl.temperature_in_celsius)
-    # div_plot = plotly.offline.plot([Box(y=np.random.randn(50), showlegend=False) for i in range(10)],
     div_plot = plotly.offline.plot({
-                                   "data": [Scatter(x=x, y=y)]
+                                   "data": [Scatter(x=x, y=y)],
+                                   "layout": Layout(title="График", width=600, height=400)
                                    },
                                    show_link=False, auto_open=False, output_type='div')
-    # show_link=False, auto_open=False, filename='webapp/static/html/msc-plot.html')
 
-    """reload_plot =
-        <script type="text/javascript">
-        document.getElementById('iplot').contentDocument.location.reload(true);
-        </script>
-    """
-
-    """
-    plotly.offline.plot({
-            "data": [Scatter(x=[1, 2, 3, 4], y=[4, 3, 2, 1])],
-            "layout": Layout(title="hello world")
-    })
-    """
     return div_plot
 
 loc_host = socket.gethostbyname(socket.gethostname())
