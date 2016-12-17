@@ -1,56 +1,67 @@
 %#template to generate a HTML table from a list of tuples (or list of lists, or tuple of tuples or ...)
 <head>
 <link type="text/css" href="main.css" rel="stylesheet">
-<script type="text/javascript" src="jquery.js"></script>  
+<script type="text/javascript" src="jquery.js"></script>
 
-    <script> 
+    <script>
 
-        function push_start()  
-        {  
-            $.ajax({  
+        function push_start()
+        {
+            $.ajax({
                 url: '/push_start',
-                cache: false,  
-                success: function(html){  
-                    $("#start_button").html(html);  
-                }  
-            });  
+                cache: false,
+                success: function(html){
+                    $("#start_button").html(html);
+                }
+            });
         }
 
-        function push_accepted()  
-        {  
-            $.ajax({  
+        function push_accepted()
+        {
+            $.ajax({
                 url: '/push_accepted',
-                cache: false,  
-                success: function(html){  
-                    $("#button_ack").html(html);  
-                }  
-            });  
-        }  
-      
-        function show()  
-        {  
-            $.ajax({  
+                cache: false,
+                success: function(html){
+                    $("#button_ack").html(html);
+                }
+            });
+        }
+        var cnt = 1;
+        var url_plot = '';
+        function show()
+        {
+            $.ajax({
                 url: '/ask_t',
-                cache: false,  
-                success: function(html){  
-                    $("#div_content").html(html);  
-                }  
-            });  
-            $.ajax({  
+                cache: false,
+                success: function(html){
+                    $("#div_content").html(html);
+                }
+            });
+            $.ajax({
                 url: '/ask_stage',
-                cache: false,  
-                success: function(html){  
-                    $("#div_stage").html(html);  
-                }  
-            });  
-            $.ajax({  
-                url: '/plot',
-                cache: false,  
-                success: function(html){  
-                    $("#div_plot").html(html);  
-                }  
-            });  
-        }  
+                cache: false,
+                success: function(html){
+                    $("#div_stage").html(html);
+                }
+            });
+            if ( cnt++ >= 3 ) {
+               cnt = 1;
+               url_plot = '/plot?cnt='.concat(cnt);
+               $.ajax({
+                  url: url_plot,
+                  cache: false,
+                  success: function(html){
+                      $("#div_plot").html(html);
+                  }
+               });
+            } else {
+               $.ajax({
+                  url: '/coord',
+                  cache: false,
+                  success: function(html){}
+               });
+            }
+        }
 
 /**
         function click_play() {
@@ -63,8 +74,8 @@
         };
 **/
 
-        $(document).ready(function(){  
-            show();  
+        $(document).ready(function(){
+            // show();
             setInterval('show()',2000);
             /**
             var button = document.getElementById('button_start');
@@ -73,11 +84,11 @@
             var onClick = click_play();
             button.addEventListener('click', onClick, false);
             button.click();
-            **/ 
-        });  
-    </script>  
+            **/
+        });
+    </script>
 
-</head>      
+</head>
 
 <html>
 <body>
@@ -116,7 +127,7 @@
   <div>
 	<input class="stage" id="finish_stage" type="image" src="Finish Flag.png" disabled>
   </div><br>
-</div> 
+</div>
 
 <div>
     <button id="button_ack" type="button" style="display:none; margin-top: 100px;" onclick="push_accepted()">Принято</button>
@@ -126,5 +137,5 @@
 <div id="div_plot">
 </div>
 
-</body>  
+</body>
 </html>

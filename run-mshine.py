@@ -138,24 +138,35 @@ def ask_stage():
     return enable_icon
 
 
+@app.route('/coord')
+def coord():
+    global mshinectl
+    global x
+    global y
+    x.append(time.strftime("%M:%S", mshinectl.current_ts))
+    y.append(mshinectl.temperature_in_celsius)
+
+
 @app.route('/plot')
-def submit():
+def plot():
     global mshinectl
     global x
     global y
 
     x.append(time.strftime("%M:%S", mshinectl.current_ts))
     y.append(mshinectl.temperature_in_celsius)
-    div_plot = plotly.offline.plot({
-                                   "data": [Scatter(x=x, y=y)],
-                                   "layout": Layout(margin=Margin(l=35,
-                                                                  r=5,
-                                                                  b=100,
-                                                                  t=10,
-                                                                  pad=0),
-                                                    width=600, height=400)
-                                   },
-                                   show_link=False, auto_open=False, output_type='div')
+    # cnt = request.query.cnt
+    if True:  # cnt >= 3:
+        div_plot = plotly.offline.plot({
+                                       "data": [Scatter(x=x, y=y)],
+                                       "layout": Layout(margin=Margin(l=35,
+                                                                      r=5,
+                                                                      b=100,
+                                                                      t=10,
+                                                                      pad=0),
+                                                        width=600, height=400)
+                                       },
+                                       show_link=False, auto_open=False, output_type='div')
 
     return div_plot
 
