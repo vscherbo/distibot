@@ -17,7 +17,7 @@ import argparse
 # import numpy as np
 import plotly
 # from plotly.graph_objs import Box
-from plotly.graph_objs import Scatter, Layout
+from plotly.graph_objs import Scatter, Layout, Margin
 
 webapp_path = 'webapp'
 
@@ -115,8 +115,8 @@ def t_show():
 @app.route('/ask_t')
 def ask_temperature():
     global mshinectl
-    curr_temperature = mshinectl.temperature_in_celsius
-    return str(curr_temperature)
+    curr_temperature = str(mshinectl.temperature_in_celsius)
+    return curr_temperature
 
 
 @app.route('/ask_stage')
@@ -148,7 +148,12 @@ def submit():
     y.append(mshinectl.temperature_in_celsius)
     div_plot = plotly.offline.plot({
                                    "data": [Scatter(x=x, y=y)],
-                                   "layout": Layout(title="График", width=600, height=400)
+                                   "layout": Layout(margin=Margin(l=35,
+                                                                  r=5,
+                                                                  b=100,
+                                                                  t=10,
+                                                                  pad=0),
+                                                    width=600, height=400)
                                    },
                                    show_link=False, auto_open=False, output_type='div')
 

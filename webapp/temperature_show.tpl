@@ -86,12 +86,12 @@
 <button id="button_start" autofocus type="button" onclick="click_play()">Start</button>
 -->
 
-<div id="div_t" style="display:block"> <!-- none -->
-    <div id="t_label">Температура</div> 
-    <div id="div_content"></div> 
-</div> 
-
 <div id="div_stage">
+</div>
+
+<div id="div_t">
+    <!-- div id="t_label">Температура</div -->
+    <div id="div_content"></div><div>&nbsp;°C</div>
 </div>
 
 <div id="div_icons">
