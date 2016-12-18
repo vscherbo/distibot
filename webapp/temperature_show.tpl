@@ -26,8 +26,8 @@
                 }
             });
         }
+
         var cnt = 1;
-        var url_plot = '';
         function show()
         {
             $.ajax({
@@ -46,9 +46,9 @@
             });
             if ( cnt++ >= 3 ) {
                cnt = 1;
-               url_plot = '/plot?cnt='.concat(cnt);
+               url_plot = '/plot';
                $.ajax({
-                  url: url_plot,
+                  url: '/plot',
                   cache: false,
                   success: function(html){
                       $("#div_plot").html(html);
