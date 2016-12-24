@@ -4,7 +4,8 @@
 import logging
 log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
 logging.basicConfig(format=log_format, level=logging.DEBUG)
-import RPIO_wrap.RPIO as RPIO
+# import RPIO_wrap.RPIO as RPIO
+import RPIO
 import time
 logger = logging.getLogger(__name__)
 file_handler = logging.FileHandler('moonshine.log')
@@ -23,6 +24,7 @@ class Cooker(object):
     def __init__(self, gpio_on_off, gpio_up, gpio_down):
         self.gpio_on_off = gpio_on_off
         RPIO.setup(self.gpio_on_off, RPIO.OUT, initial=RPIO.HIGH)
+        # RPIO.gpio_function(self.gpio_on_off)
         self.gpio_up = gpio_up
         RPIO.setup(self.gpio_up, RPIO.OUT, initial=RPIO.HIGH)
         self.gpio_down = gpio_down

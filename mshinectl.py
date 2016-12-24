@@ -7,7 +7,8 @@ import time
 import logging
 log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
 logging.basicConfig(format=log_format, level=logging.DEBUG)
-import RPIO_wrap.RPIO as RPIO
+# import RPIO_wrap.RPIO as RPIO
+import RPIO
 import cooker
 import valve
 import heads_sensor
