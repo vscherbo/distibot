@@ -161,6 +161,7 @@ class Moonshine_controller(object):
     def stop_process(self):
         self.loop_flag = False
         time.sleep(self.T_sleep+0.5)
+        self.cooker.switch_off()
         self.stage = 'finish'
 
     def heat_on_pause(self):
@@ -196,6 +197,8 @@ class Moonshine_controller(object):
                                   + ", value=" + str(value))
         self.valve.way_2()
         self.heads_sensor.ignore_stop(),
+        self.cooker.switch_off()
+        self.cooker.switch_on()
 
     def start_watch_heads(self):
         self.valve.way_1()
