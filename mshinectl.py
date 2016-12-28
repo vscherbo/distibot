@@ -54,12 +54,14 @@ class Moonshine_controller(object):
         self.Tcmd_prev = 'before start'
         self.Tcmd_last = 'before start'
         self.alarm_limit = 1
-        self.downcount_limit = 5
+        self.downcount_limit = 5 #  количество шагов подряд с неожидаемым снижением температуры
         self.csv_write_period = 3
         self.alarm_cnt = 0
         self.stage = 'start'
         self.temperature_in_celsius = 0
         self.current_ts = time.gmtime()
+        self.pause_start_ts = 0
+        self.pause_limit = 120
         self.T_sleep = 1
         self.sensor = tsensor.Tsensor(emu_mode)
         self.log = open('sensor-' + ('emu-' if self.sensor.emu_mode else '')
@@ -102,6 +104,11 @@ class Moonshine_controller(object):
         while self.loop_flag:
             self.temperature_in_celsius = self.sensor.get_temperature()
             self.current_ts = time.gmtime()
+            # слежение за длительностью паузы
+            if time.time()-self.pause_start_ts > self.pause_limit:
+                self.pb_channel.push_note("Пауза превысила {}".format(self.pause_limit), "Включаю нагрев")
+                self.cooker.set_power_600()
+
             # слежение за снижением температуры
             if self.T_prev > self.temperature_in_celsius:
                 downcount += 1
@@ -166,6 +173,7 @@ class Moonshine_controller(object):
 
     def heat_on_pause(self):
         self.cooker.switch_off()
+        self.pause_start_ts = time.time()
         self.stage = 'pause'
 
     def heat_for_heads(self):
