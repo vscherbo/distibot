@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
+rpi_ver = 'emu v0.1'
 VERSION_GPIO = 0
 RPI_REVISION = 0
 RPI_REVISION_HEX = 0
@@ -71,9 +72,3 @@ def cleanup():
 def setwarnings(enabled=True):
     pass
 
-
-import os
-is_raspi = os.uname()[4].startswith('arm')
-if is_raspi:
-    import RPIO
-    rpi_ver = RPIO.version()
