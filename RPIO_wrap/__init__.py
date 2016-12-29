@@ -8,5 +8,5 @@ if is_raspi:
     import RPIO
     rpi_ver = RPIO.version()
 else:
-    import RPIO_emu as RPIO
+    import RPIO
     rpi_ver = RPIO.version()

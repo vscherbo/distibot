@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# import RPIO_wrap.RPIO as RPIO
-import RPIO
+import RPIO_wrap.RPIO as RPIO
 
 
 class Valve(object):

@@ -4,8 +4,7 @@
 import logging
 log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
 logging.basicConfig(format=log_format, level=logging.DEBUG)
-# import RPIO_wrap.RPIO as RPIO
-import RPIO
+import RPIO_wrap.RPIO as RPIO
 import time
 logger = logging.getLogger(__name__)
 file_handler = logging.FileHandler('moonshine.log')
