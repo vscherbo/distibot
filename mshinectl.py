@@ -54,7 +54,8 @@ class Moonshine_controller(object):
         self.Tcmd_prev = 'before start'
         self.Tcmd_last = 'before start'
         self.alarm_limit = 1
-        self.downcount_limit = 5 #  количество шагов подряд с неожидаемым снижением температуры
+        self.downcount = 0
+        self.downcount_limit = 5  # количество шагов подряд с неожидаемым снижением температуры
         self.csv_write_period = 3
         self.alarm_cnt = 0
         self.stage = 'start'
@@ -96,30 +97,37 @@ class Moonshine_controller(object):
         self.heads_sensor.release()
         RPIO.cleanup()
 
+    def pause_monitor(self):
+        """ слежение за длительностью паузы
+        """
+        if time.time()-self.pause_start_ts > self.pause_limit:
+            self.pb_channel.push_note("Пауза превысила {}".format(self.pause_limit), "Включаю нагрев")
+            self.cooker.set_power_600()
+
+    def decrease_monitor(self):
+        """ слежение за снижением температуры
+        """
+        if self.T_prev > self.temperature_in_celsius:
+            self.downcount += 1
+            if self.downcount >= self.downcount_limit:
+                self.pb_channel.push_note("Снижение температуры", "Включаю нагрев")
+                self.cooker.set_power_600()
+                self.downcount = 0
+        elif self.T_prev < self.temperature_in_celsius:
+            self.downcount = 0
+            # T_increase = self.temperature_in_celsius
+        self.T_prev = self.temperature_in_celsius
+
     def temperature_loop(self):
-        downcount = 0
         csv_delay = 0
         # T_increase = 0
         print_str = []
         while self.loop_flag:
             self.temperature_in_celsius = self.sensor.get_temperature()
             self.current_ts = time.gmtime()
-            # слежение за длительностью паузы
-            if time.time()-self.pause_start_ts > self.pause_limit:
-                self.pb_channel.push_note("Пауза превысила {}".format(self.pause_limit), "Включаю нагрев")
-                self.cooker.set_power_600()
 
-            # слежение за снижением температуры
-            if self.T_prev > self.temperature_in_celsius:
-                downcount += 1
-                if downcount >= self.downcount_limit:
-                    self.pb_channel.push_note("Снижение температуры", "Включаю нагрев")
-                    self.cooker.set_power_600()
-                    downcount = 0
-            elif self.T_prev < self.temperature_in_celsius:
-                downcount = 0
-                # T_increase = self.temperature_in_celsius
-            self.T_prev = self.temperature_in_celsius
+            self.pause_monitor()
+            self.decrease_monitor()
 
             if self.temperature_in_celsius > self.Talarm:
                 self.Tcmd_last = self.Tcmd.__name__
@@ -182,6 +190,7 @@ class Moonshine_controller(object):
 
     def heads_started(self, gpio_id, value):
         self.stage = 'heads'
+        self.Tcmd_last = 'heads_started'
         try:
             int(value)
         except ValueError:
@@ -195,6 +204,7 @@ class Moonshine_controller(object):
 
     def heads_finished(self, gpio_id, value):
         self.stage = 'body'
+        self.Tcmd_last = 'heads_finished'
         try:
             int(value)
         except ValueError:
