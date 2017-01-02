@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
+# Emulator
 rpi_ver = 'emu v0.1'
 VERSION_GPIO = 0
 RPI_REVISION = 0

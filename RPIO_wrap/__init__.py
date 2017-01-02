@@ -6,4 +6,5 @@ try:
 except:
     import RPIO_wrap.RPIO as RPIO
 finally:
+    # DEBUG only. Must be removed
     print RPIO.rpi_ver
