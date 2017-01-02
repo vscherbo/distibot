@@ -1,12 +1,9 @@
 #!/usr/bin/python -t
 # -*- coding: utf-8 -*-
 
-
-import os
-is_raspi = os.uname()[4].startswith('arm')
-if is_raspi:
+try:
     import RPIO
-    rpi_ver = RPIO.version()
-else:
-    import RPIO
-    rpi_ver = RPIO.version()
+except:
+    import RPIO_wrap.RPIO as RPIO
+finally:
+    print RPIO.rpi_ver
