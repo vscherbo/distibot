@@ -53,17 +53,17 @@ class Moonshine_controller(object):
     def __init__(self, emu_mode=False):
         self.Tcmd_prev = 'before start'
         self.Tcmd_last = 'before start'
-        self.alarm_limit = 1
         self.downcount = 0
         self.downcount_limit = 5  # количество шагов подряд с неожидаемым снижением температуры
         self.csv_write_period = 3
-        self.alarm_cnt = 0
         self.stage = 'start'
         self.temperature_in_celsius = 0
         self.current_ts = time.gmtime()
         self.pause_start_ts = 0
         self.pause_limit = 120
         self.T_sleep = 1
+        self.csv_delay = 0
+        self.print_str = []
         self.sensor = tsensor.Tsensor(emu_mode)
         self.log = open('sensor-' + ('emu-' if self.sensor.emu_mode else '')
                         + time.strftime("%Y-%m-%d-%H-%M")
@@ -87,8 +87,8 @@ class Moonshine_controller(object):
 
     def set_Tsteps(self):
         self.Tkeys = self.Tsteps.keys()
-        self.Talarm = self.Tkeys.pop(0)
-        self.Tcmd = self.Tsteps.pop(self.Talarm)
+        self.Tstage = self.Tkeys.pop(0)
+        self.Tcmd = self.Tsteps.pop(self.Tstage)
         # print(self.Tsteps)
 
     def release(self):
@@ -115,13 +115,38 @@ class Moonshine_controller(object):
                 self.downcount = 0
         elif self.T_prev < self.temperature_in_celsius:
             self.downcount = 0
-            # T_increase = self.temperature_in_celsius
         self.T_prev = self.temperature_in_celsius
 
+    def csv_write(self):
+        self.print_str.append(time.strftime("%H:%M:%S", self.current_ts))
+        self.print_str.append(str(self.temperature_in_celsius))
+        if self.Tcmd_last != self.Tcmd_prev:
+            self.print_str.append(self.Tcmd_last)
+            self.Tcmd_prev = self.Tcmd_last
+            print(','.join(self.print_str), file=self.log)
+        if self.csv_delay >= self.csv_write_period:
+            self.csv_delay = 0
+            print(','.join(self.print_str), file=self.log)
+
+        self.print_str = []
+        self.csv_delay += self.T_sleep
+
+    def do_cmd(self):
+        self.Tcmd_last = self.Tcmd.__name__
+        self.pb_channel.push_note("Превысили " + str(self.Tstage),
+                                  str(self.temperature_in_celsius)
+                                  + ", Tcmd=" + str(self.Tcmd.__name__))
+
+        self.Tcmd()
+        try:
+            self.Tstage = self.Tkeys.pop(0)
+        except IndexError:
+            self.Tstage = 999.0
+            self.Tcmd = self.do_nothing
+        else:
+            self.Tcmd = self.Tsteps.pop(self.Tstage)
+
     def temperature_loop(self):
-        csv_delay = 0
-        # T_increase = 0
-        print_str = []
         while self.loop_flag:
             self.temperature_in_celsius = self.sensor.get_temperature()
             self.current_ts = time.gmtime()
@@ -129,36 +154,10 @@ class Moonshine_controller(object):
             self.pause_monitor()
             self.decrease_monitor()
 
-            if self.temperature_in_celsius > self.Talarm:
-                self.Tcmd_last = self.Tcmd.__name__
-                self.pb_channel.push_note("Превысили " + str(self.Talarm),
-                                          str(self.temperature_in_celsius)
-                                          + ", Tcmd=" + str(self.Tcmd.__name__))
+            if self.temperature_in_celsius > self.Tstage:
+                self.do_cmd()
 
-                self.Tcmd()
-                self.alarm_cnt += 1
-                if self.alarm_cnt >= self.alarm_limit:
-                    self.alarm_cnt = 0
-                    try:
-                        self.Talarm = self.Tkeys.pop(0)
-                    except IndexError:
-                        self.Talarm = 999.0
-                        self.Tcmd = self.do_nothing
-                    else:
-                        self.Tcmd = self.Tsteps.pop(self.Talarm)
-
-            print_str.append(time.strftime("%H:%M:%S", self.current_ts))
-            print_str.append(str(self.temperature_in_celsius))
-            if self.Tcmd_last != self.Tcmd_prev:
-                print_str.append(self.Tcmd_last)
-                self.Tcmd_prev = self.Tcmd_last
-                print(','.join(print_str), file=self.log)
-            if csv_delay >= self.csv_write_period:
-                csv_delay = 0
-                print(','.join(print_str), file=self.log)
-
-            print_str = []
-            csv_delay += self.T_sleep
+            self.csv_write()
             time.sleep(self.T_sleep)
 
     def do_nothing(self, gpio_id=-1, value="-1"):
