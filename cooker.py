@@ -4,7 +4,7 @@
 import logging
 log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
 logging.basicConfig(format=log_format, level=logging.DEBUG)
-import RPIO_wrap.RPIO as RPIO
+import RPIO
 import time
 logger = logging.getLogger(__name__)
 file_handler = logging.FileHandler('moonshine.log')
@@ -20,7 +20,7 @@ class Cooker(object):
     power_max = powers[-1]
     power_min = powers[0]
 
-    def __init__(self, gpio_on_off, gpio_up, gpio_down):
+    def __init__(self, gpio_on_off, gpio_up, gpio_down, gpio_fry):
         self.gpio_on_off = gpio_on_off
         RPIO.setup(self.gpio_on_off, RPIO.OUT, initial=RPIO.HIGH)
         # RPIO.gpio_function(self.gpio_on_off)
@@ -28,6 +28,8 @@ class Cooker(object):
         RPIO.setup(self.gpio_up, RPIO.OUT, initial=RPIO.HIGH)
         self.gpio_down = gpio_down
         RPIO.setup(self.gpio_down, RPIO.OUT, initial=RPIO.HIGH)
+        self.gpio_fry = gpio_fry
+        RPIO.setup(self.gpio_fry, RPIO.OUT, initial=RPIO.HIGH)
         self.power_index = 6  # 1400W
         self.state_on = False
         self.target_power_index = 0
@@ -58,6 +60,11 @@ class Cooker(object):
             print("switch_OFF")
             self.click_button(self.gpio_on_off)
             self.state_on = False
+
+    def set_fry(self):
+        print("set_Fry")
+        self.click_button(self.gpio_fry)
+        self.power_index = self.max_power_index
 
     def power_up(self):
         if self.power_index < self.max_power_index:

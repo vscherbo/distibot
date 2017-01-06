@@ -70,7 +70,7 @@ class Moonshine_controller(object):
                         + '.csv', 'w', 0)  # 0 - unbuffered write
         self.T_prev = self.sensor.get_temperature()
         self.loop_flag = True
-        self.cooker = cooker.Cooker(gpio_on_off=17, gpio_up=22, gpio_down=27)
+        self.cooker = cooker.Cooker(gpio_on_off=17, gpio_up=22, gpio_down=27, gpio_fry=15)
         self.valve = valve.DoubleValve(gpio_v1=23, gpio_v2=24)
         self.heads_sensor = heads_sensor.Heads_sensor(gpio_heads_start=25,
                                                       gpio_heads_stop=14,
