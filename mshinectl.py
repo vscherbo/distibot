@@ -100,9 +100,10 @@ class Moonshine_controller(object):
     def pause_monitor(self):
         """ слежение за длительностью паузы
         """
-        if time.time()-self.pause_start_ts > self.pause_limit:
-            self.pb_channel.push_note("Пауза превысила {}".format(self.pause_limit), "Включаю нагрев")
-            self.cooker.set_power_600()
+        if 'pause' == self.stage:
+            if time.time()-self.pause_start_ts > self.pause_limit:
+                self.pb_channel.push_note("Пауза превысила {}".format(self.pause_limit), "Включаю нагрев")
+                self.heat_for_heads()
 
     def decrease_monitor(self):
         """ слежение за снижением температуры
@@ -169,7 +170,8 @@ class Moonshine_controller(object):
 
     def start_process(self):
         self.cooker.switch_on()
-        //self.cooker.set_power_max()
+        # self.cooker.set_power_max()
+        time.sleep(self.T_sleep)
         self.cooker.set_fry()
         self.stage = 'heat'
 
