@@ -169,7 +169,8 @@ class Moonshine_controller(object):
 
     def start_process(self):
         self.cooker.switch_on()
-        self.cooker.set_power_max()
+        //self.cooker.set_power_max()
+        self.cooker.set_fry()
         self.stage = 'heat'
 
     def stop_process(self):
