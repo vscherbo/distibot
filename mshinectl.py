@@ -216,9 +216,9 @@ class Moonshine_controller(object):
                                   "gpio_id=" + str(gpio_id)
                                   + ", value=" + str(value))
         self.valve.way_2()
-        self.heads_sensor.ignore_stop(),
         self.cooker.switch_off()
         self.cooker.switch_on()
+        self.heads_sensor.ignore_stop(),
 
     def start_watch_heads(self):
         self.valve.way_1()
