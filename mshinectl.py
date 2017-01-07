@@ -112,7 +112,7 @@ class Moonshine_controller(object):
             self.downcount += 1
             if self.downcount >= self.downcount_limit:
                 self.pb_channel.push_note("Снижение температуры", "Включаю нагрев")
-                self.cooker.set_power_600()
+                self.heat_for_heads()
                 self.downcount = 0
         elif self.T_prev < self.temperature_in_celsius:
             self.downcount = 0
@@ -186,8 +186,9 @@ class Moonshine_controller(object):
         self.stage = 'pause'
 
     def heat_for_heads(self):
-        self.cooker.set_power_600()
-        self.stage = 'heat'
+        if 'heat' != self.stage:
+            self.cooker.set_power_600()
+            self.stage = 'heat'
 
     def heads_started(self, gpio_id, value):
         self.stage = 'heads'
@@ -200,8 +201,7 @@ class Moonshine_controller(object):
         self.pb_channel.push_note("Стартовали головы",
                                   "gpio_id=" + str(gpio_id)
                                   + ", value=" + str(value))
-        self.heads_sensor.watch_stop(self.heads_finished)
-        # including heads_sensor.ignore_start()
+        self.heads_sensor.watch_stop(self.heads_finished)  # including heads_sensor.ignore_start()
 
     def heads_finished(self, gpio_id, value):
         self.stage = 'body'
