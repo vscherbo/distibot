@@ -58,7 +58,7 @@ class Moonshine_controller(object):
         self.csv_write_period = 3
         self.stage = 'start'
         self.temperature_in_celsius = 0
-        self.current_ts = time.gmtime()
+        self.current_ts = time.localtime()
         self.pause_start_ts = 0
         self.pause_limit = 120
         self.T_sleep = 1
@@ -150,7 +150,7 @@ class Moonshine_controller(object):
     def temperature_loop(self):
         while self.loop_flag:
             self.temperature_in_celsius = self.sensor.get_temperature()
-            self.current_ts = time.gmtime()
+            self.current_ts = time.localtime()
 
             self.pause_monitor()
             self.decrease_monitor()
