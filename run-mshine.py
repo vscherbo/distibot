@@ -159,7 +159,7 @@ def plot():
 
     # prepare plot params
     margin = Margin(l=35, r=5, b=100, t=10, pad=0)
-    layout = Layout(margin=margin, width=900, height=600)
+    layout = Layout(autosize=True, margin=margin, width=900, height=600)
     div_plot = plotly.offline.plot({"data": [Scatter(x=x, y=y)],
                                    "layout": layout},
                                    show_link=False, output_type='div')
