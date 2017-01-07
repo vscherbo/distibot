@@ -40,8 +40,9 @@ class Cooker(object):
         RPIO.cleanup()
 
     def click_button(self, gpio_port_num):
+        time.sleep(0.1)  # для двух "нажатий" подряд
         RPIO.output(gpio_port_num, 0)
-        time.sleep(0.5)
+        time.sleep(0.1)
         RPIO.output(gpio_port_num, 1)
         logger.debug('clicked GPIO_port={gpio}'.format(gpio=gpio_port_num))
 
