@@ -15,7 +15,7 @@ logger.addHandler(file_handler)
 
 class Cooker(object):
     powers = (120, 300, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000)
-    press_timeout = 1
+    # press_timeout = 1
     max_power_index = len(powers)-1
     power_max = powers[-1]
     power_min = powers[0]
@@ -78,10 +78,11 @@ class Cooker(object):
             return False
 
     def set_power_max(self):
-        time.sleep(self.press_timeout)
+        # time.sleep(self.press_timeout)
         while self.power_up():
+            pass
             logger.debug("set_power_max loop, power={}".format(self.current_power()))
-            time.sleep(self.press_timeout)
+            # time.sleep(self.press_timeout)
 
     def power_down(self):
         if self.power_index > 0:
@@ -94,17 +95,19 @@ class Cooker(object):
             return False
 
     def set_power_min(self):
-        time.sleep(self.press_timeout)
+        # time.sleep(self.press_timeout)
         while self.power_down():
-            time.sleep(self.press_timeout)
+            pass
+            logger.debug("set_power_min loop, power={}".format(self.current_power()))
+            # time.sleep(self.press_timeout)
 
     def set_power_600(self):
         self.switch_on()
-        time.sleep(self.press_timeout)
+        # задержка в click_button: time.sleep(self.press_timeout)
         while self.current_power() > 600:
             self.power_down()
             logger.debug("power_600 loop, power={}".format(self.current_power()))
-            time.sleep(self.press_timeout)
+            # задержка в click_button: time.sleep(self.press_timeout)
 
     def set_power(self, power):
         # TODO detect wrong power OR approximate
@@ -113,9 +116,9 @@ class Cooker(object):
             change_power = self.power_down()
         else:
             change_power = self.power_up()
-        time.sleep(self.press_timeout)
+        # time.sleep(self.press_timeout)
         while self.power_index != self.target_power_index:
-            time.sleep(self.press_timeout)
+            # time.sleep(self.press_timeout)
             change_power()
 
     def current_power(self):
