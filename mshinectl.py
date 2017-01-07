@@ -121,12 +121,12 @@ class Moonshine_controller(object):
     def csv_write(self):
         self.print_str.append(time.strftime("%H:%M:%S", self.current_ts))
         self.print_str.append(str(self.temperature_in_celsius))
-        if self.Tcmd_last != self.Tcmd_prev:
-            self.print_str.append(self.Tcmd_last)
-            self.Tcmd_prev = self.Tcmd_last
-            print(','.join(self.print_str), file=self.log)
         if self.csv_delay >= self.csv_write_period:
             self.csv_delay = 0
+            print(','.join(self.print_str), file=self.log)
+        elif self.Tcmd_last != self.Tcmd_prev:
+            self.print_str.append(self.Tcmd_last)
+            self.Tcmd_prev = self.Tcmd_last
             print(','.join(self.print_str), file=self.log)
 
         self.print_str = []
@@ -217,7 +217,7 @@ class Moonshine_controller(object):
                                   + ", value=" + str(value))
         self.valve.way_2()
         self.cooker.switch_off()
-        self.cooker.switch_on()
+        self.cooker.switch_on()  # set power 1400
         self.heads_sensor.ignore_stop(),
 
     def start_watch_heads(self):
