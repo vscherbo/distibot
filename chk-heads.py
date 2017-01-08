@@ -2,14 +2,13 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import heads_sensor
-import sys
 import logging
 log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
 logging.basicConfig(format=log_format, level=logging.DEBUG)
 import RPIO
 import signal
 import time
+import heads_sensor
 
 
 def signal_handler(signal, frame):
@@ -18,26 +17,32 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-alarm_limit = 1
-
-
-def do_nothing():
-    pass
-
 
 def heads_started(gpio_id, value):
     global hs
-    hs.ignore_start()
-    hs.watch_stop(heads_finished),
+    try:
+        int(value)
+    except ValueError:
+        print("heads_started BAD value="+str(value))
+        value = -1
+
     print(time.strftime("%Y-%m-%d-%H-%M-%S ") + "Стартовали головы", "gpio_id=" + str(gpio_id) +
           ", value=" + str(value))
+    hs.ignore_start()
+    hs.watch_stop(heads_finished),
 
 
 def heads_finished(gpio_id, value):
     global hs
-    hs.ignore_stop()
+    try:
+        int(value)
+    except ValueError:
+        print("heads_started BAD value="+str(value))
+        value = -1
+
     print(time.strftime("%Y-%m-%d-%H-%M-%S ") + "Закончились головы", "gpio_id=" + str(gpio_id) +
           ", value=" + str(value))
+    hs.ignore_stop()
 
 
 hs = heads_sensor.Heads_sensor(gpio_heads_start=25, gpio_heads_stop=14,
@@ -51,7 +56,11 @@ while loop_flag:
     print(step_counter)
     time.sleep(2)
 
-# hs.release()
-RPIO.cleanup()
+hs.release()
+
+#try:
+#    RPIO.cleanup()
+#except BaseException as e:
+#    print('Exception while RPIO.cleanup ' + str(e))
+
 print("Exiting")
-#sys.exit(0)

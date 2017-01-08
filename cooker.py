@@ -37,7 +37,6 @@ class Cooker(object):
     def release(self):
         print("cooker.release")
         self.switch_off()
-        RPIO.cleanup()
 
     def click_button(self, gpio_port_num):
         time.sleep(0.1)  # для двух "нажатий" подряд
@@ -109,17 +108,31 @@ class Cooker(object):
             logger.debug("power_600 loop, power={}".format(self.current_power()))
             # задержка в click_button: time.sleep(self.press_timeout)
 
+    def set_power_300(self):
+        self.set_power(300)
+
+    def set_power_1200(self):
+        self.set_power(1200)
+
+    def set_power_1800(self):
+        self.set_power(1800)
+
     def set_power(self, power):
         # TODO detect wrong power OR approximate
-        self.target_power_index = self.powers.index(power)
-        if self.power_index > self.target_power_index:
-            change_power = self.power_down()
+        try:
+            self.target_power_index = self.powers.index(power)
+        except LookupError as e:
+            self.switch_off()
+            self.switch_on()
         else:
-            change_power = self.power_up()
-        # time.sleep(self.press_timeout)
-        while self.power_index != self.target_power_index:
+            if self.power_index > self.target_power_index:
+                change_power = self.power_down
+            else:
+                change_power = self.power_up
             # time.sleep(self.press_timeout)
-            change_power()
+            while self.power_index != self.target_power_index:
+                # time.sleep(self.press_timeout)
+                change_power()
 
     def current_power(self):
         return self.powers[self.power_index]

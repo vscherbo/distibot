@@ -95,7 +95,10 @@ class Moonshine_controller(object):
         self.cooker.release()
         self.valve.release()
         self.heads_sensor.release()
-        RPIO.cleanup()
+        try:
+            RPIO.cleanup()
+        except BaseException as e:
+            print('Exception while RPIO.cleanup ' + str(e))
 
     def pause_monitor(self):
         """ слежение за длительностью паузы
@@ -191,37 +194,44 @@ class Moonshine_controller(object):
             self.stage = 'heat'
 
     def heads_started(self, gpio_id, value):
-        self.stage = 'heads'
-        self.Tcmd_last = 'heads_started'
-        try:
-            int(value)
-        except ValueError:
-            print("heads_started BAD value="+str(value))
-            value = -1
-        self.pb_channel.push_note("Стартовали головы",
-                                  "gpio_id=" + str(gpio_id)
-                                  + ", value=" + str(value))
-        self.heads_sensor.watch_stop(self.heads_finished)  # including heads_sensor.ignore_start()
+        if 'heads' == self.stage:
+            pass
+        else:
+            self.stage = 'heads'
+            self.Tcmd_last = 'heads_started'
+            try:
+                int(value)
+            except ValueError:
+                print("heads_started BAD value="+str(value))
+                value = -1
+            self.pb_channel.push_note("Стартовали головы",
+                                      "gpio_id=" + str(gpio_id)
+                                      + ", value=" + str(value))
+            self.heads_sensor.watch_stop(self.heads_finished)  # including heads_sensor.ignore_start()
 
     def heads_finished(self, gpio_id, value):
-        self.stage = 'body'
-        self.Tcmd_last = 'heads_finished'
-        try:
-            int(value)
-        except ValueError:
-            print("heads_finished BAD value="+str(value))
-            value = -1
-        self.pb_channel.push_note("Закончились головы",
-                                  "gpio_id=" + str(gpio_id)
-                                  + ", value=" + str(value))
-        self.valve.way_2()
-        self.cooker.switch_off()
-        self.cooker.switch_on()  # set power 1400
-        self.heads_sensor.ignore_stop(),
+        if 'body' == self.stage:
+            pass
+        else:
+            self.stage = 'body'
+            self.Tcmd_last = 'heads_finished'
+            try:
+                int(value)
+            except ValueError:
+                print("heads_finished BAD value="+str(value))
+                value = -1
+            self.pb_channel.push_note("Закончились головы",
+                                      "gpio_id=" + str(gpio_id)
+                                      + ", value=" + str(value))
+            self.valve.way_2()
+            self.cooker.switch_off()
+            self.cooker.switch_on()  # set power 1400
+            self.heads_sensor.ignore_stop(),
 
     def start_watch_heads(self):
         self.valve.way_1()
         self.heads_sensor.watch_start(self.heads_started)
+        self.cooker.set_power(300)
 
     def wait4body(self):
         self.cooker.switch_on()

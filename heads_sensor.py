@@ -8,10 +8,10 @@ logging.basicConfig(format=log_format, level=logging.DEBUG)
 import RPIO
 logger = logging.getLogger(__name__)
 # hs_handler = logging.FileHandler('moonshine.log')
-hs_handler = logging.StreamHandler()
-formatter = logging.Formatter(log_format)
-hs_handler.setFormatter(formatter)
-logger.addHandler(hs_handler)
+#hs_handler = logging.StreamHandler()
+#formatter = logging.Formatter(log_format)
+#hs_handler.setFormatter(formatter)
+#logger.addHandler(hs_handler)
 
 
 class Heads_sensor:
@@ -35,55 +35,70 @@ class Heads_sensor:
         # print "heads_sensor stop_waiting_for_interrupts"
         # RPIO.cleanup()
 
-    def null_callback(self, gpio_id, val):
+    def null_callback(self, gpio_id, value):
+        try:
+            int(value)
+        except ValueError:
+            print("null_callback BAD value="+str(value))
+            value = -1
         pass
 
     def ignore_start(self):
-        """
-        try:
-            RPIO.del_interrupt_callback(self.gpio_heads_start)
-        except KeyError:
+        if self.flag_ignore_start:
             pass
-        """
-        self.flag_ignore_start = True
-        RPIO.add_interrupt_callback(self.gpio_heads_start,
-                                    self.null_callback,
-                                    edge='rising',
-                                    debounce_timeout_ms=self.timeout,
-                                    pull_up_down=RPIO.PUD_DOWN)
+        else:
+            self.flag_ignore_start = True
+            """
+            try:
+                logger.debug('ignore_start: try del callback')
+                RPIO.del_interrupt_callback(self.gpio_heads_start)
+            except KeyError:
+                pass
+            """
+            logger.debug('ignore_start: add null_callback')
+            RPIO.add_interrupt_callback(self.gpio_heads_start,
+                                        self.null_callback,
+                                        edge='rising',
+                                        debounce_timeout_ms=self.timeout,
+                                        pull_up_down=RPIO.PUD_DOWN)
 
     def ignore_stop(self):
-        """
-        try:
-            RPIO.del_interrupt_callback(self.gpio_heads_stop)
-        except KeyError:
+        if self.flag_ignore_stop:
             pass
-        """
-        self.flag_ignore_stop = True
-        RPIO.add_interrupt_callback(self.gpio_heads_stop,
-                                    self.null_callback,
-                                    edge='rising',
-                                    debounce_timeout_ms=self.timeout,
-                                    pull_up_down=RPIO.PUD_DOWN)
+        else:
+            self.flag_ignore_stop = True
+            """
+            try:
+                logger.debug('ignore_stop: try del callback')
+                RPIO.del_interrupt_callback(self.gpio_heads_stop)
+            except KeyError:
+                pass
+            """
+            logger.debug('ignore_stop: add null_callback')
+            RPIO.add_interrupt_callback(self.gpio_heads_stop,
+                                        self.null_callback,
+                                        edge='rising',
+                                        debounce_timeout_ms=self.timeout,
+                                        pull_up_down=RPIO.PUD_DOWN)
 
     def watch_start(self, start_callback):
         # self.ignore_stop()
         self.flag_ignore_start = False
         RPIO.setup(self.gpio_heads_start, RPIO.IN, pull_up_down=RPIO.PUD_DOWN)
+        RPIO.wait_for_interrupts(threaded=True)
         RPIO.add_interrupt_callback(self.gpio_heads_start,
                                     start_callback,
                                     edge='rising',
                                     debounce_timeout_ms=self.timeout,
                                     pull_up_down=RPIO.PUD_DOWN)
-        RPIO.wait_for_interrupts(threaded=True)
 
     def watch_stop(self, stop_callback):
         self.ignore_start()
         self.flag_ignore_stop = False
         RPIO.setup(self.gpio_heads_stop, RPIO.IN, pull_up_down=RPIO.PUD_DOWN)
+        RPIO.wait_for_interrupts(threaded=True)
         RPIO.add_interrupt_callback(self.gpio_heads_stop,
                                     stop_callback,
                                     edge='rising',
                                     debounce_timeout_ms=self.timeout,
                                     pull_up_down=RPIO.PUD_DOWN)
-        RPIO.wait_for_interrupts(threaded=True)

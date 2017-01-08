@@ -13,7 +13,6 @@ class Valve(object):
 
     def release(self):
         self.default_way()
-        RPIO.cleanup()
 
     def default_way(self):
         print("valve.default_way")
@@ -47,7 +46,6 @@ class DoubleValve(object):
         self.v1_turn_off()
         self.v2_turn_off()
         print "DblValve switched off"
-        RPIO.cleanup()
 
     def v1_turn_on(self):
         if not self.v1_on:
