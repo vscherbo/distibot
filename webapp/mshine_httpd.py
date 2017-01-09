@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -
 
-import socket, sys, os
-from datetime import datetime
-from bottle import route, run, debug, template, static_file, request, get, post, ServerAdapter, Bottle
+# from bottle import route, run, get, post, request
+# from bottle import template, static_file, debug
+# from bottle Bottle
+from bottle import ServerAdapter
 
 
 class MshineHTTPD(ServerAdapter):
@@ -16,13 +17,15 @@ class MshineHTTPD(ServerAdapter):
         from wsgiref.simple_server import make_server, WSGIRequestHandler
         if self.quiet:
             class QuietHandler(WSGIRequestHandler):
-                def log_request(*args, **kw): pass
+                def log_request(*args, **kw):
+                    pass
             self.options['handler_class'] = QuietHandler
-        self.server = make_server(self.host, self.port, handler, **self.options)
+        self.server = make_server(self.host, self.port, handler,
+                                  **self.options)
         self.server.serve_forever()
 
     def stop(self):
-        # self.server.server_close() <--- alternative but causes bad fd exception
+        # self.server.server_close() <- alternative but causes fd exception
         self.server.shutdown()
 
 # Static Routes

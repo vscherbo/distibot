@@ -21,11 +21,14 @@ class Heads_sensor:
         self.flag_ignore_start = True
         self.flag_ignore_stop = True
         self.gpio_heads_start = gpio_heads_start
-        # RPIO.setup(self.gpio_heads_start, RPIO.IN, pull_up_down=RPIO.PUD_DOWN)
+        # RPIO.setup(self.gpio_heads_start,
+        #            RPIO.IN, pull_up_down=RPIO.PUD_DOWN)
         self.gpio_heads_stop = gpio_heads_stop
         # RPIO.setup(self.gpio_heads_stop, RPIO.IN, pull_up_down=RPIO.PUD_DOWN)
-        hs_gpios = {'gpio_start': gpio_heads_start, 'gpio_stop': gpio_heads_stop}
-        logger.debug('init heads-sensor GPIO_start={gpio_start}, GPIO_stop={gpio_stop}'.format(**hs_gpios))
+        hs_gpios = {'gpio_start': gpio_heads_start,
+                    'gpio_stop': gpio_heads_stop}
+        logger.debug('init heads-sensor GPIO_start={gpio_start}, \
+                     GPIO_stop={gpio_stop}'.format(**hs_gpios))
 
     def release(self):
         self.ignore_start()
