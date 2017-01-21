@@ -10,7 +10,8 @@ import thread
 import time
 import webapp.mshine_httpd as mshine_httpd
 # from bottle import Bottle
-# from bottle import route, run, debug, template, static_file, request, get, post, ServerAdapter, Bottle
+# from bottle import route, run, debug, template, static_file, request, get
+# from bottle import post, ServerAdapter, Bottle
 from bottle import debug, template, static_file, Bottle
 import argparse
 
@@ -143,7 +144,7 @@ def coord():
     global mshinectl
     global x
     global y
-    x.append(time.strftime("%M:%S", mshinectl.current_ts))
+    x.append(time.strftime("%H:%M:%S", mshinectl.current_ts))
     y.append(mshinectl.temperature_in_celsius)
     return str(len(x))
 
@@ -154,7 +155,7 @@ def plot():
     global x
     global y
 
-    x.append(time.strftime("%M:%S", mshinectl.current_ts))
+    x.append(time.strftime("%H:%M:%S", mshinectl.current_ts))
     y.append(mshinectl.temperature_in_celsius)
 
     # prepare plot params

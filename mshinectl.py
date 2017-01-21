@@ -151,6 +151,7 @@ class Moonshine_controller(object):
             self.Tcmd = self.Tsteps.pop(self.Tstage)
 
     def temperature_loop(self):
+        over_cnt = 0
         while self.loop_flag:
             self.temperature_in_celsius = self.sensor.get_temperature()
             self.current_ts = time.localtime()
@@ -159,6 +160,10 @@ class Moonshine_controller(object):
             self.decrease_monitor()
 
             if self.temperature_in_celsius > self.Tstage:
+                over_cnt += 1
+
+            if over_cnt > 3:
+                over_cnt = 0
                 self.do_cmd()
 
             self.csv_write()
