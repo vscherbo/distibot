@@ -110,6 +110,9 @@ class Moonshine_controller(object):
 
     def decrease_monitor(self):
         """ слежение за снижением температуры
+        TODO: сейчас включение нагрева срабатывает только для фазы отличной от "нагрев".
+        Если было защитное выключение плитки, то фаза остаётся "нагрев", монитор срабатывает,
+        но включение не происходит.
         """
         if self.T_prev > self.temperature_in_celsius:
             self.downcount += 1
@@ -204,7 +207,7 @@ class Moonshine_controller(object):
         self.stage = 'pause'
 
     def heat_for_heads(self):
-        if 'heat' != self.stage:
+        if 'heat' != self.stage:  # если и так фаза нагрева, выходим
             self.cooker.set_power_600()
             self.stage = 'heat'
 
