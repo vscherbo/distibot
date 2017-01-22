@@ -16,9 +16,6 @@ from bottle import debug, template, static_file, Bottle
 import argparse
 
 # import numpy as np
-import plotly
-# from plotly.graph_objs import Box
-from plotly.graph_objs import Scatter, Layout, Margin
 
 webapp_path = 'webapp'
 
@@ -59,6 +56,10 @@ except Exception, exc:
     print("Error: unable to start thread, exception=%s" % str(exc))
 
 # ################################
+import plotly
+# from plotly.graph_objs import Box
+from plotly.graph_objs import Scatter, Layout, Margin
+
 app = Bottle()
 
 
