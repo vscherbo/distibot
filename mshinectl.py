@@ -152,8 +152,18 @@ class Moonshine_controller(object):
 
     def temperature_loop(self):
         over_cnt = 0
+        t_failed_cnt = 0
         while self.loop_flag:
-            self.temperature_in_celsius = self.sensor.get_temperature()
+            try:
+                self.temperature_in_celsius = self.sensor.get_temperature()
+                t_failed_cnt = 0
+            except:
+                t_failed_cnt += 1
+
+            if t_failed_cnt > 3:
+                t_failed_cnt = 0
+                self.pb_channel.push_note("Сбой получения температуры", "Требуется вмешательство")
+
             self.current_ts = time.localtime()
 
             self.pause_monitor()
