@@ -4,7 +4,7 @@
 from __future__ import print_function
 import logging
 log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
-logging.basicConfig(format=log_format, level=logging.DEBUG)
+logging.basicConfig(format=log_format, level=logging.INFO)
 import RPIO
 import signal
 import time
