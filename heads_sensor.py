@@ -3,7 +3,7 @@
 
 import logging
 log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
-logging.basicConfig(format=log_format, level=logging.DEBUG)
+logging.basicConfig(format=log_format, level=logging.INFO)
 # import RPIO_wrap.RPIO as RPIO
 import RPIO
 logger = logging.getLogger(__name__)
