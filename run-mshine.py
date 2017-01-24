@@ -7,7 +7,6 @@ import sys
 import socket
 # import signal
 import thread
-import time
 import webapp.mshine_httpd as mshine_httpd
 # from bottle import Bottle
 # from bottle import route, run, debug, template, static_file, request, get
@@ -46,8 +45,6 @@ mshinectl = Moonshine_controller(args.emu)
 mshinectl.load_config(args.conf)
 # mshinectl.load_config('msc-body-from-raw.conf')
 # mshinectl.load_config('msc-now.conf')
-x = []
-y = []
 
 
 try:
@@ -61,7 +58,6 @@ import plotly
 from plotly.graph_objs import Scatter, Layout, Margin
 
 app = Bottle()
-
 
 @app.get('/<filename:re:.*\.css>')
 def stylesheets(filename):
@@ -140,29 +136,14 @@ def ask_stage():
     return enable_icon
 
 
-@app.route('/coord')
-def coord():
-    global mshinectl
-    global x
-    global y
-    x.append(time.strftime("%H:%M:%S", mshinectl.current_ts))
-    y.append(mshinectl.temperature_in_celsius)
-    return str(len(x))
-
-
 @app.route('/plot')
 def plot():
     global mshinectl
-    global x
-    global y
-
-    x.append(time.strftime("%H:%M:%S", mshinectl.current_ts))
-    y.append(mshinectl.temperature_in_celsius)
 
     # prepare plot params
     margin = Margin(l=35, r=5, b=100, t=10, pad=0)
     layout = Layout(autosize=True, margin=margin, width=900, height=600)
-    div_plot = plotly.offline.plot({"data": [Scatter(x=x, y=y)],
+    div_plot = plotly.offline.plot({"data": [Scatter(x=mshinectl.coord_time, y=mshinectl.coord_temp)],
                                    "layout": layout},
                                    show_link=False, output_type='div')
     return div_plot

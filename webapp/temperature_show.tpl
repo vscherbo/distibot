@@ -54,12 +54,6 @@
                       $("#div_plot").html(html);
                   }
                });
-            } else {
-               $.ajax({
-                  url: '/coord',
-                  cache: false,
-                  success: function(html){}
-               });
             }
         }
 

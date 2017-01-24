@@ -77,6 +77,8 @@ class Moonshine_controller(object):
                                                       timeout=2000)
         self.pb = pb_wrap('XmJ61j9LVdjbPyKcSOUYv1k053raCeJP', emu_mode)
         self.pb_channel = self.pb.get_channel()
+        self.coord_time = []
+        self.coord_temp = []
 
     def load_config(self, conf_file_name):
         conf = open(conf_file_name, 'r')
@@ -168,6 +170,8 @@ class Moonshine_controller(object):
                 self.pb_channel.push_note("Сбой получения температуры", "Требуется вмешательство")
 
             self.current_ts = time.localtime()
+            self.coord_time.append(time.strftime("%H:%M:%S", self.current_ts))
+            self.coord_temp.append(self.temperature_in_celsius)
 
             self.pause_monitor()
             self.decrease_monitor()
