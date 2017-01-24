@@ -58,6 +58,8 @@ import plotly
 from plotly.graph_objs import Scatter, Layout, Margin
 
 app = Bottle()
+app.msc = mshinectl
+
 
 @app.get('/<filename:re:.*\.css>')
 def stylesheets(filename):
@@ -112,20 +114,17 @@ def t_show():
 
 @app.route('/ask_t')
 def ask_temperature():
-    global mshinectl
-    curr_temperature = str(mshinectl.temperature_in_celsius)
-    return curr_temperature
+    return str(app.msc.temperature_in_celsius)
 
 
 @app.route('/ask_stage')
 def ask_stage():
-    global mshinectl
     enable_icon = """
         <script type="text/javascript">
         var div_icons = document.getElementsByClassName('stage');
         for (var i=0; i < div_icons.length; i++) {
             var stage = div_icons[i];
-            if ('""" + mshinectl.stage + """_stage' == stage.id) {
+            if ('""" + app.msc.stage + """_stage' == stage.id) {
                  stage.disabled = false;
             } else {
                  stage.disabled = true;
@@ -138,12 +137,10 @@ def ask_stage():
 
 @app.route('/plot')
 def plot():
-    global mshinectl
-
     # prepare plot params
     margin = Margin(l=35, r=5, b=100, t=10, pad=0)
     layout = Layout(autosize=True, margin=margin, width=900, height=600)
-    div_plot = plotly.offline.plot({"data": [Scatter(x=mshinectl.coord_time, y=mshinectl.coord_temp)],
+    div_plot = plotly.offline.plot({"data": [Scatter(x=app.msc.coord_time, y=app.msc.coord_temp)],
                                    "layout": layout},
                                    show_link=False, output_type='div')
     return div_plot
