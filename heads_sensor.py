@@ -8,10 +8,10 @@ logging.basicConfig(format=log_format, level=logging.INFO)
 import RPIO
 logger = logging.getLogger(__name__)
 # hs_handler = logging.FileHandler('moonshine.log')
-#hs_handler = logging.StreamHandler()
-#formatter = logging.Formatter(log_format)
-#hs_handler.setFormatter(formatter)
-#logger.addHandler(hs_handler)
+# hs_handler = logging.StreamHandler()
+# formatter = logging.Formatter(log_format)
+# hs_handler.setFormatter(formatter)
+# logger.addHandler(hs_handler)
 
 
 class Heads_sensor:
@@ -27,7 +27,7 @@ class Heads_sensor:
         # RPIO.setup(self.gpio_heads_stop, RPIO.IN, pull_up_down=RPIO.PUD_DOWN)
         hs_gpios = {'gpio_start': gpio_heads_start,
                     'gpio_stop': gpio_heads_stop}
-        logger.debug('init heads-sensor GPIO_start={gpio_start}, \
+        logger.info('init heads-sensor GPIO_start={gpio_start}, \
                      GPIO_stop={gpio_stop}'.format(**hs_gpios))
 
     def release(self):
@@ -53,12 +53,12 @@ class Heads_sensor:
             self.flag_ignore_start = True
             """
             try:
-                logger.debug('ignore_start: try del callback')
+                logger.info('ignore_start: try del callback')
                 RPIO.del_interrupt_callback(self.gpio_heads_start)
             except KeyError:
                 pass
             """
-            logger.debug('ignore_start: add null_callback')
+            logger.info('ignore_start: add null_callback')
             RPIO.add_interrupt_callback(self.gpio_heads_start,
                                         self.null_callback,
                                         edge='rising',
@@ -72,12 +72,12 @@ class Heads_sensor:
             self.flag_ignore_stop = True
             """
             try:
-                logger.debug('ignore_stop: try del callback')
+                logger.info('ignore_stop: try del callback')
                 RPIO.del_interrupt_callback(self.gpio_heads_stop)
             except KeyError:
                 pass
             """
-            logger.debug('ignore_stop: add null_callback')
+            logger.info('ignore_stop: add null_callback')
             RPIO.add_interrupt_callback(self.gpio_heads_stop,
                                         self.null_callback,
                                         edge='rising',
