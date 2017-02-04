@@ -37,14 +37,12 @@ def signal_handler(signal, frame):
     server.stop()
     # do_flag = False
 
-# signal.signal(signal.SIGINT, signal_handler)
-# signal.signal(signal.SIGHUP, signal_handler)
-# signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGHUP, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
 
 mshinectl = Moonshine_controller(args.emu)
 mshinectl.load_config(args.conf)
-# mshinectl.load_config('msc-body-from-raw.conf')
-# mshinectl.load_config('msc-now.conf')
 
 
 try:
