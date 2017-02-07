@@ -5,7 +5,7 @@ from __future__ import print_function
 from mshinectl import Moonshine_controller
 import sys
 import socket
-# import signal
+import signal
 import thread
 import webapp.mshine_httpd as mshine_httpd
 # from bottle import Bottle
@@ -27,7 +27,6 @@ args = parser.parse_args()
 
 def signal_handler(signal, frame):
     global mshinectl
-    # global do_flag
     global server
     global app
     print("signal_handler release")
@@ -35,7 +34,6 @@ def signal_handler(signal, frame):
     mshinectl.release()
     app.close()
     server.stop()
-    # do_flag = False
 
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGHUP, signal_handler)
