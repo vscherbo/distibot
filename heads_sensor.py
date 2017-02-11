@@ -27,8 +27,7 @@ class Heads_sensor:
         # RPIO.setup(self.gpio_heads_stop, RPIO.IN, pull_up_down=RPIO.PUD_DOWN)
         hs_gpios = {'gpio_start': gpio_heads_start,
                     'gpio_stop': gpio_heads_stop}
-        logger.info('init heads-sensor GPIO_start={gpio_start}, \
-                     GPIO_stop={gpio_stop}'.format(**hs_gpios))
+        logger.info('init heads-sensor GPIO_start={gpio_start}, GPIO_stop={gpio_stop}'.format(**hs_gpios))
 
     def release(self):
         self.ignore_start()
@@ -77,12 +76,16 @@ class Heads_sensor:
             except KeyError:
                 pass
             """
+            logger.info('ignore_stop: setup {0} as OUTPUT'.format(self.gpio_heads_start))
+            RPIO.setup(self.gpio_heads_start, RPIO.OUT)
+            """
             logger.info('ignore_stop: add null_callback')
             RPIO.add_interrupt_callback(self.gpio_heads_stop,
                                         self.null_callback,
                                         edge='rising',
                                         debounce_timeout_ms=self.timeout,
                                         pull_up_down=RPIO.PUD_DOWN)
+            """
 
     def watch_start(self, start_callback):
         # self.ignore_stop()
