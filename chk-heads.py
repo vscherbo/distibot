@@ -58,9 +58,9 @@ while loop_flag:
 
 hs.release()
 
-#try:
-#    RPIO.cleanup()
-#except BaseException as e:
-#    print('Exception while RPIO.cleanup ' + str(e))
+try:
+    RPIO.cleanup()
+except BaseException as e:
+    print('Exception while RPIO.cleanup ' + str(e))
 
 print("Exiting")
