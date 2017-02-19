@@ -50,49 +50,19 @@ class Heads_sensor:
             pass
         else:
             self.flag_ignore_start = True
-            """
-            try:
-                logger.info('ignore_start: try del callback')
-                RPIO.del_interrupt_callback(self.gpio_heads_start)
-            except KeyError:
-                pass
-            """
             logger.info('ignore_start: setup {0} as OUTPUT'.format(self.gpio_heads_start))
             RPIO.setup(self.gpio_heads_start, RPIO.OUT)
-            """
-            logger.info('ignore_start: add null_callback')
-            RPIO.add_interrupt_callback(self.gpio_heads_start,
-                                        self.null_callback,
-                                        edge='rising',
-                                        debounce_timeout_ms=self.timeout,
-                                        pull_up_down=RPIO.PUD_DOWN)
-            """
 
     def ignore_stop(self):
         if self.flag_ignore_stop:
             pass
         else:
             self.flag_ignore_stop = True
-            """
-            try:
-                logger.info('ignore_stop: try del callback')
-                RPIO.del_interrupt_callback(self.gpio_heads_stop)
-            except KeyError:
-                pass
-            """
             logger.info('ignore_stop: setup {0} as OUTPUT'.format(self.gpio_heads_stop))
             RPIO.setup(self.gpio_heads_stop, RPIO.OUT)
-            """
-            logger.info('ignore_stop: add null_callback')
-            RPIO.add_interrupt_callback(self.gpio_heads_stop,
-                                        self.null_callback,
-                                        edge='rising',
-                                        debounce_timeout_ms=self.timeout,
-                                        pull_up_down=RPIO.PUD_DOWN)
-            """
 
+    # TODO merge watch_start & watch_stop in a single method
     def watch_start(self, start_callback):
-        # self.ignore_stop()
         self.flag_ignore_start = False
         RPIO.setup(self.gpio_heads_start, RPIO.IN, pull_up_down=RPIO.PUD_DOWN)
         RPIO.wait_for_interrupts(threaded=True)
