@@ -169,6 +169,10 @@ class Moonshine_controller(object):
                 t_failed_cnt = 0
                 self.pb_channel.push_note("Сбой получения температуры", "Требуется вмешательство")
 
+            if abs((self.temperature_in_celsius - self.T_prev) / self.T_prev) > 0.3:
+                self.temperature_in_celsius = self.T_prev
+                logging.info('Over 30% difference T_prev={}, T_curr={}'.format(self.T_prev, self.temperature_in_celsius))
+
             self.current_ts = time.localtime()
             self.coord_time.append(time.strftime("%H:%M:%S", self.current_ts))
             self.coord_temp.append(self.temperature_in_celsius)
