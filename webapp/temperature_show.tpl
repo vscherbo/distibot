@@ -44,7 +44,8 @@
                     $("#div_stage").html(html);
                 }
             });
-            if ( cnt++ >= 3 ) {
+            // if ( cnt++ >= 3 ) {
+            if ( true ) {
                cnt = 1;
                url_plot = '/plot';
                $.ajax({
