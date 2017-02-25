@@ -203,6 +203,10 @@ class Moonshine_controller(object):
         self.cooker.set_fry()
         self.stage = 'heat'
 
+    def heat_4_low_wine(self):
+        self.cooker.switch_on()
+        self.stage = 'heat'
+
     def stop_process(self):
         self.loop_flag = False
         time.sleep(self.T_sleep+0.5)
