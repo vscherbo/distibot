@@ -116,15 +116,16 @@ class Moonshine_controller(object):
         Если было защитное выключение плитки, то фаза остаётся "нагрев", монитор срабатывает,
         но включение не происходит.
         """
-        if self.T_prev > self.temperature_in_celsius:
-            self.downcount += 1
-            if self.downcount >= self.downcount_limit:
-                self.pb_channel.push_note("Снижение температуры", "Включаю нагрев")
-                self.heat_for_heads()
+        if 'pause' == self.stage:
+            if self.T_prev > self.temperature_in_celsius:
+                self.downcount += 1
+                if self.downcount >= self.downcount_limit:
+                    self.pb_channel.push_note("Снижение температуры", "Включаю нагрев")
+                    self.heat_for_heads()
+                    self.downcount = 0
+            elif self.T_prev < self.temperature_in_celsius:
                 self.downcount = 0
-        elif self.T_prev < self.temperature_in_celsius:
-            self.downcount = 0
-        self.T_prev = self.temperature_in_celsius
+            self.T_prev = self.temperature_in_celsius
 
     def csv_write(self):
         self.print_str.append(time.strftime("%H:%M:%S", self.current_ts))
@@ -199,7 +200,6 @@ class Moonshine_controller(object):
 
     def start_process(self):
         self.cooker.switch_on()
-        # self.cooker.set_power_max()
         self.cooker.set_fry()
         self.stage = 'heat'
 
