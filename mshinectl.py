@@ -60,7 +60,7 @@ class Moonshine_controller(object):
         self.temperature_in_celsius = 0
         self.current_ts = time.localtime()
         self.pause_start_ts = 0
-        self.pause_limit = 120
+        self.pause_limit = 180
         self.T_sleep = 1
         self.csv_delay = 0
         self.print_str = []
