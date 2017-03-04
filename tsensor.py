@@ -37,12 +37,12 @@ class Tsensor(w1thermsensor.W1ThermSensor):
     def setup_emu_mode(self):
         self.emu_mode = True
         self.Trange = [x for x in range(1, 99)]
-        self.emu_iterator = iter(self.Trange)
+        # self.emu_iterator = iter(self.Trange)
 
     def get_temperature(self, unit=w1thermsensor.W1ThermSensor.DEGREES_C):
-        # logger.debug('get_temperature emu_mode={}'.format(self.emu_mode))
         if self.emu_mode:
             self.curr_T += self.step_emu_mode(self.curr_T)
+            logger.debug('emu_mode get_temperature={}'.format(self.curr_T))
             return self.curr_T
         else:
             loc_T = self.sensor.get_temperature(unit)
