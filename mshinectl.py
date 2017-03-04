@@ -56,8 +56,9 @@ class Moonshine_controller(object):
         self.downcount = 0
         self.downcount_limit = 5  # количество шагов подряд с неожидаемым снижением температуры
         self.csv_write_period = 3
+        self.temperature_error_limit = 3
+        self.temperature_delta_limit = 0.3  # 30%
         self.stage = 'start'
-        self.temperature_in_celsius = 0
         self.current_ts = time.localtime()
         self.pause_start_ts = 0
         self.pause_limit = 180
@@ -65,10 +66,12 @@ class Moonshine_controller(object):
         self.csv_delay = 0
         self.print_str = []
         self.sensor = tsensor.Tsensor(emu_mode)
+        self.dt_string = time.strftime("%Y-%m-%d-%H-%M")
         self.log = open('sensor-' + ('emu-' if self.sensor.emu_mode else '')
-                        + time.strftime("%Y-%m-%d-%H-%M")
+                        + self.dt_string
                         + '.csv', 'w', 0)  # 0 - unbuffered write
-        self.T_prev = self.sensor.get_temperature()
+        self.temperature_in_celsius = self.sensor.get_temperature()
+        self.T_prev = self.temperature_in_celsius
         self.loop_flag = True
         self.cooker = cooker.Cooker(gpio_on_off=17, gpio_up=22, gpio_down=27, gpio_fry=15)
         self.valve = valve.DoubleValve(gpio_v1=23, gpio_v2=24)
@@ -94,6 +97,11 @@ class Moonshine_controller(object):
         # print(self.Tsteps)
 
     def release(self):
+        save_coord = open(self.dt_string+'.dat', 'w')
+        for i_time, i_temp in zip(self.coord_time, self.coord_temp):
+            save_str = '{}^{}\n'.format(i_time, i_temp)
+            save_coord.write(save_str)
+        save_coord.close()
         self.cooker.release()
         self.valve.release()
         self.heads_sensor.release()
@@ -125,7 +133,6 @@ class Moonshine_controller(object):
                     self.downcount = 0
             elif self.T_prev < self.temperature_in_celsius:
                 self.downcount = 0
-            self.T_prev = self.temperature_in_celsius
 
     def csv_write(self):
         self.print_str.append(time.strftime("%H:%M:%S", self.current_ts))
@@ -161,18 +168,25 @@ class Moonshine_controller(object):
         t_failed_cnt = 0
         while self.loop_flag:
             try:
-                self.temperature_in_celsius = self.sensor.get_temperature()
+                loc_t = self.sensor.get_temperature()
                 t_failed_cnt = 0
             except:
                 t_failed_cnt += 1
+            else:
+                self.T_prev = self.temperature_in_celsius
+                self.temperature_in_celsius = loc_t
 
-            if t_failed_cnt > 3:
+            if t_failed_cnt > self.temperature_error_limit:
                 t_failed_cnt = 0
                 self.pb_channel.push_note("Сбой получения температуры", "Требуется вмешательство")
 
-            if abs((self.temperature_in_celsius - self.T_prev) / self.T_prev) > 0.3:
+            if abs((self.temperature_in_celsius - self.T_prev) / self.T_prev) \
+               > self.temperature_delta_limit:
                 self.temperature_in_celsius = self.T_prev
-                logging.info('Over 30% difference T_prev={}, T_curr={}'.format(self.T_prev, self.temperature_in_celsius))
+                logging.warning('Over {:.0%} difference T_prev={}, t_in_Cels={}'.
+                                format(self.temperature_delta_limit,
+                                       self.T_prev,
+                                       self.temperature_in_celsius))
 
             self.current_ts = time.localtime()
             self.coord_time.append(time.strftime("%H:%M:%S", self.current_ts))
