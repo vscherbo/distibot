@@ -19,10 +19,9 @@ class gpio(object):
             file_handler.setFormatter(formatter)
             self.logger.addHandler(file_handler)
             self.logger.setLevel(logging.DEBUG)
-            #self.logger.setLevel(logging.WARNING)
 
         mode = GPIO.getmode()
-        if mode <> GPIO.BCM or mode is None:
+        if mode != GPIO.BCM or mode is None:
             GPIO.setmode(GPIO.BCM)
 
     def release(self):
@@ -31,5 +30,3 @@ class gpio(object):
             s = "cleaned gpio_list=[" + ', '.join(['{}']*len(self.gpio_list)) + "]"
             self.logger.info(s.format(*self.gpio_list))
             self.logger.info('gpio_class released')
-                                   
-

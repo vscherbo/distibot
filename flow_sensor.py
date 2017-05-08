@@ -1,18 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-import logging
-log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
-logging.basicConfig(format=log_format, level=logging.INFO)
-logger = logging.getLogger(__name__)
-# hs_handler = logging.FileHandler('moonshine.log')
-# hs_handler = logging.StreamHandler()
-# formatter = logging.Formatter(log_format)
-# hs_handler.setFormatter(formatter)
-# logger.addHandler(hs_handler)
-"""
-
 import RPi.GPIO as GPIO
 import gpio_class
 import time
@@ -26,9 +14,9 @@ class Flow_sensor(gpio_class.gpio):
     lastClick = 0
     clickDelta = 0
     hertz = 0.0
-    flow = 0 # in Liters per second
-    instPour = 0.0 # current flow
-    thisPour = 0.0 # in Liters
+    flow = 0  # in Liters per second
+    instPour = 0.0  # current flow
+    thisPour = 0.0  # in Liters
 
     def __init__(self, gpio_flow_pin):
         super(Flow_sensor, self).__init__()
@@ -60,13 +48,14 @@ class Flow_sensor(gpio_class.gpio):
         # get the time delta
         self.clickDelta = max((currentTime - self.lastClick), 1)
         # calculate the instantaneous speed
-        if self.enabled == True:
-          self.hertz = self.MS_IN_A_SECOND / self.clickDelta
-          self.flow = self.hertz /700
-          self.instPour = self.flow * (self.clickDelta / self.MS_IN_A_SECOND)  
-          self.thisPour += self.instPour
+        if self.enabled is True:
+            self.hertz = self.MS_IN_A_SECOND / self.clickDelta
+            self.flow = self.hertz / 700
+            self.instPour = self.flow * (self.clickDelta / self.MS_IN_A_SECOND)
+            self.thisPour += self.instPour
         # Update the last click
         self.lastClick = currentTime
+
 
 def countPulse(gpio_id):
     global fs
@@ -74,9 +63,8 @@ def countPulse(gpio_id):
     print "Count={0} V={1} Pour={2}".format(fs.clicks, fs.flow*3600, fs.thisPour)
 
 if __name__ == "__main__":
-    import time
     import sys
-    channel=7
+    channel = 7
     fs = Flow_sensor(channel)
     fs.watch_flow(countPulse)
     while True:
@@ -86,4 +74,3 @@ if __name__ == "__main__":
             print '\ncaught keyboard interrupt!, bye'
             fs.release()
             sys.exit()
-
