@@ -7,11 +7,9 @@ import time
 import logging
 log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
 logging.basicConfig(format=log_format, level=logging.DEBUG)
-# import RPIO_wrap.RPIO as RPIO
-import RPIO
 import cooker
 import valve
-import heads_sensor
+import heads_sensor_el
 import collections
 import tsensor
 
@@ -75,7 +73,7 @@ class Moonshine_controller(object):
         self.loop_flag = True
         self.cooker = cooker.Cooker(gpio_on_off=17, gpio_up=22, gpio_down=27, gpio_fry=15)
         self.valve = valve.DoubleValve(gpio_v1=23, gpio_v2=24)
-        self.heads_sensor = heads_sensor.Heads_sensor(gpio_heads_start=25,
+        self.heads_sensor = heads_sensor_el.Heads_sensor(gpio_heads_start=25,
                                                       gpio_heads_stop=14,
                                                       timeout=2000)
         self.pb = pb_wrap('XmJ61j9LVdjbPyKcSOUYv1k053raCeJP', emu_mode)
@@ -105,10 +103,6 @@ class Moonshine_controller(object):
         self.cooker.release()
         self.valve.release()
         self.heads_sensor.release()
-        try:
-            RPIO.cleanup()
-        except BaseException as e:
-            print('Exception while RPIO.cleanup ' + str(e))
 
     def pause_monitor(self):
         """ слежение за длительностью паузы
