@@ -74,8 +74,8 @@ class Moonshine_controller(object):
         self.cooker = cooker.Cooker(gpio_on_off=17, gpio_up=22, gpio_down=27, gpio_fry=15)
         self.valve = valve.DoubleValve(gpio_v1=23, gpio_v2=24)
         self.heads_sensor = heads_sensor_el.Heads_sensor(gpio_heads_start=25,
-                                                      gpio_heads_stop=14,
-                                                      timeout=2000)
+                                                         gpio_heads_stop=14,
+                                                         timeout=2000)
         self.pb = pb_wrap('XmJ61j9LVdjbPyKcSOUYv1k053raCeJP', emu_mode)
         self.pb_channel = self.pb.get_channel()
         self.coord_time = []
@@ -210,32 +210,38 @@ class Moonshine_controller(object):
         self.cooker.switch_on()
         self.cooker.set_fry()
         self.stage = 'heat'
+        logging.debug('stage is "{}"'.format(self.stage))
 
     def heat_4_low_wine(self):
         self.cooker.switch_on()
         self.stage = 'heat'
+        logging.debug('stage is "{}"'.format(self.stage))
 
     def stop_process(self):
         self.loop_flag = False
         time.sleep(self.T_sleep+0.5)
         self.cooker.switch_off()
         self.stage = 'finish'
+        logging.debug('stage is "{}"'.format(self.stage))
 
     def heat_on_pause(self):
         self.cooker.switch_off()
         self.pause_start_ts = time.time()
         self.stage = 'pause'
+        logging.debug('stage is "{}"'.format(self.stage))
 
     def heat_for_heads(self):
         if 'heat' != self.stage:  # если и так фаза нагрева, выходим
             self.cooker.set_power_600()
             self.stage = 'heat'
+            logging.debug('stage is "{}"'.format(self.stage))
 
     def heads_started(self, gpio_id, value):
         if 'heads' == self.stage:
             pass
         else:
             self.stage = 'heads'
+            logging.debug('stage is "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_started'
             try:
                 int(value)
@@ -252,6 +258,7 @@ class Moonshine_controller(object):
             pass
         else:
             self.stage = 'body'
+            logging.debug('stage is "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_finished'
             try:
                 int(value)
@@ -275,12 +282,14 @@ class Moonshine_controller(object):
         self.cooker.switch_on()
         self.valve.way_2()
         self.stage = 'heat'
+        logging.debug('stage is "{}"'.format(self.stage))
 
 #    def stop_body_power_on(self):
 #        self.stop_body()
 
     def stop_body(self):
         self.stage = 'tail'
+        logging.debug('stage is "{}"'.format(self.stage))
         self.valve.way_3()
         self.pb_channel.push_note("Закончилось тело",
                                   "Клапан выключен")
