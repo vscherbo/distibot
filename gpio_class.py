@@ -8,10 +8,10 @@ logging.basicConfig(format=log_format, level=logging.DEBUG)
 
 
 class gpio(object):
-    gpio_list = []
     logger = None
 
     def __init__(self):
+        self.gpio_list = []
         self.logger = logging.getLogger("gpio")
         if not len(self.logger.handlers):
             file_handler = logging.FileHandler('gpio.log')
