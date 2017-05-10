@@ -199,6 +199,8 @@ class Moonshine_controller(object):
             self.csv_write()
             time.sleep(self.T_sleep)
 
+        logging.debug('temperature_loop exiting')
+
     def do_nothing(self, gpio_id=-1, value="-1"):
         print("do_nothing "
               + time.strftime("%H:%M:%S")
