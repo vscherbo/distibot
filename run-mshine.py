@@ -104,45 +104,51 @@ def push_accepted():
 # it works
 @app.route('/tsensor')
 def t_show():
-    output = template('webapp/temperature_show')
-    return output
+    if app.msc.loop_flag:
+        output = template('webapp/temperature_show')
+        return output
 
 
 @app.route('/ask_t')
 def ask_temperature():
-    return str(app.msc.temperature_in_celsius)
+    if app.msc.loop_flag:
+        return str(app.msc.temperature_in_celsius)
 
 
 @app.route('/ask_stage')
 def ask_stage():
-    enable_icon = """
-        <script type="text/javascript">
-        var div_icons = document.getElementsByClassName('stage');
-        for (var i=0; i < div_icons.length; i++) {
-            var stage = div_icons[i];
-            if ('""" + app.msc.stage + """_stage' == stage.id) {
-                 stage.disabled = false;
-            } else {
-                 stage.disabled = true;
+    if app.msc.loop_flag:
+        enable_icon = """
+            <script type="text/javascript">
+            var div_icons = document.getElementsByClassName('stage');
+            for (var i=0; i < div_icons.length; i++) {
+                var stage = div_icons[i];
+                if ('""" + app.msc.stage + """_stage' == stage.id) {
+                    stage.disabled = false;
+                } else {
+                    stage.disabled = true;
+                }
             }
-        }
-        </script>
-    """
-    return enable_icon
+            </script>
+        """
+        return enable_icon
 
 
 @app.route('/plot')
 def plot():
-    # prepare plot params
-    margin = Margin(l=35, r=5, b=100, t=10, pad=0)
-    layout = Layout(autosize=True, margin=margin, width=900, height=600)
-    div_plot = plotly.offline.plot({"data": [Scatter(x=app.msc.coord_time, y=app.msc.coord_temp)],
-                                   "layout": layout},
-                                   show_link=False, output_type='div')
-    return div_plot
+    if app.msc.loop_flag:
+        # prepare plot params
+        margin = Margin(l=35, r=5, b=100, t=10, pad=0)
+        layout = Layout(autosize=True, margin=margin, width=900, height=600)
+        div_plot = plotly.offline.plot({"data": [Scatter(x=app.msc.coord_time, y=app.msc.coord_temp)],
+                                       "layout": layout},
+                                       show_link=False, output_type='div')
+        return div_plot
+
 
 loc_host = socket.gethostbyname(socket.gethostname())
 server = mshine_httpd.MshineHTTPD(host=loc_host, port=8080)
+
 
 # add this at the very end:
 debug(True)
@@ -156,5 +162,4 @@ finally:
     mshinectl.release()
 
 print("Exiting!")
-mshinectl.release()
 sys.exit(0)
