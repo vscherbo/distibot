@@ -7,10 +7,10 @@ import gpio_class
 class Valve(gpio_class.gpio):
 
     def __init__(self, gpio_1_2):
+        super(Valve, self).__init__()
         self.valve_default_way = True
         self.gpio_1_2 = gpio_1_2
         self.gpio_list.append(gpio_1_2)
-        super(Valve, self).__init__()
         GPIO.setup(self.gpio_1_2, GPIO.OUT, initial=GPIO.LOW)
 
     def release(self):
@@ -35,6 +35,7 @@ class Valve(gpio_class.gpio):
 class DoubleValve(gpio_class.gpio):
 
     def __init__(self, gpio_v1, gpio_v2):
+        super(DoubleValve, self).__init__()
         self.v1_on = False
         self.v2_on = False
         self.way = 3
@@ -43,7 +44,6 @@ class DoubleValve(gpio_class.gpio):
         self.gpio_v2 = gpio_v2
         self.gpio_list.append(gpio_v1)
         self.gpio_list.append(gpio_v2)
-        super(DoubleValve, self).__init__()
         GPIO.setup(self.gpio_v1, GPIO.OUT, initial=GPIO.LOW)
         if self.gpio_v2 is not None:
             GPIO.setup(self.gpio_v2, GPIO.OUT, initial=GPIO.LOW)
