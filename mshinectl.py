@@ -49,6 +49,7 @@ class pb_channel_emu(object):
 class Moonshine_controller(object):
 
     def __init__(self, emu_mode=False):
+        self.outdir = 'output/'  # TODO config
         self.Tcmd_prev = 'before start'
         self.Tcmd_last = 'before start'
         self.downcount = 0
@@ -65,7 +66,7 @@ class Moonshine_controller(object):
         self.print_str = []
         self.sensor = tsensor.Tsensor(emu_mode)
         self.dt_string = time.strftime("%Y-%m-%d-%H-%M")
-        self.log = open('sensor-' + ('emu-' if self.sensor.emu_mode else '')
+        self.log = open(self.outdir + 'sensor-' + ('emu-' if self.sensor.emu_mode else '')
                         + self.dt_string
                         + '.csv', 'w', 0)  # 0 - unbuffered write
         self.temperature_in_celsius = self.sensor.get_temperature()
@@ -95,7 +96,7 @@ class Moonshine_controller(object):
         # print(self.Tsteps)
 
     def release(self):
-        save_coord = open(self.dt_string+'.dat', 'w')
+        save_coord = open(self.outdir + self.dt_string+'.dat', 'w')
         for i_time, i_temp in zip(self.coord_time, self.coord_temp):
             save_str = '{}^{}\n'.format(i_time, i_temp)
             save_coord.write(save_str)
