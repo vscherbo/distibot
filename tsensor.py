@@ -2,7 +2,11 @@
 # -*- coding: utf-8 -*-
 
 # from __future__ import print_function
-import w1thermsensor
+try:
+    import w1thermsensor
+    assert w1thermsensor
+except ImportError:
+    import stub_w1thermsensor as w1thermsensor
 import logging
 log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
 logger = logging.getLogger(__name__)
@@ -10,7 +14,6 @@ logger = logging.getLogger(__name__)
 # formatter = logging.Formatter(log_format)
 # file_handler.setFormatter(formatter)
 # logger.addHandler(file_handler)
-
 
 class Tsensor(w1thermsensor.W1ThermSensor):
     def __init__(self, emu_mode=False):  # TODO name or id of sensor
