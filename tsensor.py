@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 # logger.addHandler(file_handler)
 
 class Tsensor(w1thermsensor.W1ThermSensor):
-    def __init__(self, emu_mode=False):  # TODO name or id of sensor
+    def __init__(self, sensor_type=None, sensor_id=None, emu_mode=False):
         self.curr_T = 20
         if emu_mode:
             self.setup_emu_mode()
@@ -24,8 +24,8 @@ class Tsensor(w1thermsensor.W1ThermSensor):
             try:
                 # sensor = W1ThermSensor(W1ThermSensor.THERM_SENSOR_DS18B20, "0000066c6502")
                 # ll /sys/bus/w1/devices/
-                self.sensor = w1thermsensor.W1ThermSensor()
                 self.emu_mode = False
+                self.sensor = w1thermsensor.W1ThermSensor(sensor_type=sensor_type, sensor_id=sensor_id)
             except w1thermsensor.core.KernelModuleLoadError:
                 self.setup_emu_mode()
 
