@@ -46,7 +46,7 @@ class pb_channel_emu(object):
         pass
 
 
-class Moonshine_controller(object):
+class Distibot(object):
 
     def __init__(self, emu_mode=False):
         self.outdir = 'output/'  # TODO config

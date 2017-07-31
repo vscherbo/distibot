@@ -7,11 +7,11 @@
 from bottle import ServerAdapter
 
 
-class MshineHTTPD(ServerAdapter):
+class DistibotHTTPD(ServerAdapter):
     server = None
 
-    def set_msc(self, mshinectl):
-        self.msc = mshinectl
+    def set_msc(self, distibot):
+        self.dib = distibot
 
     def run(self, handler):
         from wsgiref.simple_server import make_server, WSGIRequestHandler
@@ -70,7 +70,7 @@ def t_show():
 
 @route('/ask_t')
 def ask_temperature():
-    curr_temperature = msc.temperature_in_celsius
+    curr_temperature = dib.temperature_in_celsius
     return str(curr_temperature)
 
 """
