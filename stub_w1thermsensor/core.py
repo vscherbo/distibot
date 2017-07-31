@@ -52,5 +52,8 @@ class W1ThermSensor(object):
     RETRY_ATTEMPTS = 10
     RETRY_DELAY_SECONDS = 1.0 / float(RETRY_ATTEMPTS)
 
+    def __init__(self, sensor_type=None, sensor_id=None):
+        pass
+
     def get_temperature(self, unit=DEGREES_C):
         return self.Tlist.pop(0)
