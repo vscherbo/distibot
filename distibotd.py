@@ -5,13 +5,13 @@ import socket
 # from bottle import route, run, debug, template, static_file, request, get, post
 from bottle import run, debug, static_file, template, Bottle
 
-from mshinectl import Moonshine_controller
+from distibot import Distibot
 import sys
 # import signal
 import thread
 import argparse
 
-parser = argparse.ArgumentParser(description='Moonshine controller .')
+parser = argparse.ArgumentParser(description='Distillation robot .')
 parser.add_argument('--conf', type=str, help='config file')
 parser.add_argument('--emu', action="store_true",  help='emu mode')
 parser.add_argument('--log', type=str, default="DEBUG", help='log level')
@@ -20,11 +20,11 @@ args = parser.parse_args()
 webapp_path = 'webapp'
 
 
-mshinectl = Moonshine_controller(args.emu)
-mshinectl.load_config(args.conf)
+distibot = Distibot(args.emu)
+distibot.load_config(args.conf)
 
 app = application = Bottle()
-app.msc = mshinectl
+app.dib = distibot
 
 
 # ################################
@@ -103,26 +103,26 @@ def push_accepted():
 # it works
 @app.route('/tsensor')
 def t_show():
-    if app.msc.loop_flag:
+    if app.dib.loop_flag:
         output = template('webapp/temperature_show')
         return output
 
 
 @app.route('/ask_t')
 def ask_temperature():
-    if app.msc.loop_flag:
-        return str(app.msc.temperature_in_celsius)
+    if app.dib.loop_flag:
+        return str(app.dib.temperature_in_celsius)
 
 
 @app.route('/ask_stage')
 def ask_stage():
-    if app.msc.loop_flag:
+    if app.dib.loop_flag:
         enable_icon = """
             <script type="text/javascript">
             var div_icons = document.getElementsByClassName('stage');
             for (var i=0; i < div_icons.length; i++) {
                 var stage = div_icons[i];
-                if ('""" + app.msc.stage + """_stage' == stage.id) {
+                if ('""" + app.dib.stage + """_stage' == stage.id) {
                     stage.disabled = false;
                 } else {
                     stage.disabled = true;
@@ -135,11 +135,11 @@ def ask_stage():
 
 @app.route('/plot')
 def plot():
-    if app.msc.loop_flag:
+    if app.dib.loop_flag:
         # prepare plot params
         margin = Margin(l=35, r=5, b=100, t=10, pad=0)
         layout = Layout(autosize=True, margin=margin, width=900, height=600)
-        div_plot = plotly.offline.plot({"data": [Scatter(x=app.msc.coord_time, y=app.msc.coord_temp)],
+        div_plot = plotly.offline.plot({"data": [Scatter(x=app.dib.coord_time, y=app.dib.coord_temp)],
                                        "layout": layout},
                                        show_link=False, output_type='div')
         return div_plot
@@ -150,7 +150,7 @@ debug(True)
 
 
 try:
-    thread.start_new_thread(mshinectl.temperature_loop, ())
+    thread.start_new_thread(distibot.temperature_loop, ())
 except Exception, exc:
     print("Error: unable to start thread, exception=%s" % str(exc))
 
@@ -162,12 +162,12 @@ debug(True)
 if __name__ == '__main__':
 
     def signal_handler(signal, frame):
-        global mshinectl
+        global distibot
         global server
         global app
         print("signal_handler release")
-        mshinectl.stop_process()
-        mshinectl.release()
+        distibot.stop_process()
+        distibot.release()
         app.close()
 
     # signal.signal(signal.SIGINT, signal_handler)
@@ -184,8 +184,8 @@ if __name__ == '__main__':
     except Exception, ex:
         print(ex)
     finally:
-        mshinectl.stop_process()
-        mshinectl.release()
+        distibot.stop_process()
+        distibot.release()
 
     print("Exiting!")
     sys.exit(0)
