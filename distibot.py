@@ -2,15 +2,19 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-from pushbullet import Pushbullet
 import time
+import collections
+import ConfigParser
+import io
 import logging
 log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
 logging.basicConfig(format=log_format, level=logging.DEBUG)
+
+from pushbullet import Pushbullet
+
 import cooker
 import valve
 import heads_sensor_el
-import collections
 import tsensor
 
 # one_plus_one = pb.get_device('OnePlus One')
@@ -48,7 +52,8 @@ class pb_channel_emu(object):
 
 class Distibot(object):
 
-    def __init__(self, emu_mode=False):
+    def __init__(self, conf_filename='distibot.ini', emu_mode=False):
+        # self.parse_config(conf_filename)
         self.outdir = 'output/'  # TODO config
         self.Tcmd_prev = 'before start'
         self.Tcmd_last = 'before start'
@@ -64,11 +69,12 @@ class Distibot(object):
         self.T_sleep = 1
         self.csv_delay = 0
         self.print_str = []
-        self.sensor = tsensor.Tsensor(emu_mode)
         self.dt_string = time.strftime("%Y-%m-%d-%H-%M")
-        self.log = open(self.outdir + 'sensor-' + ('emu-' if self.sensor.emu_mode else '')
+        self.log = open(self.outdir + 'sensor-' + ('emu-' if emu_mode else '')
                         + self.dt_string
                         + '.csv', 'w', 0)  # 0 - unbuffered write
+
+        self.sensor = tsensor.Tsensor(emu_mode)
         self.temperature_in_celsius = self.sensor.get_temperature()
         self.T_prev = self.temperature_in_celsius
         self.loop_flag = True
@@ -81,6 +87,21 @@ class Distibot(object):
         self.pb_channel = self.pb.get_channel()
         self.coord_time = []
         self.coord_temp = []
+
+    def parse_config(self, conf_file_name):
+        # Load the configuration file
+        with open(conf_file_name) as f:
+            dib_config = f.read()
+            self.config = ConfigParser.RawConfigParser(allow_no_value=True)
+            self.config.readfp(io.BytesIO(dib_config))
+
+        # this_sec='cooker'
+        # for option in config.options(this_sec):
+        #    print "option={0}, value={1}".format(option, config.get(this_sec, option))
+        self.Tsteps = collections.OrderedDict(sorted(eval(self.config.items('Tsteps')),
+                                              key=lambda t: t[0]))
+
+        self.set_Tsteps()
 
     def load_config(self, conf_file_name):
         conf = open(conf_file_name, 'r')
