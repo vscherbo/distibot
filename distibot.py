@@ -53,7 +53,7 @@ class pb_channel_emu(object):
 class Distibot(object):
 
     def __init__(self, conf_filename='distibot.ini', emu_mode=False):
-        # self.parse_config(conf_filename)
+        self.parse_config(conf_filename)
         self.outdir = 'output/'  # TODO config
         self.Tcmd_prev = 'before start'
         self.Tcmd_last = 'before start'
@@ -78,10 +78,14 @@ class Distibot(object):
         self.temperature_in_celsius = self.sensor.get_temperature()
         self.T_prev = self.temperature_in_celsius
         self.loop_flag = True
-        self.cooker = cooker.Cooker(gpio_on_off=17, gpio_up=22, gpio_down=27, gpio_fry=15)
-        self.valve = valve.DoubleValve(gpio_v1=23, gpio_v2=24)
-        self.heads_sensor = heads_sensor_el.Heads_sensor(gpio_heads_start=25,
-                                                         gpio_heads_stop=14,
+        self.cooker = cooker.Cooker(gpio_on_off=self.config.get('cooker', 'gpio_cooker_on_off'),
+                                    gpio_up=self.config.get('cooker', 'gpio_cooker_up'),
+                                    gpio_down=self.config.get('cooker', 'gpio_cooker_down'),
+                                    gpio_fry=self.config.get('cooker', 'gpio_cooker_max'))
+        self.valve = valve.DoubleValve(gpio_v1=self.config.get('dbl_valve', 'gpio_dbl_valve_1'),
+                                       gpio_v2=self.config.get('dbl_valve', 'gpio_dbl_valve_2'))
+        self.heads_sensor = heads_sensor_el.Heads_sensor(gpio_heads_start=self.config.get('heads_sensor', 'gpio_hs_start'),
+                                                         gpio_heads_stop=self.config.get('heads_sensor', 'gpio_hs_stop'),
                                                          timeout=2000)
         self.pb = pb_wrap('XmJ61j9LVdjbPyKcSOUYv1k053raCeJP', emu_mode)
         self.pb_channel = self.pb.get_channel()
@@ -89,7 +93,7 @@ class Distibot(object):
         self.coord_temp = []
 
     def parse_config(self, conf_file_name):
-        # Load the configuration file
+        # Load and parse the configuration file
         with open(conf_file_name) as f:
             dib_config = f.read()
             self.config = ConfigParser.RawConfigParser(allow_no_value=True)
@@ -98,16 +102,12 @@ class Distibot(object):
         # this_sec='cooker'
         # for option in config.options(this_sec):
         #    print "option={0}, value={1}".format(option, config.get(this_sec, option))
-        self.Tsteps = collections.OrderedDict(sorted(eval(self.config.items('Tsteps')),
-                                              key=lambda t: t[0]))
 
-        self.set_Tsteps()
-
-    def load_config(self, conf_file_name):
-        conf = open(conf_file_name, 'r')
-        self.Tsteps = collections.OrderedDict(sorted(eval(conf.read()).items(),
+    def load_script(self, conf_file_name):
+        script = open(conf_file_name, 'r')
+        self.Tsteps = collections.OrderedDict(sorted(eval(script.read()).items(),
                                               key=lambda t: t[0]))
-        conf.close()
+        script.close()
         self.set_Tsteps()
 
     def set_Tsteps(self):
