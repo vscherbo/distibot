@@ -7,7 +7,10 @@ import time
 t1 = tsensor.Tsensor()
 
 cnt = 0
-while cnt < 3:
-    print t1.get_temperature()
+T = 0
+# while cnt < 3:
+while T < 99.9:
+    T = t1.get_temperature()
+    print T
     cnt += 1
-    time.sleep(1)
+    # time.sleep(1)
