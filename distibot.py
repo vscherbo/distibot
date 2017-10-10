@@ -61,6 +61,7 @@ class Distibot(object):
         self.downcount_limit = 5  # количество шагов подряд с неожидаемым снижением температуры
         self.csv_write_period = 3
         self.temperature_error_limit = 3
+        self.temperature_over_limit = 3
         self.temperature_delta_limit = 0.3  # 30%
         self.stage = 'start'
         self.current_ts = time.localtime()
@@ -214,7 +215,7 @@ class Distibot(object):
             if self.temperature_in_celsius > self.Tstage:
                 over_cnt += 1
 
-            if over_cnt > 3:
+            if over_cnt > self.temperature_over_limit:
                 over_cnt = 0
                 self.do_cmd()
 
@@ -310,6 +311,30 @@ class Distibot(object):
 
 #    def stop_body_power_on(self):
 #        self.stop_body()
+
+    def temperature_step(self):
+        t_failed_cnt = 0
+        try:
+            loc_t = self.sensor.get_temperature()
+            t_failed_cnt = 0
+        except:
+            t_failed_cnt += 1
+        else:
+            self.T_prev = self.temperature_in_celsius
+            self.temperature_in_celsius = loc_t
+
+        if t_failed_cnt > self.temperature_error_limit:
+            t_failed_cnt = 0
+            self.pb_channel.push_note("Сбой получения температуры", "Требуется вмешательство")
+
+        if abs((self.temperature_in_celsius - self.T_prev) / self.T_prev) \
+           > self.temperature_delta_limit:
+            self.temperature_in_celsius = self.T_prev
+            logging.warning('Over {:.0%} difference T_prev={}, t_in_Cels={}'.
+                            format(self.temperature_delta_limit,
+                                   self.T_prev,
+                                   self.temperature_in_celsius))
+
 
     def stop_body(self):
         self.stage = 'tail'
