@@ -7,8 +7,7 @@ log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
 logging.basicConfig(format=log_format, level=logging.DEBUG)
 
 
-class gpio(object):
-    logger = None
+class GPIO_DEV(object):
     log_dir = 'log/'
 
     def __init__(self):

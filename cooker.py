@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import RPi.GPIO as GPIO
-import gpio_class
+import gpio_dev
 import time
 
 
-class Cooker(gpio_class.gpio):
+class Cooker(gpio_dev.GPIO_DEV):
     powers = (120, 300, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000)
     max_power_index = len(powers)-1
     power_max = powers[-1]

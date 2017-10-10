@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import RPi.GPIO as GPIO
-import gpio_class
+import gpio_dev
 import time
 
 
-class Flow_sensor(gpio_class.gpio):
+class Flow_sensor(gpio_dev.GPIO_DEV):
     SECONDS_IN_A_MINUTE = 60
     MS_IN_A_SECOND = 1000.0
     enabled = True

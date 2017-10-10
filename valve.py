@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import RPi.GPIO as GPIO
-import gpio_class
+import gpio_dev
 
-class Valve(gpio_class.gpio):
+class Valve(gpio_dev.GPIO_DEV):
 
     def __init__(self, gpio_1_2):
         super(Valve, self).__init__()
@@ -32,7 +32,7 @@ class Valve(gpio_class.gpio):
             self.valve_default_way = False
 
 
-class DoubleValve(gpio_class.gpio):
+class DoubleValve(gpio_dev.GPIO_DEV):
 
     def __init__(self, gpio_v1, gpio_v2):
         super(DoubleValve, self).__init__()
