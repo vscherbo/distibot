@@ -49,7 +49,9 @@ pb = Pushbullet('XmJ61j9LVdjbPyKcSOUYv1k053raCeJP')
 c = [x for x in pb.channels if x.name == u"Billy's moonshine"][0]
 
 print("Create sensor")
-sensor = W1ThermSensor()
+# sensor = W1ThermSensor()
+sensor = W1ThermSensor(W1ThermSensor.THERM_SENSOR_DS18B20, '041670f4ffff')
+# 28-051670a8a9ff
 print("Sensor is created")
 # 0 - unbuffered write
 log = open('sensor-' + time.strftime("%Y-%m-%d-%H-%M") + '.csv', 'w', 0)
@@ -73,3 +75,5 @@ sys.exit(0)
 
 # sensor = W1ThermSensor(W1ThermSensor.THERM_SENSOR_DS18B20, "0000066c6502")
 # ll /sys/bus/w1/devices/
+# 28-041670f4ffff
+# 28-051670a8a9ff
