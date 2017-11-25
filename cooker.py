@@ -16,19 +16,19 @@ class Cooker(gpio_dev.GPIO_DEV):
         super(Cooker, self).__init__()
         self.gpio_on_off = gpio_on_off
         self.gpio_list.append(gpio_on_off)
-        GPIO.setup(self.gpio_on_off, GPIO.OUT, initial=GPIO.HIGH)
+        GPIO.setup(self.gpio_on_off, GPIO.OUT, initial=GPIO.LOW)
         #
         self.gpio_up = gpio_up
         self.gpio_list.append(gpio_up)
-        GPIO.setup(self.gpio_up, GPIO.OUT, initial=GPIO.HIGH)
+        GPIO.setup(self.gpio_up, GPIO.OUT, initial=GPIO.LOW)
         #
         self.gpio_down = gpio_down
         self.gpio_list.append(gpio_down)
-        GPIO.setup(self.gpio_down, GPIO.OUT, initial=GPIO.HIGH)
+        GPIO.setup(self.gpio_down, GPIO.OUT, initial=GPIO.LOW)
         #
         self.gpio_fry = gpio_fry
         self.gpio_list.append(gpio_fry)
-        GPIO.setup(self.gpio_fry, GPIO.OUT, initial=GPIO.HIGH)
+        GPIO.setup(self.gpio_fry, GPIO.OUT, initial=GPIO.LOW)
         #
         self.power_index = 6  # 1400W
         self.state_on = False
@@ -42,9 +42,9 @@ class Cooker(gpio_dev.GPIO_DEV):
 
     def click_button(self, gpio_port_num):
         time.sleep(0.1)  # для двух "нажатий" подряд
-        GPIO.output(gpio_port_num, 0)
-        time.sleep(0.1)
         GPIO.output(gpio_port_num, 1)
+        time.sleep(0.1)
+        GPIO.output(gpio_port_num, 0)
         self.logger.debug('clicked GPIO_port={gpio}'.format(gpio=gpio_port_num))
 
     def switch_on(self, force_mode=False):
@@ -138,6 +138,7 @@ if __name__ == '__main__':
     sleep(2)
 
     ck.set_power_1800()
+    ck.logger.info(ck.current_power())
     sleep(3)
 
     ck.set_power_1200()

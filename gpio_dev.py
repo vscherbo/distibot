@@ -3,7 +3,7 @@
 
 import RPi.GPIO as GPIO
 import logging
-log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
+log_format = '%(levelname)-7s | %(asctime)-15s | %(message)s'
 logging.basicConfig(format=log_format, level=logging.DEBUG)
 
 
