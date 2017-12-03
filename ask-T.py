@@ -1,13 +1,21 @@
 #!/usr/bin/python -t
 # -*- coding: utf-8 -*-
 
+"""
+demo programm for thermsensor
+
+to prevent load kernel modules
+export W1THERMSENSOR_NO_KERNEL_MODULE=1
+"""
+
 from __future__ import print_function
 from w1thermsensor import W1ThermSensor
 from time import sleep
 from pushbullet import Pushbullet
-import signal 
+import signal
 import sys
 import time
+
 
 def signal_handler(signal, frame):
     global loop_flag
@@ -19,7 +27,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 # Talarms = [25.0, 25.5, 25.9, 999.9] # debug
 # Talarms = [77.0, 79.0, 85.0, 88.0, 94.5, 98.5, 999.9] # 1st production
-Talarms = [94.5, 98.7, 999.9] # tails
+Talarms = [94.5, 98.7, 999.9]  # tails
 alarm_limit = 3
 
 print("Create sensor")
@@ -38,13 +46,13 @@ c = [x for x in pb.channels if x.name == u"Billy's moonshine"][0]
 # to channel
 # c.push_note("Hello "+ c.name, "Hello My Channel")
 
-log = open('sensor-'+time.strftime("%Y-%m-%d-%H-%M") +'.csv','w', 0) # 0 - unbuffered write
+log = open('sensor-' + time.strftime("%Y-%m-%d-%H-%M") + '.csv', 'w', 0)  # 0 - unbuffered write
 Talarm = Talarms.pop(0)
 alarm_cnt = 0
 loop_flag = True
 while loop_flag:
     temperature_in_celsius = sensor.get_temperature()
-    print(time.strftime("%H:%M:%S")+ ","+ str(temperature_in_celsius), file=log)
+    print(time.strftime("%H:%M:%S") + "," + str(temperature_in_celsius), file=log)
     # print(time.strftime("%H:%M:%S")+ ","+ str(temperature_in_celsius))
     if temperature_in_celsius > Talarm:
         c.push_note("Превысили "+str(Talarm), str(temperature_in_celsius))
@@ -52,7 +60,7 @@ while loop_flag:
         if alarm_cnt >= alarm_limit:
             alarm_cnt = 0
             Talarm = Talarms.pop(0)
-    # debug 
+    # debug
     # print("alarm_cnt="+str(alarm_cnt) + " Talarm=" + str(Talarm))
     sleep(5)
 
