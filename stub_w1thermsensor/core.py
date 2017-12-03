@@ -56,4 +56,8 @@ class W1ThermSensor(object):
         pass
 
     def get_temperature(self, unit=DEGREES_C):
-        return self.Tlist.pop(0)
+        try:
+            T = self.Tlist.pop(0)
+        except IndexError:
+            T = 99.9
+        return T

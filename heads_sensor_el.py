@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import RPi.GPIO as GPIO
-import gpio_class
+import gpio_dev
 
 
-class Heads_sensor(gpio_class.gpio):
+class Heads_sensor(gpio_dev.GPIO_DEV):
     timeout = 0
     flag_ignore_start = True
     flag_ignore_stop = True

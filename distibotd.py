@@ -20,8 +20,8 @@ args = parser.parse_args()
 webapp_path = 'webapp'
 
 
-distibot = Distibot(args.emu)
-distibot.load_config(args.conf)
+distibot = Distibot(emu_mode=args.emu)
+distibot.load_script(args.conf)
 
 app = application = Bottle()
 app.dib = distibot
