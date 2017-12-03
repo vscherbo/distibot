@@ -8,15 +8,11 @@ try:
 except ImportError:
     import stub_w1thermsensor as w1thermsensor
 import logging
-log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
-logger = logging.getLogger(__name__)
-# file_handler = logging.FileHandler('moonshine.log')
-# formatter = logging.Formatter(log_format)
-# file_handler.setFormatter(formatter)
-# logger.addHandler(file_handler)
+
 
 class Tsensor(w1thermsensor.W1ThermSensor):
     def __init__(self, sensor_type=None, sensor_id=None, emu_mode=False):
+        logging.getLogger(__name__).addHandler(logging.NullHandler())
         self.curr_T = 20
         if emu_mode:
             self.setup_emu_mode()
@@ -45,9 +41,9 @@ class Tsensor(w1thermsensor.W1ThermSensor):
     def get_temperature(self, unit=w1thermsensor.W1ThermSensor.DEGREES_C):
         if self.emu_mode:
             self.curr_T += self.step_emu_mode(self.curr_T)
-            logger.debug('emu_mode get_temperature={}'.format(self.curr_T))
+            logging.debug('emu_mode get_temperature={}'.format(self.curr_T))
             return self.curr_T
         else:
             loc_T = self.sensor.get_temperature(unit)
-            # logger.debug('get_temperature loc_T={}'.format(loc_T))
+            # logging.debug('get_temperature loc_T={}'.format(loc_T))
             return loc_T

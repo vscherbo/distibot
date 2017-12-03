@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# import gpio_dev
-from gpio_dev import *
+from gpio_dev import GPIO_DEV, GPIO
 import time
 import logging
+
 
 class Cooker(GPIO_DEV):
     powers = (120, 300, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000)
@@ -38,7 +38,6 @@ class Cooker(GPIO_DEV):
         logging.info("cooker.release")
         self.switch_off()
         super(Cooker, self).release()
-
 
     def click_button(self, gpio_port_num):
         time.sleep(0.1)  # для двух "нажатий" подряд

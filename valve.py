@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import RPi.GPIO as GPIO
-import gpio_dev
+from gpio_dev import GPIO_DEV, GPIO
+import logging
 
-class Valve(gpio_dev.GPIO_DEV):
+
+class Valve(GPIO_DEV):
 
     def __init__(self, gpio_1_2):
         super(Valve, self).__init__()
@@ -18,7 +19,7 @@ class Valve(gpio_dev.GPIO_DEV):
         super(Valve, self).release()
 
     def default_way(self):
-        self.logger.info("valve.default_way")
+        logging.info("valve.default_way")
         if self.valve_default_way:
             pass
         else:
@@ -26,13 +27,13 @@ class Valve(gpio_dev.GPIO_DEV):
             self.valve_default_way = True
 
     def power_on_way(self):
-        self.logger.info("valve.power_on_way")
+        logging.info("valve.power_on_way")
         if self.valve_default_way:
             GPIO.output(self.gpio_1_2, 1)
             self.valve_default_way = False
 
 
-class DoubleValve(gpio_dev.GPIO_DEV):
+class DoubleValve(GPIO_DEV):
 
     def __init__(self, gpio_v1, gpio_v2):
         super(DoubleValve, self).__init__()
@@ -52,7 +53,7 @@ class DoubleValve(gpio_dev.GPIO_DEV):
         self.v1_turn_off()
         self.v2_turn_off()
         super(DoubleValve, self).release()
-        self.logger.info("DblValve switched off")
+        logging.info("DblValve switched off")
 
     def v1_turn_on(self):
         if not self.v1_on:
@@ -93,32 +94,41 @@ class DoubleValve(gpio_dev.GPIO_DEV):
             self.way = 3
 
 if __name__ == "__main__":
-    import time
     import sys
-    v_port1=23
-    v_port2=24
+    from time import sleep
+    import os
+    log_dir = ''
+    log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
+
+    (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
+    logging.basicConfig(filename=prg_name+'.log', format=log_format, level=logging.INFO)
+
+    logging.info('Started')
+
+    v_port1 = 23
+    v_port2 = 24
 
     v1 = DoubleValve(gpio_v1=v_port1, gpio_v2=v_port2)
 
     sleep_time = 2
 
-    print("way_1")
+    logging.info("way_1")
     v1.way_1()
-    time.sleep(sleep_time)
+    sleep(sleep_time)
 
-    print("way_2")
+    logging.info("way_2")
     v1.way_2()
-    time.sleep(sleep_time)
+    sleep(sleep_time)
 
     # default way, both valves are off
-    print("way_3")
+    logging.info("way_3")
     v1.way_3()
-    time.sleep(sleep_time)
+    sleep(sleep_time)
 
-    print("way_1 again")
+    logging.info("way_1 again")
     v1.way_1()
-    time.sleep(sleep_time)
+    sleep(sleep_time)
 
-    print("release")
+    logging.info("release")
     v1.release()
     sys.exit()
