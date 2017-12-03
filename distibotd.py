@@ -149,11 +149,6 @@ def plot():
 debug(True)
 
 
-try:
-    thread.start_new_thread(distibot.temperature_loop, ())
-except Exception, exc:
-    print("Error: unable to start thread, exception=%s" % str(exc))
-
 
 # add this at the very end:
 debug(True)
@@ -173,6 +168,11 @@ if __name__ == '__main__':
     # signal.signal(signal.SIGINT, signal_handler)
     # signal.signal(signal.SIGHUP, signal_handler)
     # signal.signal(signal.SIGTERM, signal_handler)
+
+    try:
+        thread.start_new_thread(distibot.temperature_loop, ())
+    except Exception, exc:
+        print("Error: unable to start thread, exception=%s" % str(exc))
 
     loc_host = socket.gethostbyname(socket.gethostname())
     try:
