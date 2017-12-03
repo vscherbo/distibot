@@ -15,7 +15,7 @@ try:
 
 import imp
 try:
-    imp.find_module('RPi.GPIO')
+    imp.find_module('RPi')
     import RPi.GPIO as GPIO
 except ImportError:
     """
@@ -26,6 +26,7 @@ except ImportError:
     import FakeRPi.GPIO as GPIO
 
 import logging
+
 
 class GPIO_DEV(object):
 
@@ -56,4 +57,3 @@ if __name__ == "__main__":
     g1 = GPIO_DEV()
     g1.release()
     logging.info('Finished')
-
