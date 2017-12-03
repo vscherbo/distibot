@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import RPi.GPIO as GPIO
-import gpio_dev
+from gpio_dev import GPIO_DEV, GPIO
 import time
+import logging
 
 
-class Flow_sensor(gpio_dev.GPIO_DEV):
+class Flow_sensor(GPIO_DEV):
     SECONDS_IN_A_MINUTE = 60
     MS_IN_A_SECOND = 1000.0
     enabled = True
@@ -30,12 +30,12 @@ class Flow_sensor(gpio_dev.GPIO_DEV):
         self.enabled = True
         self.gpio_flow_pin = gpio_flow_pin
         self.gpio_list.append(gpio_flow_pin)
-        self.logger.info('init flow-sensor GPIO_flow={0}'.format(self.gpio_flow_pin))
+        logging.info('init flow-sensor GPIO_flow={0}'.format(self.gpio_flow_pin))
 
     def release(self):
         GPIO.remove_event_detect(self.gpio_flow_pin)
         super(Flow_sensor, self).release()
-        self.logger.debug("flow_sensor released")
+        logging.debug("flow_sensor released")
 
     def watch_flow(self, flow_callback):
         GPIO.setup(self.gpio_flow_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -64,7 +64,7 @@ def countPulse(gpio_id):
 
 if __name__ == "__main__":
     import sys
-    channel = 7
+    channel = 9
     fs = Flow_sensor(channel)
     fs.watch_flow(countPulse)
     while True:
