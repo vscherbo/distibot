@@ -133,12 +133,30 @@ class Cooker(GPIO_DEV):
 
 if __name__ == '__main__':
     from time import sleep
+    import argparse
     import os
-    log_dir = ''
-    log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
-
+    import sys
     (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
-    logging.basicConfig(filename=prg_name+'.log', format=log_format, level=logging.INFO)
+    # conf_file = prg_name +".conf"
+
+    parser = argparse.ArgumentParser(description='Pg listener for .')
+    parser.add_argument('--log', type=str, default='stdout', help='log destination')
+    parser.add_argument('--log_level', type=str, default="DEBUG", help='log level')
+    args = parser.parse_args()
+
+    numeric_level = getattr(logging, args.log_level, None)
+    if not isinstance(numeric_level, int):
+        raise ValueError('Invalid log level: %s' % numeric_level)
+
+    # log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
+    log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
+
+    if 'stdout' == args.log:
+        logging.basicConfig(stream=sys.stdout, format=log_format, level=numeric_level)
+    else:
+        log_dir = ''
+        log_file = log_dir + prg_name + ".log"
+        logging.basicConfig(filename=log_file, format=log_format, level=numeric_level)
 
     logging.info('Started')
 
