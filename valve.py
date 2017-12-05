@@ -7,12 +7,12 @@ import logging
 
 class Valve(GPIO_DEV):
 
-    def __init__(self, gpio_1_2):
+    def __init__(self, valve_gpio):
         super(Valve, self).__init__()
         self.valve_default_way = True
-        self.gpio_1_2 = gpio_1_2
-        self.gpio_list.append(gpio_1_2)
-        GPIO.setup(self.gpio_1_2, GPIO.OUT, initial=GPIO.LOW)
+        self.valve_gpio = valve_gpio
+        self.gpio_list.append(valve_gpio)
+        GPIO.setup(self.valve_gpio, GPIO.OUT, initial=GPIO.LOW)
 
     def release(self):
         self.default_way()
@@ -23,14 +23,23 @@ class Valve(GPIO_DEV):
         if self.valve_default_way:
             pass
         else:
-            GPIO.output(self.gpio_1_2, 0)
+            GPIO.output(self.valve_gpio, 0)
             self.valve_default_way = True
 
     def power_on_way(self):
         logging.info("valve.power_on_way")
         if self.valve_default_way:
-            GPIO.output(self.gpio_1_2, 1)
+            GPIO.output(self.valve_gpio, 1)
             self.valve_default_way = False
+
+    def demo(self, sleep_time=2):
+        logging.info("SingleValve power_on_way")
+        v1.power_on_way()
+        sleep(sleep_time)
+
+        logging.info("SingleValve default_way")
+        v1.default_way()
+        sleep(sleep_time)
 
 
 class DoubleValve(GPIO_DEV):
@@ -93,42 +102,68 @@ class DoubleValve(GPIO_DEV):
             self.v2_turn_off()
             self.way = 3
 
+    def demo(self, sleep_time=2):
+        logging.info("way_1")
+        v1.way_1()
+        sleep(sleep_time)
+
+        logging.info("way_2")
+        v1.way_2()
+        sleep(sleep_time)
+
+        # default way, both valves are off
+        logging.info("way_3")
+        v1.way_3()
+        sleep(sleep_time)
+
+        logging.info("way_1 again")
+        v1.way_1()
+        sleep(sleep_time)
+
+
 if __name__ == "__main__":
-    import sys
     from time import sleep
+    import argparse
     import os
-    log_dir = ''
-    log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
-
+    import sys
     (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
-    logging.basicConfig(filename=prg_name+'.log', format=log_format, level=logging.INFO)
+    # conf_file = prg_name +".conf"
 
+    parser = argparse.ArgumentParser(description='Distibot "valve" module')
+    parser.add_argument('--log_to_file', type=bool, default=False, help='log destination')
+    parser.add_argument('--log_level', type=str, default="DEBUG", help='log level')
+    parser.add_argument('--ports', type=str, help='valve port OR comma separated ports')
+    args = parser.parse_args()
+
+    numeric_level = getattr(logging, args.log_level, None)
+    if not isinstance(numeric_level, int):
+        raise ValueError('Invalid log level: %s' % numeric_level)
+
+    # log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
+    log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
+
+    if args.log_to_file:
+        log_dir = ''
+        log_file = log_dir + prg_name + ".log"
+        logging.basicConfig(filename=log_file, format=log_format, level=numeric_level)
+    else:
+        logging.basicConfig(stream=sys.stdout, format=log_format, level=numeric_level)
+
+    # end of prolog
     logging.info('Started')
 
-    v_port1 = 23
-    v_port2 = 24
+    ports = args.ports.split(",")
+    if len(ports) > 1:
+        v_port1 = ports[0]  # 23
+        v_port2 = ports[1]  # 24
+        logging.debug('DoubleValve port1={0}, port2={1}'.format(v_port1, v_port2))
+        v1 = DoubleValve(gpio_v1=v_port1, gpio_v2=v_port2)
+    else:
+        v_port1 = ports[0]
+        logging.debug('SingleValve port1={0}'.format(v_port1))
+        v1 = Valve(valve_gpio=v_port1)
 
-    v1 = DoubleValve(gpio_v1=v_port1, gpio_v2=v_port2)
-
-    sleep_time = 2
-
-    logging.info("way_1")
-    v1.way_1()
-    sleep(sleep_time)
-
-    logging.info("way_2")
-    v1.way_2()
-    sleep(sleep_time)
-
-    # default way, both valves are off
-    logging.info("way_3")
-    v1.way_3()
-    sleep(sleep_time)
-
-    logging.info("way_1 again")
-    v1.way_1()
-    sleep(sleep_time)
-
+    v1.demo()
     logging.info("release")
     v1.release()
     sys.exit()
