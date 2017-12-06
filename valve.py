@@ -154,12 +154,12 @@ if __name__ == "__main__":
 
     ports = args.ports.split(",")
     if len(ports) > 1:
-        v_port1 = ports[0]  # 23
-        v_port2 = ports[1]  # 24
+        v_port1 = int(ports[0])  # 23
+        v_port2 = int(ports[1])  # 24
         logging.debug('DoubleValve port1={0}, port2={1}'.format(v_port1, v_port2))
         v1 = DoubleValve(gpio_v1=v_port1, gpio_v2=v_port2)
     else:
-        v_port1 = ports[0]
+        v_port1 = int(ports[0])
         logging.debug('SingleValve port1={0}'.format(v_port1))
         v1 = Valve(valve_gpio=v_port1)
 
