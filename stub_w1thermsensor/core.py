@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import numpy
+import numpy as np
 """
 This module provides a stub for temperature sensor of type w1 therm.
 """
@@ -9,8 +9,9 @@ class W1ThermSensor(object):
     """
     stub for W1ThermSensor 
     """
-    Tlist = range(20,70)
-    Tlist = Tlist + numpy.arange(70, 99, 0.5).tolist()
+    Tlist = range(20,70, 2)
+    Tlist = Tlist + np.arange(70, 88, 0.1).tolist()
+    Tlist = Tlist + np.arange(88, 99, 0.3).tolist()
     #: Holds information about supported w1therm sensors
     THERM_SENSOR_DS18S20 = 0x10
     THERM_SENSOR_DS1822 = 0x22
@@ -57,7 +58,7 @@ class W1ThermSensor(object):
 
     def get_temperature(self, unit=DEGREES_C):
         try:
-            T = self.Tlist.pop(0)
+            T = np.around(self.Tlist.pop(0)*np.random.uniform(0.997, 1.003), 2)
         except IndexError:
             T = 99.9
         return T
