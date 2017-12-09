@@ -74,7 +74,7 @@ if __name__ == '__main__':
     Talarms = [77.0, 79.0, 85.0, 88.0, 94.5, 98.5, 999.9] # 1st production
     # Talarms = [94.5, 98.7, 999.9]  # tails
     alarm_limit = 3
-    ts1_id='1234567890'
+    ts1_id=conf['tsensor_id']
 
     sensor = Tsensor(sensor_id=ts1_id)
     logging.info("Sensor is created")
