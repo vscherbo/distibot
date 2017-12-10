@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+import imp
 try:
+    imp.find_module('w1thermsensor')
     import w1thermsensor
-    assert w1thermsensor
 except ImportError:
     import stub_w1thermsensor as w1thermsensor
 import logging
@@ -13,6 +14,7 @@ import logging
 class Tsensor(w1thermsensor.W1ThermSensor):
     def __init__(self, sensor_type=None, sensor_id=None):
         logging.getLogger(__name__).addHandler(logging.NullHandler())
+        self.sensor_id = sensor_id
         self.curr_T = 20
         try:
             # sensor = W1ThermSensor(W1ThermSensor.THERM_SENSOR_DS18B20, "0000066c6502")
@@ -27,22 +29,33 @@ class Tsensor(w1thermsensor.W1ThermSensor):
         return loc_T
 
 
-
 if __name__ == '__main__':
     from time import sleep, strftime
     import argparse
-    import os, sys
+    import os
+    import sys
     import signal
+
+    def ask_t(sensor):
+        # global Talarm
+        if sensor is not None:
+            temperature = sensor.get_temperature()
+            t_alarm = temperature > Talarm
+            logging.info('ts_id={0}, t={1}'.format(sensor.sensor_id, temperature))
+            print("{0}^{1}^{2}".format(strftime("%H:%M:%S"), sensor.sensor_id, temperature), file=csv)
+        else:
+            temperature = None
+            t_alarm = False
+        return t_alarm, temperature
 
     def signal_handler(signal, frame):
         global loop_flag, csv
         loop_flag = False
-        csv.close()
 
     signal.signal(signal.SIGINT, signal_handler)
 
     (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
-    conf_file = prg_name +".conf"
+    conf_file = prg_name + ".conf"
 
     parser = argparse.ArgumentParser(description='Distibot "tsensor" module')
     parser.add_argument('--conf', type=str, default=conf_file, help='conf file')
@@ -71,29 +84,42 @@ if __name__ == '__main__':
 
     # TODO read from conf file
     # Talarms = [25.0, 25.5, 25.9, 999.9] # debug
-    Talarms = [77.0, 79.0, 85.0, 88.0, 94.5, 98.5, 999.9] # 1st production
+    Talarms = [77.0, 79.0, 85.0, 88.0, 94.5, 98.5, 999.9]  # 1st production
     # Talarms = [94.5, 98.7, 999.9]  # tails
     alarm_limit = 3
-    ts1_id=conf['tsensor_id']
+    try:
+        ts1_id = conf['tsensor1_id']
+        sensor1 = Tsensor(sensor_id=ts1_id)
+        logging.info("Sensor1 is created")
+    except KeyError:
+        ts1_id = None
+        sensor1 = None
+        logging.info('tsensor1_id is not found in conf file={0}'.format(args.conf))
+    try:
+        ts2_id = conf['tsensor2_id']
+        sensor2 = Tsensor(sensor_id=ts2_id)
+        logging.info("Sensor2 is created")
+    except KeyError:
+        ts2_id = None
+        sensor2 = None
+        logging.info('tsensor2_id is not found in conf file={0}'.format(args.conf))
 
-    sensor = Tsensor(sensor_id=ts1_id)
-    logging.info("Sensor is created")
     csv = open('{0}-{1}.csv'.format(prg_name, strftime("%Y-%m-%d-%H-%M")), 'w', 0)  # 0 - unbuffered write
     Talarm = Talarms.pop(0)
     alarm_cnt = 0
     finish_cnt = 0
     loop_flag = True
     while loop_flag:
-        temperature_in_celsius = sensor.get_temperature()
-        print("{0}^{1}".format(strftime("%H:%M:%S"), temperature_in_celsius), file=csv)
-        logging.info(temperature_in_celsius)
-        if temperature_in_celsius > Talarm:
-            logging.info("Превысили {0}, t={1}".format(Talarm, temperature_in_celsius))
+        (t_alarm_1, temperature1) = ask_t(sensor1)
+        (t_alarm_2, temperature2) = ask_t(sensor2)
+        if t_alarm_1 or t_alarm_2:
+            logging.info("Превысили {0}, t1={1}, t2={2}".format(Talarm, temperature1, temperature2))
+            # TODO alarm_cnt for the each sensor
             alarm_cnt += 1
             if alarm_cnt >= alarm_limit:
                 alarm_cnt = 0
                 Talarm = Talarms.pop(0)
-            if temperature_in_celsius == 99.9:
+            if temperature1 == 99.9:
                 finish_cnt += 1
             if finish_cnt > 3:
                 loop_flag = False
