@@ -87,7 +87,10 @@ class Distibot(object):
         self.cooker = cooker.Cooker(gpio_on_off=self.config.get('cooker', 'gpio_cooker_on_off'),
                                     gpio_up=self.config.get('cooker', 'gpio_cooker_up'),
                                     gpio_down=self.config.get('cooker', 'gpio_cooker_down'),
-                                    gpio_fry=self.config.get('cooker', 'gpio_cooker_max'))
+                                    gpio_special=self.config.get('cooker', 'gpio_cooker_special'),
+                                    powers=self.config.get('cooker', 'cooker_powers'),
+                                    init_power=self.config.get('cooker', 'cooker_init_power'),
+                                    )
         self.valve3way = valve.DoubleValve(gpio_v1=self.config.get('dbl_valve', 'gpio_dbl_valve_1'),
                                            gpio_v2=self.config.get('dbl_valve', 'gpio_dbl_valve_2'))
         self.heads_sensor = heads_sensor_el.Heads_sensor(gpio_heads_start=self.config.get('heads_sensor', 'gpio_hs_start'),

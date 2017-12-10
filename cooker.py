@@ -7,12 +7,8 @@ import logging
 
 
 class Cooker(GPIO_DEV):
-    powers = (120, 300, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000)
-    max_power_index = len(powers)-1
-    power_max = powers[-1]
-    power_min = powers[0]
 
-    def __init__(self, gpio_on_off, gpio_up, gpio_down, gpio_fry):
+    def __init__(self, gpio_on_off, gpio_up, gpio_down, gpio_special, powers, init_power):
         super(Cooker, self).__init__()
         self.gpio_on_off = gpio_on_off
         self.gpio_list.append(gpio_on_off)
@@ -26,13 +22,21 @@ class Cooker(GPIO_DEV):
         self.gpio_list.append(gpio_down)
         GPIO.setup(self.gpio_down, GPIO.OUT, initial=GPIO.LOW)
         #
-        self.gpio_fry = gpio_fry
-        self.gpio_list.append(gpio_fry)
-        GPIO.setup(self.gpio_fry, GPIO.OUT, initial=GPIO.LOW)
+        self.gpio_special = gpio_special
+        self.gpio_list.append(gpio_special)
+        GPIO.setup(self.gpio_special, GPIO.OUT, initial=GPIO.LOW)
         #
         self.power_index = 6  # 1400W
         self.state_on = False
         self.target_power_index = 0
+
+        # powers = (120, 300, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000)
+        self.powers = powers
+        self.max_power_index = len(powers)-1
+        self.power_max = powers[-1]
+        self.power_min = powers[0]
+        self.init_power = init_power
+        self.ini_power_index = self.powers.index(init_power)
 
     def release(self):
         logging.info("cooker.release")
@@ -51,7 +55,8 @@ class Cooker(GPIO_DEV):
             self.state_on = False
         if not self.state_on:
             self.click_button(self.gpio_on_off)
-            self.power_index = 6  # 1400W
+            # self.power_index = 6  # 1400W
+            self.power_index = self.ini_power_index
             self.state_on = True
 
     def switch_off(self, force_mode=False):
@@ -62,9 +67,10 @@ class Cooker(GPIO_DEV):
             self.click_button(self.gpio_on_off)
             self.state_on = False
 
-    def set_fry(self):
-        logging.info("set_Fry")
-        self.click_button(self.gpio_fry)
+    def set_special(self):
+        # TODO different cookers, diffirent special
+        logging.info("set_special")
+        self.click_button(self.gpio_special)
         self.power_index = self.max_power_index
 
     def power_up(self):
@@ -160,7 +166,10 @@ if __name__ == '__main__':
 
     logging.info('Started')
 
-    ck = Cooker(gpio_on_off=17, gpio_up=22, gpio_down=27, gpio_fry=15)
+    ck = Cooker(gpio_on_off=17, gpio_up=22, gpio_down=27, gpio_special=15,
+                powers=(120, 300, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000),
+                init_power=1400)
+    logging.info('ini_power_index={0}'.format(ck.ini_power_index))
     ck.switch_on()
     sleep(2)
 
@@ -172,7 +181,7 @@ if __name__ == '__main__':
     logging.info(ck.current_power())
     sleep(3)
 
-    ck.set_fry()
+    ck.set_special()
     sleep(2)
     logging.info(ck.current_power())
 
