@@ -5,11 +5,12 @@ import numpy as np
 This module provides a stub for temperature sensor of type w1 therm.
 """
 
+
 class W1ThermSensor(object):
     """
-    stub for W1ThermSensor 
+    stub for W1ThermSensor
     """
-    Tlist = range(20,70, 2)
+    Tlist = range(20, 70, 2)
     Tlist = Tlist + np.arange(70, 88, 0.1).tolist()
     Tlist = Tlist + np.arange(88, 99, 0.3).tolist()
     #: Holds information about supported w1therm sensors
