@@ -52,8 +52,8 @@ class pb_channel_emu(object):
 
 class Distibot(object):
 
-    def __init__(self, conf_filename='distibot.ini', emu_mode=False):
-        self.parse_config(conf_filename)
+    def __init__(self, ini_filename='distibot.ini'):
+        self.parse_ini(ini_filename)
         self.outdir = 'output/'  # TODO config
         self.Tcmd_prev = 'before start'
         self.Tcmd_last = 'before start'
@@ -71,30 +71,39 @@ class Distibot(object):
         self.csv_delay = 0
         self.print_str = []
         self.dt_string = time.strftime("%Y-%m-%d-%H-%M")
-        self.log = open(self.outdir + 'sensor-' + ('emu-' if emu_mode else '')
-                        + self.dt_string
-                        + '.csv', 'w', 0)  # 0 - unbuffered write
 
-        self.sensor = tsensor.Tsensor(emu_mode)
-        self.temperature_in_celsius = self.sensor.get_temperature()
-        self.T_prev = self.temperature_in_celsius
+        if self.config.has_option('gpio_ts'):
+            pass
+            # TODO switch gpio to INPUT
+            # self.ts_gpio = tsensor.Tsensor( ...
+        if self.config.has_option('tsensor_boiler_id'):
+            self.sensor_boiler = tsensor.Tsensor(sensor_id=self.config.get('tsensors', 'ts_boiler_id'))
+        if self.config.has_option('tsensor_condenser_id'):
+            self.sensor_condenser = tsensor.Tsensor(sensor_id=self.config.get('tsensors', 'ts_condenser_id'))
+        self.temperature_boiler = self.sensor_boiler.get_temperature()
+        self.temperature_condenser = self.sensor_condenser.get_temperature()
+        self.T_prev = self.temperature_boiler
         self.loop_flag = True
         self.cooker = cooker.Cooker(gpio_on_off=self.config.get('cooker', 'gpio_cooker_on_off'),
                                     gpio_up=self.config.get('cooker', 'gpio_cooker_up'),
                                     gpio_down=self.config.get('cooker', 'gpio_cooker_down'),
                                     gpio_fry=self.config.get('cooker', 'gpio_cooker_max'))
-        self.valve = valve.DoubleValve(gpio_v1=self.config.get('dbl_valve', 'gpio_dbl_valve_1'),
-                                       gpio_v2=self.config.get('dbl_valve', 'gpio_dbl_valve_2'))
+        self.valve3way = valve.DoubleValve(gpio_v1=self.config.get('dbl_valve', 'gpio_dbl_valve_1'),
+                                           gpio_v2=self.config.get('dbl_valve', 'gpio_dbl_valve_2'))
         self.heads_sensor = heads_sensor_el.Heads_sensor(gpio_heads_start=self.config.get('heads_sensor', 'gpio_hs_start'),
                                                          gpio_heads_stop=self.config.get('heads_sensor', 'gpio_hs_stop'),
                                                          timeout=2000)
-        self.pb = pb_wrap('XmJ61j9LVdjbPyKcSOUYv1k053raCeJP', emu_mode)
+        # self.pb = pb_wrap('XmJ61j9LVdjbPyKcSOUYv1k053raCeJP')
+        self.pb = pb_wrap(self.config.get('pushbullet', 'api_key'))
         self.pb_channel = self.pb.get_channel()
         self.coord_time = []
         self.coord_temp = []
+        self.log = open(self.outdir + 'sensor-'  # + ('emu-' if emu_mode else '')
+                        + self.dt_string
+                        + '.csv', 'w', 0)  # 0 - unbuffered write
 
-    def parse_config(self, conf_file_name):
-        # Load and parse the configuration file
+    def parse_ini(self, conf_file_name):
+        # Load and parse the ini file
         with open(conf_file_name) as f:
             dib_config = f.read()
             self.config = ConfigParser.RawConfigParser(allow_no_value=True)
@@ -124,7 +133,7 @@ class Distibot(object):
             save_coord.write(save_str)
         save_coord.close()
         self.cooker.release()
-        self.valve.release()
+        self.valve3way.release()
         self.heads_sensor.release()
 
     def pause_monitor(self):
@@ -142,18 +151,18 @@ class Distibot(object):
         но включение не происходит.
         """
         if 'pause' == self.stage:
-            if self.T_prev > self.temperature_in_celsius:
+            if self.T_prev > self.temperature_boiler:
                 self.downcount += 1
                 if self.downcount >= self.downcount_limit:
                     self.pb_channel.push_note("Снижение температуры", "Включаю нагрев")
                     self.heat_for_heads()
                     self.downcount = 0
-            elif self.T_prev < self.temperature_in_celsius:
+            elif self.T_prev < self.temperature_boiler:
                 self.downcount = 0
 
     def csv_write(self):
         self.print_str.append(time.strftime("%H:%M:%S", self.current_ts))
-        self.print_str.append(str(self.temperature_in_celsius))
+        self.print_str.append(str(self.temperature_boiler))
         if self.csv_delay >= self.csv_write_period:
             self.csv_delay = 0
             print(','.join(self.print_str), file=self.log)
@@ -168,7 +177,7 @@ class Distibot(object):
     def do_cmd(self):
         self.Tcmd_last = self.Tcmd.__name__
         self.pb_channel.push_note("Превысили " + str(self.Tstage),
-                                  str(self.temperature_in_celsius)
+                                  str(self.temperature_boiler)
                                   + ", Tcmd=" + str(self.Tcmd.__name__))
 
         self.Tcmd()
@@ -190,29 +199,29 @@ class Distibot(object):
             except:
                 t_failed_cnt += 1
             else:
-                self.T_prev = self.temperature_in_celsius
-                self.temperature_in_celsius = loc_t
+                self.T_prev = self.temperature_boiler
+                self.temperature_boiler = loc_t
 
             if t_failed_cnt > self.temperature_error_limit:
                 t_failed_cnt = 0
                 self.pb_channel.push_note("Сбой получения температуры", "Требуется вмешательство")
 
-            if abs((self.temperature_in_celsius - self.T_prev) / self.T_prev) \
+            if abs((self.temperature_boiler - self.T_prev) / self.T_prev) \
                > self.temperature_delta_limit:
-                self.temperature_in_celsius = self.T_prev
+                self.temperature_boiler = self.T_prev
                 logging.warning('Over {:.0%} difference T_prev={}, t_in_Cels={}'.
                                 format(self.temperature_delta_limit,
                                        self.T_prev,
-                                       self.temperature_in_celsius))
+                                       self.temperature_boiler))
 
             self.current_ts = time.localtime()
             self.coord_time.append(time.strftime("%H:%M:%S", self.current_ts))
-            self.coord_temp.append(self.temperature_in_celsius)
+            self.coord_temp.append(self.temperature_boiler)
 
             self.pause_monitor()
             self.decrease_monitor()
 
-            if self.temperature_in_celsius > self.Tstage:
+            if self.temperature_boiler > self.Tstage:
                 over_cnt += 1
 
             if over_cnt > self.temperature_over_limit:
@@ -293,19 +302,19 @@ class Distibot(object):
             self.pb_channel.push_note("Закончились головы",
                                       "gpio_id=" + str(gpio_id)
                                       + ", value=" + str(value))
-            self.valve.way_2()
+            self.valve3way.way_2()
             self.cooker.switch_off()
             self.cooker.switch_on()  # set power 1400
             self.heads_sensor.ignore_stop(),
 
     def start_watch_heads(self):
-        self.valve.way_1()
+        self.valve3way.way_1()
         self.heads_sensor.watch_start(self.heads_started)
         self.cooker.set_power(300)
 
     def wait4body(self):
         self.cooker.switch_on()
-        self.valve.way_2()
+        self.valve3way.way_2()
         self.stage = 'heat'
         logging.debug('stage is "{}"'.format(self.stage))
 
@@ -320,26 +329,25 @@ class Distibot(object):
         except:
             t_failed_cnt += 1
         else:
-            self.T_prev = self.temperature_in_celsius
-            self.temperature_in_celsius = loc_t
+            self.T_prev = self.temperature_boiler
+            self.temperature_boiler = loc_t
 
         if t_failed_cnt > self.temperature_error_limit:
             t_failed_cnt = 0
             self.pb_channel.push_note("Сбой получения температуры", "Требуется вмешательство")
 
-        if abs((self.temperature_in_celsius - self.T_prev) / self.T_prev) \
+        if abs((self.temperature_boiler - self.T_prev) / self.T_prev) \
            > self.temperature_delta_limit:
-            self.temperature_in_celsius = self.T_prev
+            self.temperature_boiler = self.T_prev
             logging.warning('Over {:.0%} difference T_prev={}, t_in_Cels={}'.
                             format(self.temperature_delta_limit,
                                    self.T_prev,
-                                   self.temperature_in_celsius))
-
+                                   self.temperature_boiler))
 
     def stop_body(self):
         self.stage = 'tail'
         logging.debug('stage is "{}"'.format(self.stage))
-        self.valve.way_3()
+        self.valve3way.way_3()
         self.pb_channel.push_note("Закончилось тело",
                                   "Клапан выключен")
 
