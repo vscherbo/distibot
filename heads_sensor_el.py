@@ -6,9 +6,6 @@ import logging
 
 
 class Heads_sensor(GPIO_DEV):
-    timeout = 0
-    flag_ignore_start = True
-    flag_ignore_stop = True
 
     def __init__(self, gpio_heads_start, gpio_heads_stop, timeout=1000):
         super(Heads_sensor, self).__init__()
