@@ -39,7 +39,6 @@ class Valve(GPIO_DEV):
 
         logging.info("SingleValve default_way")
         v1.default_way()
-        sleep(sleep_time)
 
 
 class DoubleValve(GPIO_DEV):
@@ -118,7 +117,6 @@ class DoubleValve(GPIO_DEV):
 
         logging.info("way_1 again")
         v1.way_1()
-        sleep(sleep_time)
 
 
 if __name__ == "__main__":
@@ -133,6 +131,7 @@ if __name__ == "__main__":
     parser.add_argument('--log_to_file', type=bool, default=False, help='log destination')
     parser.add_argument('--log_level', type=str, default="DEBUG", help='log level')
     parser.add_argument('--ports', type=str, help='valve port OR comma separated ports')
+    parser.add_argument('--delay', type=int, default=2, help='seconds between steps')
     args = parser.parse_args()
 
     numeric_level = getattr(logging, args.log_level, None)
@@ -163,7 +162,7 @@ if __name__ == "__main__":
         logging.debug('SingleValve port1={0}'.format(v_port1))
         v1 = Valve(valve_gpio=v_port1)
 
-    v1.demo()
+    v1.demo(sleep_time=args.delay)
     logging.info("release")
     v1.release()
     sys.exit()
