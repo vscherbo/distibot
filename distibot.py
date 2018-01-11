@@ -52,8 +52,8 @@ class pb_channel_emu(object):
 
 class Distibot(object):
 
-    def __init__(self, ini_filename='distibot.ini'):
-        self.parse_ini(ini_filename)
+    def __init__(self, conf_filename='distibot.conf'):
+        self.parse_conf(conf_filename)
         self.outdir = 'output/'  # TODO config
         self.Tcmd_prev = 'before start'
         self.Tcmd_last = 'before start'
@@ -83,6 +83,7 @@ class Distibot(object):
         self.temperature_boiler = self.sensor_boiler.get_temperature()
         self.temperature_condenser = self.sensor_condenser.get_temperature()
         self.T_prev = self.temperature_boiler
+
         self.loop_flag = True
         self.cooker = cooker.Cooker(gpio_on_off=self.config.get('cooker', 'gpio_cooker_on_off'),
                                     gpio_up=self.config.get('cooker', 'gpio_cooker_up'),
@@ -96,7 +97,6 @@ class Distibot(object):
         self.heads_sensor = heads_sensor_el.Heads_sensor(gpio_heads_start=self.config.get('heads_sensor', 'gpio_hs_start'),
                                                          gpio_heads_stop=self.config.get('heads_sensor', 'gpio_hs_stop'),
                                                          timeout=2000)
-        # self.pb = pb_wrap('XmJ61j9LVdjbPyKcSOUYv1k053raCeJP')
         self.pb = pb_wrap(self.config.get('pushbullet', 'api_key'))
         self.pb_channel = self.pb.get_channel()
         self.coord_time = []
@@ -105,8 +105,8 @@ class Distibot(object):
                         + self.dt_string
                         + '.csv', 'w', 0)  # 0 - unbuffered write
 
-    def parse_ini(self, conf_file_name):
-        # Load and parse the ini file
+    def parse_conf(self, conf_file_name):
+        # Load and parse the conf file
         with open(conf_file_name) as f:
             dib_config = f.read()
             self.config = ConfigParser.RawConfigParser(allow_no_value=True)
@@ -116,8 +116,8 @@ class Distibot(object):
         # for option in config.options(this_sec):
         #    print "option={0}, value={1}".format(option, config.get(this_sec, option))
 
-    def load_script(self, conf_file_name):
-        script = open(conf_file_name, 'r')
+    def load_script(self, play_file_name):
+        script = open(play_file_name, 'r')
         self.Tsteps = collections.OrderedDict(sorted(eval(script.read()).items(),
                                               key=lambda t: t[0]))
         script.close()
