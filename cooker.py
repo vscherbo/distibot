@@ -4,11 +4,13 @@
 from gpio_dev import GPIO_DEV, GPIO
 import time
 import logging
+import ConfigParser
+import io
 
 
 class Cooker(GPIO_DEV):
 
-    def __init__(self, gpio_on_off, gpio_up, gpio_down, gpio_special, powers, init_power):
+    def __init__(self, gpio_on_off, gpio_up, gpio_down, gpio_special, powers, init_power, init_special):
         super(Cooker, self).__init__()
         self.gpio_on_off = gpio_on_off
         self.gpio_list.append(gpio_on_off)
@@ -26,7 +28,7 @@ class Cooker(GPIO_DEV):
         self.gpio_list.append(gpio_special)
         GPIO.setup(self.gpio_special, GPIO.OUT, initial=GPIO.LOW)
         #
-        self.power_index = 6  # 1400W
+        # self.power_index = 0
         self.state_on = False
         self.target_power_index = 0
 
@@ -50,14 +52,20 @@ class Cooker(GPIO_DEV):
         GPIO.output(gpio_port_num, 0)
         logging.debug('clicked self_port={gpio}'.format(gpio=gpio_port_num))
 
+    def init_special(self):
+        logging.info("init_special")
+        if self.init_special:
+            self.click_button(self.gpio_special)
+        self.power_index = self.ini_power_index
+
     def switch_on(self, force_mode=False):
         if force_mode:
             self.state_on = False
         if not self.state_on:
             self.click_button(self.gpio_on_off)
             # self.power_index = 6  # 1400W
-            self.power_index = self.ini_power_index
             self.state_on = True
+        self.init_special()
 
     def switch_off(self, force_mode=False):
         if force_mode:
@@ -66,12 +74,6 @@ class Cooker(GPIO_DEV):
             logging.info("switch_OFF")
             self.click_button(self.gpio_on_off)
             self.state_on = False
-
-    def set_special(self):
-        # TODO different cookers, diffirent special
-        logging.info("set_special")
-        self.click_button(self.gpio_special)
-        self.power_index = self.max_power_index
 
     def power_up(self):
         if self.power_index < self.max_power_index:
@@ -137,15 +139,50 @@ class Cooker(GPIO_DEV):
     def current_power(self):
         return self.powers[self.power_index]
 
+
+class Cooker_tester(object):
+    def __init__(self, conf_filename='distibot.conf'):
+        with open(conf_filename) as f:
+            dib_config = f.read()
+            self.config = ConfigParser.RawConfigParser(allow_no_value=True)
+            self.config.readfp(io.BytesIO(dib_config))
+
+        self.cooker = Cooker(gpio_on_off=self.config.getint('cooker', 'gpio_cooker_on_off'),
+                             gpio_up=self.config.getint('cooker', 'gpio_cooker_up'),
+                             gpio_down=self.config.getint('cooker', 'gpio_cooker_down'),
+                             gpio_special=self.config.getint('cooker', 'gpio_cooker_special'),
+                             powers=eval(self.config.get('cooker', 'cooker_powers')),
+                             init_power=self.config.getint('cooker', 'cooker_init_power'),
+                             init_special=self.config.getboolean('cooker', 'init_special')
+                             )
+
+    def load_script(self, play_file_name):
+        script = open(play_file_name, 'r')
+        self.play = eval(script.read())
+        script.close()
+
+    def play_script(self):
+        for play_stage in self.play:
+            logging.debug('run play_stage={0}'.format(play_stage))
+            self.cooker.set_power(play_stage)
+            logging.info(self.cooker.current_power())
+            sleep(3)
+        if not self.cooker.init_special:
+            self.cooker.init_special()
+            sleep(2)
+            logging.info(ckt.cooker.current_power())
+
 if __name__ == '__main__':
     from time import sleep
     import argparse
     import os
     import sys
+
     (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
-    # conf_file = prg_name +".conf"
 
     parser = argparse.ArgumentParser(description='Distibot "cooker" module')
+    parser.add_argument('--conf', type=str, default="distibot.conf", help='conf file')
+    parser.add_argument('--play', type=str, default="cooker.play", help='play file')
     parser.add_argument('--log_to_file', type=bool, default=False, help='log destination')
     parser.add_argument('--log_level', type=str, default="DEBUG", help='log level')
     args = parser.parse_args()
@@ -165,26 +202,30 @@ if __name__ == '__main__':
         logging.basicConfig(stream=sys.stdout, format=log_format, level=numeric_level)
 
     logging.info('Started')
+    ckt = Cooker_tester(args.conf)
 
-    ck = Cooker(gpio_on_off=17, gpio_up=22, gpio_down=27, gpio_special=15,
-                powers=(120, 300, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000),
-                init_power=1400)
-    logging.info('ini_power_index={0}'.format(ck.ini_power_index))
-    ck.switch_on()
+    logging.info('ini_power_index={0}'.format(ckt.cooker.ini_power_index))
+    ckt.cooker.switch_on()
     sleep(2)
 
-    ck.set_power_1800()
-    logging.info(ck.current_power())
-    sleep(3)
+    # cooker_play = (240, 150, 80, 150)
+    ckt.load_script(args.play)
+    ckt.play_script()
 
-    ck.set_power_1200()
-    logging.info(ck.current_power())
-    sleep(3)
-
-    ck.set_special()
-    sleep(2)
-    logging.info(ck.current_power())
-
-    ck.release()
+    ckt.cooker.release()
 
     logging.info('Finished')
+
+    """
+        ckt.cooker.set_power_1800()
+        logging.info(ckt.cooker.current_power())
+        sleep(3)
+
+        ckt.cooker.set_power_1200()
+        logging.info(ckt.cooker.current_power())
+        sleep(3)
+
+        ckt.cooker.init_special()
+        sleep(2)
+        logging.info(ckt.cooker.current_power())
+    """
