@@ -105,9 +105,9 @@ class Distibot(object):
                         + self.dt_string
                         + '.csv', 'w', 0)  # 0 - unbuffered write
 
-    def parse_conf(self, conf_file_name):
+    def parse_conf(self, conf_filename):
         # Load and parse the conf file
-        with open(conf_file_name) as f:
+        with open(conf_filename) as f:
             dib_config = f.read()
             self.config = ConfigParser.RawConfigParser(allow_no_value=True)
             self.config.readfp(io.BytesIO(dib_config))
@@ -116,8 +116,8 @@ class Distibot(object):
         # for option in config.options(this_sec):
         #    print "option={0}, value={1}".format(option, config.get(this_sec, option))
 
-    def load_script(self, play_file_name):
-        script = open(play_file_name, 'r')
+    def load_script(self, play_filename):
+        script = open(play_filename, 'r')
         self.Tsteps = collections.OrderedDict(sorted(eval(script.read()).items(),
                                               key=lambda t: t[0]))
         script.close()
