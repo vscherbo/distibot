@@ -12,7 +12,7 @@ logging.basicConfig(format=log_format, level=logging.DEBUG)
 
 from pushbullet import Pushbullet
 
-import cooker
+from cooker import Cooker
 import valve
 import heads_sensor_el
 import tsensor
@@ -85,13 +85,15 @@ class Distibot(object):
         self.T_prev = self.temperature_boiler
 
         self.loop_flag = True
-        self.cooker = cooker.Cooker(gpio_on_off=self.config.get('cooker', 'gpio_cooker_on_off'),
-                                    gpio_up=self.config.get('cooker', 'gpio_cooker_up'),
-                                    gpio_down=self.config.get('cooker', 'gpio_cooker_down'),
-                                    gpio_special=self.config.get('cooker', 'gpio_cooker_special'),
-                                    powers=self.config.get('cooker', 'cooker_powers'),
-                                    init_power=self.config.get('cooker', 'cooker_init_power'),
-                                    )
+        self.cooker = Cooker(gpio_on_off=self.config.getint('cooker', 'gpio_cooker_on_off'),
+                             gpio_up=self.config.getint('cooker', 'gpio_cooker_up'),
+                             gpio_down=self.config.getint('cooker', 'gpio_cooker_down'),
+                             gpio_special=self.config.getint('cooker', 'gpio_cooker_special'),
+                             powers=eval(self.config.get('cooker', 'cooker_powers')),
+                             init_power=self.config.getint('cooker', 'cooker_init_power'),
+                             init_special=self.config.getboolean('cooker', 'init_special')
+                             )
+
         self.valve3way = valve.DoubleValve(gpio_v1=self.config.get('dbl_valve', 'gpio_dbl_valve_1'),
                                            gpio_v2=self.config.get('dbl_valve', 'gpio_dbl_valve_2'))
         self.heads_sensor = heads_sensor_el.Heads_sensor(gpio_heads_start=self.config.get('heads_sensor', 'gpio_hs_start'),
