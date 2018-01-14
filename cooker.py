@@ -204,7 +204,6 @@ if __name__ == '__main__':
     logging.info('Started')
     ckt = Cooker_tester(args.conf)
 
-    logging.info('ini_power_index={0}'.format(ckt.cooker.ini_power_index))
     ckt.cooker.switch_on()
     sleep(2)
 
