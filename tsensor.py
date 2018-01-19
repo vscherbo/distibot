@@ -2,22 +2,26 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+import logging
 import imp
 try:
     imp.find_module('w1thermsensor')
     import w1thermsensor
+    emu_mode = False
 except ImportError:
     import stub_w1thermsensor as w1thermsensor
-import logging
+    emu_mode = True
 import re
 import ConfigParser
 
 
-class Tsensor(w1thermsensor.W1ThermSensor):
+class Tsensor(object):
     def __init__(self, sensor_type=None, sensor_id=None):
         logging.getLogger(__name__).addHandler(logging.NullHandler())
         self.sensor_id = sensor_id
         self.curr_T = 20
+        if emu_mode:
+            logging.warning('tsensor emulation mode')
         try:
             # sensor = W1ThermSensor(W1ThermSensor.THERM_SENSOR_DS18B20, "0000066c6502")
             # ll /sys/bus/w1/devices/
@@ -47,10 +51,10 @@ class Tsensors():
             self.ts_data[k] = self.ts_dict[k].get_temperature()
 
     def t_over(self, tlimit):
-        for d in self.ts_data.values():
-            if d > tlimit:
-                return True
-        return False
+        for ts_key, t in self.ts_data.iteritems():
+            if t > tlimit:
+                return True, ts_key
+        return False, None
 
 
 if __name__ == '__main__':
@@ -104,7 +108,7 @@ if __name__ == '__main__':
 
     logging.info('Started')
 
-    with open(conf_file_name) as f:
+    with open(args.conf) as f:
         dib_config = f.read()
         f.close()
 
@@ -120,7 +124,7 @@ if __name__ == '__main__':
     # execfile(args.conf, conf)
 
     # TODO read from conf file
-    Talarms = [31.0, 49.5, 65.9, 999.9]  # debug
+    Talarms = [31.0, 49.5, 65.9, 98.5, 999.9]  # debug
     # Talarms = [77.0, 79.0, 85.0, 88.0, 94.5, 98.5, 999.9]  # 1st production
     # Talarms = [94.5, 98.7, 999.9]  # tails
     alarm_limit = 3
@@ -134,20 +138,24 @@ if __name__ == '__main__':
         tsensors.get_t()
         for ts_id, t in tsensors.ts_data.iteritems():
             logging.info('ts_id={0}, t={1}'.format(ts_id, t))
+            # print('ts_id={0}, t={1}'.format(ts_id, t))
             # print("{0}^{1}^{2}".format(strftime("%H:%M:%S"), sensor.sensor_id, temperature), file=csv)
-        if tsensors.t_over(Talarm):
+        (is_over, ts_id) = tsensors.t_over(Talarm)
+        if is_over:
             # logging.info("Превысили {0}, t1={1}, t2={2}".format(Talarm, tsensors))
-            logging.info("Превысили {0}, ts={1}".format(Talarm, tsensors.ts_data))
+            logging.info("Превысили {0}, ts_id={1}, T={2}".format(Talarm, ts_id, tsensors.ts_data[ts_id]))
             # TODO alarm_cnt for the each sensor
             alarm_cnt += 1
             if alarm_cnt >= alarm_limit:
                 alarm_cnt = 0
                 Talarm = Talarms.pop(0)
-            temperature1 = tsensors.ts_data.get(0)
-            if temperature1 == 99.9:
+            print("T={0}".format(tsensors.ts_data[ts_id]))
+            if tsensors.ts_data[ts_id] >= 89.9:
                 finish_cnt += 1
-            if finish_cnt > 3:
+                print('>>> finish_cnt={0}'.format(finish_cnt))
+            if finish_cnt >= 3:
                 loop_flag = False
+
         sleep(1)
 
     csv.close()
