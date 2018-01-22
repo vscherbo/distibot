@@ -134,8 +134,9 @@ if __name__ == "__main__":
     hs = Heads_sensor(hs_type=config.get('heads_sensor', 'hs_type'),
                       gpio_heads_start=config.getint('heads_sensor', 'gpio_hs_start'),
                       gpio_heads_finish=config.getint('heads_sensor', 'gpio_hs_finish'),
-                      timeout=2000)
-    hs.watch_start(heads_started),
+                      timeout=200)
+    # hs.watch_start(heads_started),
+    hs.watch_finish(heads_finished),
 
     loop_flag = True
     step_counter = 0
