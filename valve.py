@@ -23,13 +23,13 @@ class Valve(GPIO_DEV):
         if self.valve_default_way:
             pass
         else:
-            GPIO.output(self.valve_gpio, 0)
+            GPIO.output(self.valve_gpio, GPIO.LOW)
             self.valve_default_way = True
 
     def power_on_way(self):
         logging.info("valve.power_on_way")
         if self.valve_default_way:
-            GPIO.output(self.valve_gpio, 1)
+            GPIO.output(self.valve_gpio, GPIO.HIGH)
             self.valve_default_way = False
 
     def demo(self, sleep_time=2):
@@ -65,22 +65,22 @@ class DoubleValve(GPIO_DEV):
 
     def v1_turn_on(self):
         if not self.v1_on:
-            GPIO.output(self.gpio_v1, 1)
+            GPIO.output(self.gpio_v1, GPIO.HIGH)
             self.v1_on = True
 
     def v1_turn_off(self):
         if self.v1_on:
-            GPIO.output(self.gpio_v1, 0)
+            GPIO.output(self.gpio_v1, GPIO.LOW)
             self.v1_on = False
 
     def v2_turn_on(self):
         if not self.v2_on:
-            GPIO.output(self.gpio_v2, 1)
+            GPIO.output(self.gpio_v2, GPIO.HIGH)
             self.v2_on = True
 
     def v2_turn_off(self):
         if self.v2_on:
-            GPIO.output(self.gpio_v2, 0)
+            GPIO.output(self.gpio_v2, GPIO.LOW)
             self.v2_on = False
 
     def way_1(self):
