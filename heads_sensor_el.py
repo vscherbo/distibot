@@ -53,7 +53,6 @@ class Heads_sensor(GPIO_DEV):
         GPIO.add_event_callback(self.gpio_heads_start, start_callback)
 
     def watch_stop(self, stop_callback):
-        self.ignore_start()
         self.flag_ignore_stop = False
         GPIO.setup(self.gpio_heads_stop, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.add_event_detect(self.gpio_heads_stop, GPIO.RISING, bouncetime=self.timeout)
@@ -79,6 +78,7 @@ if __name__ == "__main__":
         global hs
         logging.info("{} Стартовали головы, gpio_id={}".format(time.strftime("%Y-%m-%d-%H-%M-%S"), gpio_id))
         hs.watch_stop(heads_finished)
+        hs.ignore_start()
 
     def heads_finished(gpio_id):
         global hs
