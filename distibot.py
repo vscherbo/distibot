@@ -14,7 +14,7 @@ from pushbullet import Pushbullet
 
 from cooker import Cooker
 import valve
-import heads_sensor_el
+import heads_sensor
 import tsensor
 
 # one_plus_one = pb.get_device('OnePlus One')
@@ -96,7 +96,7 @@ class Distibot(object):
 
         self.valve3way = valve.DoubleValve(gpio_v1=self.config.get('dbl_valve', 'gpio_dbl_valve_1'),
                                            gpio_v2=self.config.get('dbl_valve', 'gpio_dbl_valve_2'))
-        self.heads_sensor = heads_sensor_el.Heads_sensor(gpio_heads_start=self.config.get('heads_sensor', 'gpio_hs_start'),
+        self.heads_sensor = heads_sensor.Heads_sensor(gpio_heads_start=self.config.get('heads_sensor', 'gpio_hs_start'),
                                                          gpio_heads_stop=self.config.get('heads_sensor', 'gpio_hs_stop'),
                                                          timeout=2000)
         self.pb = pb_wrap(self.config.get('pushbullet', 'api_key'))
