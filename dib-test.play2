@@ -1,0 +1,13 @@
+{
+'bolier': {
+0.0: (self.start_process, self.send_msg),
+81.0: self.heat_on_pause,
+82.5: self.heat_4_low_wine,
+98.5: self.finish
+},
+'condenser' : {
+0.0: (self.do_nothing),
+77.0: (self.start_watch_temperature, self.send_msg),
+82.0: (self.emergency_finish, self.send_msg),
+}
+}
