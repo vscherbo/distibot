@@ -54,8 +54,8 @@ class DoubleValve(GPIO_DEV):
         self.gpio_list.append(gpio_v1)
         self.gpio_list.append(gpio_v2)
         GPIO.setup(self.gpio_v1, GPIO.OUT, initial=GPIO.LOW)
-        if self.gpio_v2 is not None:
-            GPIO.setup(self.gpio_v2, GPIO.OUT, initial=GPIO.LOW)
+        GPIO.setup(self.gpio_v2, GPIO.OUT, initial=GPIO.LOW)
+        # super(DoubleValve, self).setup((gpio_v1, gpio_v2), GPIO.OUT, initial=GPIO.LOW)
 
     def release(self):
         self.v1_turn_off()
@@ -117,6 +117,7 @@ class DoubleValve(GPIO_DEV):
 
         logging.info("way_1 again")
         v1.way_1()
+        sleep(sleep_time)
 
 
 if __name__ == "__main__":
