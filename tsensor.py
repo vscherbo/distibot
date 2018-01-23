@@ -65,20 +65,8 @@ if __name__ == '__main__':
     import signal
     import io
 
-    def ask_t(sensor):
-        # global Talarm
-        if sensor is not None:
-            temperature = sensor.get_temperature()
-            t_alarm = temperature > Talarm
-            logging.info('ts_id={0}, t={1}'.format(sensor.sensor_id, temperature))
-            print("{0}^{1}^{2}".format(strftime("%H:%M:%S"), sensor.sensor_id, temperature), file=csv)
-        else:
-            temperature = None
-            t_alarm = False
-        return t_alarm, temperature
-
     def signal_handler(signal, frame):
-        global loop_flag, csv
+        global loop_flag
         loop_flag = False
 
     signal.signal(signal.SIGINT, signal_handler)
@@ -119,10 +107,6 @@ if __name__ == '__main__':
     tsensors.get_t()
     print(tsensors.ts_data)
 
-    # TODO change to ConfigParser
-    # conf = {}
-    # execfile(args.conf, conf)
-
     # TODO read from conf file
     Talarms = [31.0, 49.5, 65.9, 98.5, 999.9]  # debug
     # Talarms = [77.0, 79.0, 85.0, 88.0, 94.5, 98.5, 999.9]  # 1st production
@@ -138,21 +122,18 @@ if __name__ == '__main__':
         tsensors.get_t()
         for ts_id, t in tsensors.ts_data.iteritems():
             logging.info('ts_id={0}, t={1}'.format(ts_id, t))
-            # print('ts_id={0}, t={1}'.format(ts_id, t))
-            # print("{0}^{1}^{2}".format(strftime("%H:%M:%S"), sensor.sensor_id, temperature), file=csv)
         (is_over, ts_id) = tsensors.t_over(Talarm)
         if is_over:
-            # logging.info("Превысили {0}, t1={1}, t2={2}".format(Talarm, tsensors))
             logging.info("Превысили {0}, ts_id={1}, T={2}".format(Talarm, ts_id, tsensors.ts_data[ts_id]))
             # TODO alarm_cnt for the each sensor
             alarm_cnt += 1
             if alarm_cnt >= alarm_limit:
                 alarm_cnt = 0
                 Talarm = Talarms.pop(0)
-            print("T={0}".format(tsensors.ts_data[ts_id]))
-            if tsensors.ts_data[ts_id] >= 89.9:
+            # print("T={0}".format(tsensors.ts_data[ts_id]))
+            if tsensors.ts_data[ts_id] >= 99.9:
                 finish_cnt += 1
-                print('>>> finish_cnt={0}'.format(finish_cnt))
+                logging.debug('>>> finish_cnt={0}'.format(finish_cnt))
             if finish_cnt >= 3:
                 loop_flag = False
 
