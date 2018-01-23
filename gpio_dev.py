@@ -37,9 +37,12 @@ class GPIO_DEV(object):
         GPIO.setmode(GPIO.BCM)
         logging.info('gpio_class initialized')
 
+    """
     def setup(self, channels, direction, pull_up_down=GPIO.PUD_OFF, initial=None):
-        super(GPIO_DEV, self).setup(channels, direction, pull_up_down, initial)
-        # self.gpio_list.append(channels)
+        # super(GPIO_DEV, self).setup(channels, direction, pull_up_down, initial)
+        GPIO.setup(channels, direction, pull_up_down, initial)
+        self.gpio_list.append(channels)
+    """
 
     def release(self):
         if self.gpio_list is not None:
