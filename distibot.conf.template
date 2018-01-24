@@ -23,9 +23,10 @@ gpio_dbl_valve_2=24
 # possible values are:
 # RES - resistive
 # OPT - optical
-hs_type=RES
-gpio_hs_start=25
-gpio_hs_stop=14
+hs_type=OPT
+gpio_hs_start=14
+gpio_hs_finish=25
 
 [pushbullet]
-api_key='XXX'
+api_key='xxx'
+
