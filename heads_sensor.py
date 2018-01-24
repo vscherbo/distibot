@@ -53,7 +53,7 @@ class Heads_sensor(GPIO_DEV):
             pass
         else:
             self.flag_ignore_finish = True
-            logging.info('ignore_finish: remove_eventy_detect on {0}'.format(self.gpio_heads_finish))
+            logging.info('ignore_finish: remove_event_detect on {0}'.format(self.gpio_heads_finish))
             GPIO.remove_event_detect(self.gpio_heads_finish)
 
     # TODO merge watch_start & watch_finish in a single method
@@ -135,8 +135,8 @@ if __name__ == "__main__":
                       gpio_heads_start=config.getint('heads_sensor', 'gpio_hs_start'),
                       gpio_heads_finish=config.getint('heads_sensor', 'gpio_hs_finish'),
                       timeout=200)
-    # hs.watch_start(heads_started),
-    hs.watch_finish(heads_finished),
+    hs.watch_start(heads_started),
+    # hs.watch_finish(heads_finished),
 
     loop_flag = True
     step_counter = 0
