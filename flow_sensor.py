@@ -64,7 +64,7 @@ def countPulse(gpio_id):
 
 if __name__ == "__main__":
     import sys
-    channel = 9
+    channel = 11
     fs = Flow_sensor(channel)
     fs.watch_flow(countPulse)
     while True:
