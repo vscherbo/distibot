@@ -58,17 +58,6 @@
             }
         }
 
-/**
-        function click_play() {
-            var button = document.getElementById('button_start');
-            var audio = document.getElementById('alarm_sound');
-            var div_t = document.getElementById('div_t');
-            audio.play(); // audio will load and then play
-            button.style.display="none";
-            div_t.style.display="block";
-        };
-**/
-
         $(document).ready(function(){
             // show();
             setInterval('show()',2000);

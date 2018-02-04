@@ -19,7 +19,7 @@ import argparse
 webapp_path = 'webapp'
 
 parser = argparse.ArgumentParser(description='Distillation robot .')
-parser.add_argument('--conf', type=str, help='config file')
+parser.add_argument('--play', type=str, default='distibot.conf', help='config file')
 parser.add_argument('--emu', action="store_true",  help='emu mode')
 parser.add_argument('--log', type=str, default="DEBUG", help='log level')
 args = parser.parse_args()
@@ -39,8 +39,8 @@ def signal_handler(signal, frame):
 # signal.signal(signal.SIGHUP, signal_handler)
 # signal.signal(signal.SIGTERM, signal_handler)
 
-dib = Distibot(emu_mode=args.emu)
-dib.load_script(args.conf)
+dib = Distibot(args.conf)
+dib.load_script(args.play)
 
 
 try:
