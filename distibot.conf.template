@@ -16,8 +16,11 @@ ts_condenser_id=041671dfc7ff
 gpio_dbl_valve_1=23
 gpio_dbl_valve_2=24
 
-#[valve]
-#gpio_valve_1=
+[valve_water]
+gpio_valve_water=9
+
+[valve_drop]
+gpio_valve_drop=10
 
 [heads_sensor]
 # possible values are:

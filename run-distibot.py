@@ -112,7 +112,8 @@ def t_show():
 @app.route('/ask_t')
 def ask_temperature():
     if app.dib.loop_flag:
-        return str(app.dib.temperature_in_celsius)
+        return "{0} {1}".format(app.dib.tsensors.ts_data['boiler'],
+                                app.dib.tsensors.ts_data['condenser'])
 
 
 @app.route('/ask_stage')
@@ -140,8 +141,9 @@ def plot():
         # prepare plot params
         margin = Margin(l=35, r=5, b=100, t=10, pad=0)
         layout = Layout(autosize=True, margin=margin, width=900, height=600)
-        div_plot = plotly.offline.plot({"data": [Scatter(x=app.dib.coord_time, y=app.dib.coord_temp)],
-                                       "layout": layout},
+        scatter = [Scatter(x=app.dib.coord_time, y=app.dib.coord_temp),
+                   Scatter(x=app.dib.coord_time, y=app.dib.coord_temp_condenser)]
+        div_plot = plotly.offline.plot({"data": scatter, "layout": layout},
                                        show_link=False, output_type='div')
         return div_plot
 
