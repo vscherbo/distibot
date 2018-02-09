@@ -46,9 +46,9 @@ class Cooker(GPIO_DEV):
         super(Cooker, self).release()
 
     def click_button(self, gpio_port_num):
-        time.sleep(0.1)  # для двух "нажатий" подряд
+        time.sleep(0.3)  # для двух "нажатий" подряд
         GPIO.output(gpio_port_num, 1)
-        time.sleep(0.1)
+        time.sleep(0.3)
         GPIO.output(gpio_port_num, 0)
         logging.debug('clicked self_port={gpio}'.format(gpio=gpio_port_num))
 
