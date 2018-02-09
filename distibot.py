@@ -289,6 +289,7 @@ class Distibot(object):
             self.stage = 'heat'
             logging.debug('stage is "{}"'.format(self.stage))
 
+    @staticmethod
     def heads_started(self, gpio_id, value):
         if 'heads' == self.stage:
             pass
@@ -306,6 +307,7 @@ class Distibot(object):
                                       + ", value=" + str(value))
             self.heads_sensor.watch_stop(self.heads_finished)  # including heads_sensor.ignore_start()
 
+    @staticmethod
     def heads_finished(self, gpio_id, value):
         if 'body' == self.stage:
             pass
