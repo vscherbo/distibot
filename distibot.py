@@ -69,15 +69,18 @@ class Distibot(object):
         self.pause_start_ts = 0
         self.pause_limit = 180
         self.cooker_period = 3600
-        self.cooker_timeout = 10
+        self.cooker_timeout = 120
         self.drop_period = 3600
         self.drop_timeout = 120
         self.T_sleep = 1
         self.csv_delay = 0
         self.print_str = []
         self.dt_string = time.strftime("%Y-%m-%d-%H-%M")
+        self.timers = {}
         self.drop_timer = threading.Timer(self.drop_period, self.drop_container)
+        self.timers.append(self.drop_timer)
         self.cooker_timer = threading.Timer(self.cooker_period, self.cooker_off)
+        self.timers.append(self.cooker_timer)
 
         if self.config.has_option('gpio_ts'):
             # TODO switch gpio to INPUT
@@ -141,6 +144,8 @@ class Distibot(object):
             save_str = '{}^{}\n'.format(i_time, i_temp)
             save_coord.write(save_str)
         save_coord.close()
+        for t in self.timers:
+            t.cancel()
         self.cooker.release()
         self.valve3way.release()
         self.heads_sensor.release()
@@ -253,7 +258,6 @@ class Distibot(object):
 
     def start_process(self):
         self.cooker.switch_on()
-        self.cooker.set_fry()
         self.stage = 'heat'
         logging.debug('stage is "{}"'.format(self.stage))
 
@@ -272,10 +276,12 @@ class Distibot(object):
     def cooker_off(self):
         self.cooker.switch_off()
         self.cooker_pause_timer = threading.Timer(self.cooker_timeout, self.cooker_on)
+        self.cooker_pause_timer.start()
 
     def cooker_on(self):
         self.cooker.switch_on()
         self.cooker_timer = threading.Timer(self.cooker_period, self.cooker_off)
+        self.cooker_timer.start()
 
     def heat_on_pause(self):
         self.cooker.switch_off()
