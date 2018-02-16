@@ -2,7 +2,7 @@
 'bolier': {
 0.0: (self.start_process, self.send_msg),
 81.0: self.heat_on_pause,
-82.5: self.start_process,
+82.5: self.set_power,
 98.5: self.finish
 },
 'condenser' : {

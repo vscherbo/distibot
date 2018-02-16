@@ -46,8 +46,11 @@ class Moonshine_controller(object):
     def emergency_finish(self):
         print "emergency_finish"
 
-    def send_msg(self):
-        print "send_msg"
+    def send_msg(self, msg):
+        print "send_msg={0}".format(msg)
+
+    def set_power(self, power):
+        print "set_power={0}".format(power)
 
 mshinectl = Moonshine_controller(None)
 
