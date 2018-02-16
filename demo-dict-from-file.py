@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import collections
-# import time
 import sys
 
 class Moonshine_controller(object):
@@ -14,7 +13,7 @@ class Moonshine_controller(object):
     def load_config(self, conf_file_name):
         conf = open(conf_file_name, 'r')
         # self.Tsteps = collections.OrderedDict(sorted(eval(conf.read()).items(), key=lambda t: t[0]))
-        self.conf_dict = collections.OrderedDict(eval(conf.read()).items())
+        self.conf_dict = collections.OrderedDict(sorted(eval(conf.read()).items(), key=lambda t: t[0]))
         conf.close()
         # self.set_Tsteps(self.Tsteps)
 
@@ -34,9 +33,6 @@ class Moonshine_controller(object):
 
     def heat_on_pause(self):
         print "heat_on_pause"
-
-    def heat_4_low_wine(self):
-        print "heat_4_low_wine"
 
     def start_watch_temperature(self):
         print "start_watch_temperature"
@@ -70,7 +66,14 @@ print len(mshinectl.conf_dict)
 print mshinectl.conf_dict.keys()
 
 for key,val in mshinectl.conf_dict.iteritems():
-    print 'key={0}, val={1}'.format(key, val)
+    print 'key={0}\n'.format(key)
+    val_ordered = collections.OrderedDict(sorted(val.iteritems(), key=lambda t: t[0]))
+    for k1, v1 in val_ordered.iteritems():
+        if 'tuple' == type(v1).__name__:
+            for k2, v2 in enumerate(v1):
+                print '      k1={0}, k2={1}, v2={2}\n'.format(k1, k2, v2.__name__)
+        else:
+            print '   k1={0}, v1={1}\n'.format(k1, v1.__name__)
 
 sys.exit(0)
 
@@ -85,9 +88,13 @@ print Tkeys
 Talarm = Tkeys.pop(0)
 Tcmd = mshinectl.Tsteps.pop(Talarm)
 
+import time
+
+
 while True:
 
     Tcmd()
+    # self.function(*self.args, **self.kwargs)
     try:
         Talarm = Tkeys.pop(0)
     except IndexError:
