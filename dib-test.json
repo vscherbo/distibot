@@ -1,0 +1,69 @@
+{
+  "temperature_sensors": [
+    {
+      "id": "bolier",
+      "play": [
+        {
+          "temperature": "0.0",
+          "funcs": [
+              {
+                "name": "start_process",
+                "args": {"arg1": "111", "arg2": "222"}
+              },
+              {
+                "name": "send_msg",
+                "args": {"msg": "Старт"}
+              }
+           ]
+        },
+        {
+          "temperature": "81.0",
+          "funcs": [
+              {
+                "name": "heat_on_pause"
+              },
+              {
+                "name": "send_msg",
+                "args": {"msg": "Пауза"}
+              }
+           ]
+        }
+      ]
+    },  
+    {
+      "id": "condenser",
+      "play": [
+        {
+          "temperature": "0.0",
+          "funcs": [
+              {
+                "name": "do_nothing",
+                "args": {"arg1": "111", "arg2": "222"}
+              }
+           ]
+        },
+        {
+          "temperature": "77.0",
+          "funcs": [
+              {
+                "name": "start_wath_temperature",
+                "args": {"min": "76.0", "max": "78.0"}
+              }
+           ]
+        },
+        {
+          "temperature": "79.0",
+          "funcs": [
+              {
+                "name": "emergency_finish"
+              },
+              {
+                "name": "send_msg",
+                "args": {"msg": "Авария"}
+              }
+           ]
+        }
+      ]
+    }  
+  ]
+}
