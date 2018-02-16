@@ -131,6 +131,7 @@ class Distibot(object):
                                               key=lambda t: t[0]))
         script.close()
         self.set_Tsteps()
+        # TODO check methods existance and so on
 
     def set_Tsteps(self):
         self.Tkeys = self.Tsteps.keys()
@@ -257,11 +258,6 @@ class Distibot(object):
         pass
 
     def start_process(self):
-        self.cooker.switch_on()
-        self.stage = 'heat'
-        logging.debug('stage is "{}"'.format(self.stage))
-
-    def heat_4_low_wine(self):
         self.cooker.switch_on()
         self.stage = 'heat'
         logging.debug('stage is "{}"'.format(self.stage))
