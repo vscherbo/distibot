@@ -13,6 +13,7 @@ except ImportError:
     emu_mode = True
 import re
 import ConfigParser
+import time
 
 
 class Tsensor(object):
@@ -49,6 +50,7 @@ class Tsensors():
     def get_t(self):
         for k in self.ts_dict.keys():
             self.ts_data[k] = self.ts_dict[k].get_temperature()
+            time.sleep(0.5)
 
     def t_over(self, tlimit):
         for ts_key, t in self.ts_data.iteritems():
