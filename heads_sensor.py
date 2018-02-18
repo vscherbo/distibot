@@ -127,7 +127,7 @@ if __name__ == "__main__":
 
     logging.info('Started')
 
-    dib = distibot.Distibot()
+    dib = distibot.Distibot(args.conf)
 
     """
     with open(args.conf) as f:
