@@ -8,8 +8,6 @@ import ConfigParser
 import io
 import threading
 import logging
-log_format = '%(levelname)s | %(asctime)-15s | %(message)s'
-logging.basicConfig(format=log_format, level=logging.DEBUG)
 
 from pushbullet import Pushbullet
 
@@ -32,8 +30,14 @@ import tsensor
 class pb_wrap(Pushbullet):
 
     def __init__(self, api_key, emu_mode=False):
-        self.emu_mode = emu_mode
-        if emu_mode:
+        if 'xxx' == str(api_key).lower():
+            self.emu_mode = True
+            logging.info('api_key={0}, set emu_mode True'.format(api_key))
+        else:
+            self.emu_mode = emu_mode
+            logging.info('set emu_mode={0}'.format(emu_mode))
+
+        if self.emu_mode:
             self.channels = []
         else:
             super(pb_wrap, self).__init__(api_key)
@@ -76,13 +80,13 @@ class Distibot(object):
         self.csv_delay = 0
         self.print_str = []
         self.dt_string = time.strftime("%Y-%m-%d-%H-%M")
-        self.timers = {}
+        self.timers = []
         self.drop_timer = threading.Timer(self.drop_period, self.drop_container)
         self.timers.append(self.drop_timer)
         self.cooker_timer = threading.Timer(self.cooker_period, self.cooker_off)
         self.timers.append(self.cooker_timer)
 
-        if self.config.has_option('gpio_ts'):
+        if self.config.has_option('tsensors', 'gpio_ts'):
             # TODO switch gpio to INPUT
             self.tsensors = tsensor.Tsensors(self.config)
             self.tsensors.get_t()
