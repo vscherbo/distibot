@@ -58,6 +58,7 @@ class pb_channel_emu(object):
 class Distibot(object):
 
     def __init__(self, conf_filename='distibot.conf'):
+        logging.getLogger(__name__).addHandler(logging.NullHandler())
         self.parse_conf(conf_filename)
         self.outdir = 'output/'  # TODO config
         self.Tcmd_prev = 'before start'
@@ -73,11 +74,12 @@ class Distibot(object):
         self.pause_start_ts = 0
         self.pause_limit = 180
         self.cooker_period = 3600
-        self.cooker_timeout = 120
+        self.cooker_timeout = 10
         self.drop_period = 3600
         self.drop_timeout = 120
         self.T_sleep = 1
         self.csv_delay = 0
+        self.water_on = False
         self.print_str = []
         self.dt_string = time.strftime("%Y-%m-%d-%H-%M")
         self.timers = []
@@ -103,11 +105,11 @@ class Distibot(object):
                              do_init_special=self.config.getboolean('cooker', 'init_special')
                              )
 
-        self.valve_water = valve.Valve(valve_gpio=self.config.get('valve_water', 'gpio_valve_water'))
-        self.valve_drop = valve.Valve(valve_gpio=self.config.get('valve_drop', 'gpio_valve_drop'))
+        self.valve_water = valve.Valve(valve_gpio=self.config.getint('valve_water', 'gpio_valve_water'))
+        self.valve_drop = valve.Valve(valve_gpio=self.config.getint('valve_drop', 'gpio_valve_drop'))
 
-        self.valve3way = valve.DoubleValve(gpio_v1=self.config.get('dbl_valve', 'gpio_dbl_valve_1'),
-                                           gpio_v2=self.config.get('dbl_valve', 'gpio_dbl_valve_2'))
+        self.valve3way = valve.DoubleValve(gpio_v1=self.config.getint('dbl_valve', 'gpio_dbl_valve_1'),
+                                           gpio_v2=self.config.getint('dbl_valve', 'gpio_dbl_valve_2'))
 
         self.heads_sensor = heads_sensor.Heads_sensor(hs_type=self.config.get('heads_sensor', 'hs_type'),
                                                       gpio_heads_start=self.config.getint('heads_sensor', 'gpio_hs_start'),
@@ -183,7 +185,13 @@ class Distibot(object):
     def csv_write(self):
         self.print_str.append(time.strftime("%H:%M:%S", self.current_ts))
         self.print_str.append(str(self.tsensors.ts_data['boiler']))
-        self.print_str.append(str(self.tsensors.ts_data['condenser']))
+        try:
+            t2 = self.tsensors.ts_data['condenser']
+        except KeyError:
+            t2 = 0
+        self.print_str.append(str(t2))
+        # self.print_str.append(str(self.tsensors.ts_data['condenser']))
+        logging.debug('ts_data={0}'.format(self.tsensors.ts_data))
         if self.csv_delay >= self.csv_write_period:
             self.csv_delay = 0
             print(','.join(self.print_str), file=self.log)
@@ -226,6 +234,7 @@ class Distibot(object):
                 t_failed_cnt = 0
                 self.pb_channel.push_note("Сбой получения температуры", "Требуется вмешательство")
 
+            if self.T_prev > 0:
             if abs((self.tsensors.ts_data['boiler'] - self.T_prev) / self.T_prev) \
                > self.temperature_delta_limit:
                 self.tsensors.ts_data['boiler'] = self.T_prev  # ignore, use prev value
@@ -238,7 +247,12 @@ class Distibot(object):
             self.current_ts = time.localtime()
             self.coord_time.append(time.strftime("%H:%M:%S", self.current_ts))
             self.coord_temp.append(self.tsensors.ts_data['boiler'])
-            self.coord_temp_condenser.append(self.tsensors.ts_data['condenser'])
+            try:
+                t2 = self.tsensors.ts_data['condenser']
+            except KeyError:
+                t2 = 0
+            self.coord_temp_condenser.append(t2)
+            # self.coord_temp_condenser.append(self.tsensors.ts_data['condenser'])
 
             self.pause_monitor()
             self.decrease_monitor()
@@ -348,7 +362,9 @@ class Distibot(object):
         logging.debug('stage is "{}"'.format(self.stage))
 
     def start_water(self):
+        if not self.water_on:
         self.valve_water.power_on_way()
+            self.water_on = True
         logging.debug('water is on')
 
     def drop_container(self):
