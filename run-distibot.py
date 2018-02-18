@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+import logging
 from distibot import Distibot
 import sys
 import socket
@@ -19,11 +20,13 @@ import argparse
 webapp_path = 'webapp'
 
 parser = argparse.ArgumentParser(description='Distillation robot .')
-parser.add_argument('--play', type=str, default='distibot.conf', help='config file')
-parser.add_argument('--emu', action="store_true",  help='emu mode')
+parser.add_argument('--play', type=str, required=True, help='config file')
+parser.add_argument('--conf', type=str, default='distibot.conf', help='config file')
 parser.add_argument('--log', type=str, default="DEBUG", help='log level')
 args = parser.parse_args()
 
+log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
+logging.basicConfig(filename='distibot.log', format=log_format, level=logging.DEBUG)
 
 def signal_handler(signal, frame):
     global dib
@@ -41,7 +44,7 @@ def signal_handler(signal, frame):
 
 dib = Distibot(args.conf)
 dib.load_script(args.play)
-
+logging.debug('loaded script {0}.'.format(args.play))
 
 try:
     thread.start_new_thread(dib.temperature_loop, ())
@@ -112,8 +115,8 @@ def t_show():
 @app.route('/ask_t')
 def ask_temperature():
     if app.dib.loop_flag:
-        return "{0} {1}".format(app.dib.tsensors.ts_data['boiler'],
-                                app.dib.tsensors.ts_data['condenser'])
+        # return "{0}".format(app.dib.tsensors.ts_data['boiler'])
+        return "{0} {1}".format(app.dib.tsensors.ts_data['boiler'], app.dib.tsensors.ts_data['condenser'])
 
 
 @app.route('/ask_stage')
@@ -154,6 +157,7 @@ server = distibot_httpd.DistibotHTTPD(host=loc_host, port=8080)
 
 # add this at the very end:
 debug(True)
+
 
 try:
     app.run(server=server)
