@@ -30,8 +30,8 @@ class Heads_sensor(GPIO_DEV):
         self.gpio_list.append(gpio_heads_finish)
         #
         hs_args = {'hs_type': hs_type,
-                    'gpio_start': gpio_heads_start,
-                    'gpio_finish': gpio_heads_finish}
+                   'gpio_start': gpio_heads_start,
+                   'gpio_finish': gpio_heads_finish}
         logging.info('init {hs_type} heads-sensor GPIO_start={gpio_start}, GPIO_finish={gpio_finish}'.format(**hs_args))
 
     def release(self):
@@ -75,8 +75,9 @@ if __name__ == "__main__":
     import signal
     import os
     import sys
-    import ConfigParser
-    import io
+#    import ConfigParser
+#    import io
+    import distibot
 
     def signal_handler(signal, frame):
 
@@ -85,6 +86,7 @@ if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, signal_handler)
 
+    """
     def heads_started(gpio_id):
         global hs
         logging.info("{} Стартовали головы, gpio_id={}".format(time.strftime("%Y-%m-%d-%H-%M-%S"), gpio_id))
@@ -95,6 +97,7 @@ if __name__ == "__main__":
         global hs
         logging.info("{} Закончились головы, gpio_id={}".format(time.strftime("%Y-%m-%d-%H-%M-%S"), gpio_id))
         hs.ignore_finish()
+    """
 
     log_dir = ''
     log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
@@ -124,6 +127,9 @@ if __name__ == "__main__":
 
     logging.info('Started')
 
+    dib = distibot.Distibot()
+
+    """
     with open(args.conf) as f:
         dib_config = f.read()
         f.close()
@@ -137,6 +143,7 @@ if __name__ == "__main__":
                       timeout=200)
     hs.watch_start(heads_started),
     # hs.watch_finish(heads_finished),
+    """
 
     loop_flag = True
     step_counter = 0
@@ -145,4 +152,5 @@ if __name__ == "__main__":
         logging.info("step={step:>4}".format(step=step_counter))
         time.sleep(2)
 
-    hs.release()
+    # hs.release()
+    dib.release()
