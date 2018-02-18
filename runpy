@@ -1,4 +1,4 @@
 #!/bin/sh
 rm -f nohup.out
-nohup sudo PYTHONPATH=/home/pi/mshine:/home/pi/mshine/webapp python $* 
+nohup sudo PYTHONPATH=/home/pi/mshine:/home/pi/mshine/webapp python $* &
 
