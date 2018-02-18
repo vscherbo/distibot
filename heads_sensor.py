@@ -103,7 +103,7 @@ if __name__ == "__main__":
     log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
 
     (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
-    conf_file_name = "distibot.conf"
+    conf_file_name = "hs.conf"
 
     parser = argparse.ArgumentParser(description='Distibot "tsensor" module')
     parser.add_argument('--conf', type=str, default=conf_file_name, help='conf file')
