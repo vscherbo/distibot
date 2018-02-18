@@ -95,7 +95,8 @@ class Distibot(object):
                              gpio_special=self.config.getint('cooker', 'gpio_cooker_special'),
                              powers=eval(self.config.get('cooker', 'cooker_powers')),
                              init_power=self.config.getint('cooker', 'cooker_init_power'),
-                             init_special=self.config.getboolean('cooker', 'init_special')
+                             special_power=self.config.getint('cooker', 'cooker_special_power'),
+                             do_init_special=self.config.getboolean('cooker', 'init_special')
                              )
 
         self.valve_water = valve.Valve(valve_gpio=self.config.get('valve_water', 'gpio_valve_water'))

@@ -10,7 +10,7 @@ import io
 
 class Cooker(GPIO_DEV):
 
-    def __init__(self, gpio_on_off, gpio_up, gpio_down, gpio_special, powers, init_power, init_special):
+    def __init__(self, gpio_on_off, gpio_up, gpio_down, gpio_special, powers, init_power, special_power, do_init_special):
         super(Cooker, self).__init__()
         self.gpio_on_off = gpio_on_off
         self.gpio_list.append(gpio_on_off)
@@ -28,7 +28,6 @@ class Cooker(GPIO_DEV):
         self.gpio_list.append(gpio_special)
         GPIO.setup(self.gpio_special, GPIO.OUT, initial=GPIO.LOW)
         #
-        # self.power_index = 0
         self.state_on = False
         self.target_power_index = 0
 
@@ -37,8 +36,9 @@ class Cooker(GPIO_DEV):
         self.max_power_index = len(powers)-1
         self.power_max = powers[-1]
         self.power_min = powers[0]
-        self.init_power = init_power
+        self.do_init_special = do_init_special
         self.ini_power_index = self.powers.index(init_power)
+        self.ini_special_index = self.powers.index(special_power)
 
     def release(self):
         logging.info("cooker.release")
@@ -50,26 +50,25 @@ class Cooker(GPIO_DEV):
         GPIO.output(gpio_port_num, 1)
         time.sleep(0.3)
         GPIO.output(gpio_port_num, 0)
-        logging.debug('clicked self_port={gpio}'.format(gpio=gpio_port_num))
+        logging.debug('clicked port={gpio}'.format(gpio=gpio_port_num))
 
-    def init_special(self):
-        logging.info("init_special")
-        if self.init_special:
-            self.click_button(self.gpio_special)
-        self.power_index = self.ini_power_index
-
-    def switch_on(self, force_mode=False):
-        if force_mode:
-            self.state_on = False
+    def switch_on(self, power_value=None):
         if not self.state_on:
             self.click_button(self.gpio_on_off)
             # self.power_index = 6  # 1400W
+            self.power_index = self.ini_power_index
             self.state_on = True
-        self.init_special()
+            logging.info("switch_ON")
+        if power_value is not None:
+            self.set_power(power_value)
+            self.power_index = self.powers.index(power_value)
+            logging.debug("switch_on, power={}".format(self.current_power()))
+        elif self.do_init_special:  # power_value is a priority
+            self.click_button(self.gpio_special)
+            self.power_index = self.ini_special_index
+            self.do_init_special = False
 
-    def switch_off(self, force_mode=False):
-        if force_mode:
-            self.state_on = True
+    def switch_off(self):
         if self.state_on:
             logging.info("switch_OFF")
             self.click_button(self.gpio_on_off)
@@ -153,7 +152,8 @@ class Cooker_tester(object):
                              gpio_special=self.config.getint('cooker', 'gpio_cooker_special'),
                              powers=eval(self.config.get('cooker', 'cooker_powers')),
                              init_power=self.config.getint('cooker', 'cooker_init_power'),
-                             init_special=self.config.getboolean('cooker', 'init_special')
+                             special_power=self.config.getint('cooker', 'cooker_special_power'),
+                             do_init_special=self.config.getboolean('cooker', 'init_special')
                              )
 
     def load_script(self, play_file_name):
@@ -167,10 +167,6 @@ class Cooker_tester(object):
             self.cooker.set_power(play_stage)
             logging.info(self.cooker.current_power())
             sleep(3)
-        if not self.cooker.init_special:
-            self.cooker.init_special()
-            sleep(2)
-            logging.info(ckt.cooker.current_power())
 
 if __name__ == '__main__':
     from time import sleep
@@ -211,20 +207,11 @@ if __name__ == '__main__':
     ckt.load_script(args.play)
     ckt.play_script()
 
+    bck_power = ckt.cooker.current_power()
+    ckt.cooker.switch_off()
+    sleep(2)
+    ckt.cooker.switch_on(bck_power)
+
     ckt.cooker.release()
 
     logging.info('Finished')
-
-    """
-        ckt.cooker.set_power_1800()
-        logging.info(ckt.cooker.current_power())
-        sleep(3)
-
-        ckt.cooker.set_power_1200()
-        logging.info(ckt.cooker.current_power())
-        sleep(3)
-
-        ckt.cooker.init_special()
-        sleep(2)
-        logging.info(ckt.cooker.current_power())
-    """
