@@ -235,14 +235,14 @@ class Distibot(object):
                 self.pb_channel.push_note("Сбой получения температуры", "Требуется вмешательство")
 
             if self.T_prev > 0:
-            if abs((self.tsensors.ts_data['boiler'] - self.T_prev) / self.T_prev) \
-               > self.temperature_delta_limit:
-                self.tsensors.ts_data['boiler'] = self.T_prev  # ignore, use prev value
-                logging.warning('Over {:.0%} difference T_prev={}, t_in_Cels={}'.
-                                format(self.temperature_delta_limit,
-                                       self.T_prev,
-                                       self.tsensors.ts_data['boiler']
-                                       ))
+                if abs((self.tsensors.ts_data['boiler'] - self.T_prev) / self.T_prev) \
+                > self.temperature_delta_limit:
+                    self.tsensors.ts_data['boiler'] = self.T_prev  # ignore, use prev value
+                    logging.warning('Over {:.0%} difference T_prev={}, t_in_Cels={}'.
+                                    format(self.temperature_delta_limit,
+                                        self.T_prev,
+                                        self.tsensors.ts_data['boiler']
+                                        ))
 
             self.current_ts = time.localtime()
             self.coord_time.append(time.strftime("%H:%M:%S", self.current_ts))
@@ -363,7 +363,7 @@ class Distibot(object):
 
     def start_water(self):
         if not self.water_on:
-        self.valve_water.power_on_way()
+            self.valve_water.power_on_way()
             self.water_on = True
         logging.debug('water is on')
 
