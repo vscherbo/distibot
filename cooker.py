@@ -138,41 +138,41 @@ class Cooker(GPIO_DEV):
     def current_power(self):
         return self.powers[self.power_index]
 
-
-class Cooker_tester(object):
-    def __init__(self, conf_filename='distibot.conf'):
-        with open(conf_filename) as f:
-            dib_config = f.read()
-            self.config = ConfigParser.RawConfigParser(allow_no_value=True)
-            self.config.readfp(io.BytesIO(dib_config))
-
-        self.cooker = Cooker(gpio_on_off=self.config.getint('cooker', 'gpio_cooker_on_off'),
-                             gpio_up=self.config.getint('cooker', 'gpio_cooker_up'),
-                             gpio_down=self.config.getint('cooker', 'gpio_cooker_down'),
-                             gpio_special=self.config.getint('cooker', 'gpio_cooker_special'),
-                             powers=eval(self.config.get('cooker', 'cooker_powers')),
-                             init_power=self.config.getint('cooker', 'cooker_init_power'),
-                             special_power=self.config.getint('cooker', 'cooker_special_power'),
-                             do_init_special=self.config.getboolean('cooker', 'init_special')
-                             )
-
-    def load_script(self, play_file_name):
-        script = open(play_file_name, 'r')
-        self.play = eval(script.read())
-        script.close()
-
-    def play_script(self):
-        for play_stage in self.play:
-            logging.debug('run play_stage={0}'.format(play_stage))
-            self.cooker.set_power(play_stage)
-            logging.info(self.cooker.current_power())
-            sleep(3)
-
 if __name__ == '__main__':
     from time import sleep
     import argparse
     import os
     import sys
+
+
+    class Cooker_tester(object):
+        def __init__(self, conf_filename='distibot.conf'):
+            with open(conf_filename) as f:
+                dib_config = f.read()
+                self.config = ConfigParser.RawConfigParser(allow_no_value=True)
+                self.config.readfp(io.BytesIO(dib_config))
+
+            self.cooker = Cooker(gpio_on_off=self.config.getint('cooker', 'gpio_cooker_on_off'),
+                                 gpio_up=self.config.getint('cooker', 'gpio_cooker_up'),
+                                 gpio_down=self.config.getint('cooker', 'gpio_cooker_down'),
+                                 gpio_special=self.config.getint('cooker', 'gpio_cooker_special'),
+                                 powers=eval(self.config.get('cooker', 'cooker_powers')),
+                                 init_power=self.config.getint('cooker', 'cooker_init_power'),
+                                 special_power=self.config.getint('cooker', 'cooker_special_power'),
+                                 do_init_special=self.config.getboolean('cooker', 'init_special')
+                                 )
+
+        def load_script(self, play_file_name):
+            script = open(play_file_name, 'r')
+            self.play = eval(script.read())
+            script.close()
+
+        def play_script(self):
+            for play_stage in self.play:
+                logging.debug('run play_stage={0}'.format(play_stage))
+                self.cooker.set_power(play_stage)
+                logging.info(self.cooker.current_power())
+                sleep(3)
 
     (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
 
