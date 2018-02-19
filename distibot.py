@@ -328,44 +328,34 @@ class Distibot(object):
             self.stage = 'heat'
             logging.debug('stage is "{}"'.format(self.stage))
 
-    @staticmethod
-    def heads_started(self, gpio_id, value):
+    # @staticmethod
+    def heads_started(self, gpio_id):
         if 'heads' == self.stage:
             pass
         else:
             self.stage = 'heads'
             logging.debug('stage is "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_started'
-            try:
-                int(value)
-            except ValueError:
-                print("heads_started BAD value="+str(value))
-                value = -1
-            self.pb_channel.push_note("Стартовали головы",
-                                      "gpio_id=" + str(gpio_id)
-                                      + ", value=" + str(value))
-            self.heads_sensor.watch_stop(self.heads_finished)  # including heads_sensor.ignore_start()
+            self.pb_channel.push_note("Стартовали головы", "Стартовали головы")
+                                    #  "gpio_id=" + str(gpio_id)
+                                    #  + ", value=" + str(value))
+            self.heads_sensor.watch_finish(self.heads_finished)  # including heads_sensor.ignore_start()
 
-    @staticmethod
-    def heads_finished(self, gpio_id, value):
+    # @staticmethod
+    def heads_finished(self, gpio_id):
         if 'body' == self.stage:
             pass
         else:
             self.stage = 'body'
             logging.debug('stage is "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_finished'
-            try:
-                int(value)
-            except ValueError:
-                print("heads_finished BAD value="+str(value))
-                value = -1
-            self.pb_channel.push_note("Закончились головы",
-                                      "gpio_id=" + str(gpio_id)
-                                      + ", value=" + str(value))
+            self.pb_channel.push_note("Закончились головы", "Закончились головы")
+            #                          "gpio_id=" + str(gpio_id)
+            #                          + ", value=" + str(value))
             self.valve3way.way_2()
             self.cooker.switch_off()
             self.cooker.switch_on()  # set power 1400
-            self.heads_sensor.ignore_stop(),
+            self.heads_sensor.ignore_finish(),
 
     def start_watch_heads(self):
         self.valve3way.way_1()
