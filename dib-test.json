@@ -1,7 +1,7 @@
 {
   "temperature_sensors": [
     {
-      "id": "bolier",
+      "id": "boiler",
       "play": [
         {
           "temperature": "0.0",
@@ -46,7 +46,7 @@
           "temperature": "77.0",
           "funcs": [
               {
-                "name": "start_wath_temperature",
+                "name": "start_watch_temperature",
                 "args": {"min": "76.0", "max": "78.0"}
               }
            ]

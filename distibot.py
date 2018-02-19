@@ -8,6 +8,7 @@ import ConfigParser
 import io
 import threading
 import logging
+import jsontree
 
 from pushbullet import Pushbullet
 
@@ -139,6 +140,23 @@ class Distibot(object):
         script.close()
         self.set_Tsteps()
         # TODO check methods existance and so on
+
+    def load_jscript(self, play_filename):
+        with open(play_filename, 'r') as script:
+            jt = jsontree.load(script)
+        self.Tsensors = jt['temperature_sensors']
+        self.Tplays = {}
+        self.Tsteps = {}
+        for p in jt['temperature_sensors']:
+            self.Tplays[p.id] = p.play
+            self.Tsteps[p.id] = [t for t in p.play]
+
+        script.close()
+        # self.set_Tsteps()
+        # TODO check methods existance and so on
+
+    def set_jsteps(self):
+        self.Tkeys = [t.temperature for t in dib.Tsteps['boiler']]
 
     def set_Tsteps(self):
         self.Tkeys = self.Tsteps.keys()
@@ -389,3 +407,48 @@ class Distibot(object):
 
     def finish(self):
         self.stop_process()
+
+if __name__ == "__main__":
+    import argparse
+    import os
+    import sys
+    (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
+    # conf_file = prg_name +".conf"
+
+    parser = argparse.ArgumentParser(description='Distibot module')
+    parser.add_argument('--conf', type=str, default="distibot.conf", help='conf file')
+    parser.add_argument('--play', type=str, default="dib-test.json", help='play file')
+    parser.add_argument('--log_to_file', type=bool, default=False, help='log destination')
+    parser.add_argument('--log_level', type=str, default="DEBUG", help='log level')
+    args = parser.parse_args()
+
+    numeric_level = getattr(logging, args.log_level, None)
+    if not isinstance(numeric_level, int):
+        raise ValueError('Invalid log level: %s' % numeric_level)
+
+    # log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
+    log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
+
+    if args.log_to_file:
+        log_dir = ''
+        log_file = log_dir + prg_name + ".log"
+        logging.basicConfig(filename=log_file, format=log_format, level=numeric_level)
+    else:
+        logging.basicConfig(stream=sys.stdout, format=log_format, level=numeric_level)
+
+    # end of prolog
+    logging.info('Started')
+        
+    dib = Distibot()
+    dib.load_jscript(args.play)
+    # logging.debug(dib.Tsteps['boiler'])
+    b_play = dib.Tplays['boiler']
+    #Tsteps = [t for t in b_play]
+    logging.debug(dib.Tsteps['boiler'])
+    for t in dib.Tsteps['boiler']:
+        logging.debug(t.temperature)
+    #logging.debug(Tkeys)    
+    # --- temps = b_play.index ...
+    #Tkeys = b_play.keys()
+    #Tstage = b_play.Tkeys.pop(0)
+    #Tcmd = b_play.funcs(self.Tstage)
