@@ -128,6 +128,7 @@ if __name__ == "__main__":
     logging.info('Started')
 
     dib = distibot.Distibot(args.conf)
+    dib.start_watch_heads()
 
     """
     with open(args.conf) as f:
