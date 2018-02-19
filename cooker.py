@@ -30,6 +30,7 @@ class Cooker(GPIO_DEV):
         #
         self.state_on = False
         self.target_power_index = 0
+        self.power_index = 0
 
         # powers = (120, 300, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000)
         self.powers = powers
