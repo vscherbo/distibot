@@ -328,7 +328,6 @@ class Distibot(object):
             self.stage = 'heat'
             logging.debug('stage is "{}"'.format(self.stage))
 
-    # @staticmethod
     def heads_started(self, gpio_id):
         if 'heads' == self.stage:
             pass
@@ -336,12 +335,9 @@ class Distibot(object):
             self.stage = 'heads'
             logging.debug('stage is "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_started'
-            self.pb_channel.push_note("Стартовали головы", "Стартовали головы")
-                                    #  "gpio_id=" + str(gpio_id)
-                                    #  + ", value=" + str(value))
+            self.pb_channel.push_note("Стартовали головы", "gpio_id={}".format(gpio_id))
             self.heads_sensor.watch_finish(self.heads_finished)  # including heads_sensor.ignore_start()
 
-    # @staticmethod
     def heads_finished(self, gpio_id):
         if 'body' == self.stage:
             pass
@@ -349,13 +345,11 @@ class Distibot(object):
             self.stage = 'body'
             logging.debug('stage is "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_finished'
-            self.pb_channel.push_note("Закончились головы", "Закончились головы")
-            #                          "gpio_id=" + str(gpio_id)
-            #                          + ", value=" + str(value))
+            self.pb_channel.push_note("Закончились головы", "gpio_id={}".format(gpio_id))
             self.valve3way.way_2()
             self.cooker.switch_off()
-            self.cooker.switch_on()  # set power 1400
-            self.heads_sensor.ignore_finish(),
+            self.cooker.switch_on()  # set initial_power
+            self.heads_sensor.ignore_finish()
 
     def start_watch_heads(self):
         self.valve3way.way_1()
