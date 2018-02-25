@@ -31,6 +31,9 @@ hs_type=OPT
 gpio_hs_start=14
 gpio_hs_finish=25
 
+[flow_sensor]
+gpio_fs=11
+
 [pushbullet]
 api_key=xxx
 

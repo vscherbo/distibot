@@ -16,6 +16,7 @@ from cooker import Cooker
 import valve
 import heads_sensor
 import tsensor
+import flow_sensor
 
 # one_plus_one = pb.get_device('OnePlus One')
 # Title, Message_body
@@ -78,6 +79,7 @@ class Distibot(object):
         self.cooker_timeout = 10
         self.drop_period = 3600
         self.drop_timeout = 120
+        self.flow_period = 300
         self.T_sleep = 1
         self.csv_delay = 0
         self.water_on = False
@@ -116,6 +118,8 @@ class Distibot(object):
                                                       gpio_heads_start=self.config.getint('heads_sensor', 'gpio_hs_start'),
                                                       gpio_heads_finish=self.config.getint('heads_sensor', 'gpio_hs_finish'),
                                                       timeout=200)
+
+        self.flow_sensor = flow_sensor.Flow_sensor(gpio_heads_start=self.config.getint('flow_sensor', 'gpio_fs'))
 
         self.pb = pb_wrap(self.config.get('pushbullet', 'api_key'))
         self.pb_channel = self.pb.get_channel()
@@ -254,13 +258,13 @@ class Distibot(object):
 
             if self.T_prev > 0:
                 if abs((self.tsensors.ts_data['boiler'] - self.T_prev) / self.T_prev) \
-                > self.temperature_delta_limit:
+                   > self.temperature_delta_limit:
                     self.tsensors.ts_data['boiler'] = self.T_prev  # ignore, use prev value
                     logging.warning('Over {:.0%} difference T_prev={}, t_in_Cels={}'.
                                     format(self.temperature_delta_limit,
-                                        self.T_prev,
-                                        self.tsensors.ts_data['boiler']
-                                        ))
+                                           self.T_prev,
+                                           self.tsensors.ts_data['boiler'])
+                                    )
 
             self.current_ts = time.localtime()
             self.coord_time.append(time.strftime("%H:%M:%S", self.current_ts))
@@ -339,7 +343,7 @@ class Distibot(object):
             self.heads_sensor.watch_finish(self.heads_finished)  # including heads_sensor.ignore_start()
 
     def heads_finished(self, gpio_id):
-        if 'body' == self.stage:
+        if 'heads' != self.stage:
             pass
         else:
             self.stage = 'body'
@@ -367,7 +371,9 @@ class Distibot(object):
         if not self.water_on:
             self.valve_water.power_on_way()
             self.water_on = True
-        logging.debug('water is on')
+            # TODO self.flow_timer = threading.Timer(self.flow_period, self.release)
+            # self.timers.append(self.flow_timer)
+            logging.debug('water is on')
 
     def drop_container(self):
         self.valve_drop.power_on_way()
@@ -388,6 +394,11 @@ class Distibot(object):
         self.valve3way.way_3()
         self.pb_channel.push_note("Закончилось тело",
                                   "Клапан выключен")
+
+    def flow_detected(self, gpio_id):
+        pass
+        # self.flow_timer = threading.Timer(self.flow_period, self.release)
+        # self.timers.append(self.flow_timer)
 
     def finish(self):
         self.stop_process()
@@ -422,17 +433,17 @@ if __name__ == "__main__":
 
     # end of prolog
     logging.info('Started')
-        
+
     dib = Distibot()
     dib.load_jscript(args.play)
     # logging.debug(dib.Tsteps['boiler'])
     b_play = dib.Tplays['boiler']
-    #Tsteps = [t for t in b_play]
+    # Tsteps = [t for t in b_play]
     logging.debug(dib.Tsteps['boiler'])
     for t in dib.Tsteps['boiler']:
         logging.debug(t.temperature)
-    #logging.debug(Tkeys)    
+    # logging.debug(Tkeys)
     # --- temps = b_play.index ...
-    #Tkeys = b_play.keys()
-    #Tstage = b_play.Tkeys.pop(0)
-    #Tcmd = b_play.funcs(self.Tstage)
+    # Tkeys = b_play.keys()
+    # Tstage = b_play.Tkeys.pop(0)
+    # Tcmd = b_play.funcs(self.Tstage)
