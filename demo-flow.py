@@ -6,6 +6,7 @@ import logging
 import signal
 import time
 
+
 class _Getch:
     """Gets a single character from standard input.  Does not echo to the
 screen."""
@@ -20,7 +21,9 @@ class _GetchUnix:
         pass
 
     def __call__(self):
-        import sys, tty, termios
+        import sys
+        import tty
+        import termios
         fd = sys.stdin.fileno()
         old_settings = termios.tcgetattr(fd)
         try:
@@ -47,7 +50,7 @@ class SomeClass(object):
 
     def __init__(self):
         logging.getLogger(__name__).addHandler(logging.NullHandler())
-        self.flow = Cooker_stub()
+        self.getch = _Getch()
         self.flow_period = 5
         self.flow_timer = threading.Timer(self.flow_period, self.emergency_off)
         self.flow_timer.start()
@@ -56,11 +59,14 @@ class SomeClass(object):
         logging.debug('emergency_off')
 
     def flow_detected(self, gpio_id=-1):
-        pass
-        self.flow_timer.cancel()
+        logging.debug('flow_detected, ch={}'.format(gpio_id))
+        # self.flow_timer.cancel()
         # self.flow_timer = threading.Timer(self.flow_period, self.release)
         # self.timers.append(self.flow_timer)
 
+    def wait_keypress(self):
+        ch = self.getch()
+        self.flow_detected(ch)
 
 if __name__ == "__main__":
     import os
@@ -72,6 +78,7 @@ if __name__ == "__main__":
         global o
         if o.flow_timer:
             o.flow_timer.cancel()
+            logging.debug('timer was canceled')
         flag_do = False
 
     signal.signal(signal.SIGINT, signal_handler)
@@ -88,19 +95,16 @@ if __name__ == "__main__":
     logging.info('Started')
     o = SomeClass()
 
-    """
-    getch = _Getch()
     try:
-        thread.start_new_thread(getch(), ())
+        thread.start_new_thread(o.wait_keypress, ())
     except Exception, exc:
         print("Error: unable to start thread, exception=%s" % str(exc))
-    """
 
     flag_do = True
     while flag_do:
         time.sleep(1)
         is_alive = o.flow_timer.is_alive()
-        flag_do = is_alive
+        # flag_do = is_alive
         logging.debug('loop, is_alive={0}'.format(is_alive))
         # o.flow_detected()
 
