@@ -28,6 +28,7 @@ class Cooker(GPIO_DEV):
         self.gpio_list.append(gpio_special)
         GPIO.setup(self.gpio_special, GPIO.OUT, initial=GPIO.LOW)
         #
+        self.click_delay = 0.5
         self.state_on = False
         self.target_power_index = 0
         self.power_index = 0
@@ -47,9 +48,9 @@ class Cooker(GPIO_DEV):
         super(Cooker, self).release()
 
     def click_button(self, gpio_port_num):
-        time.sleep(0.3)  # для двух "нажатий" подряд
+        time.sleep(self.click_delay)  # для двух "нажатий" подряд
         GPIO.output(gpio_port_num, 1)
-        time.sleep(0.3)
+        time.sleep(self.click_delay)
         GPIO.output(gpio_port_num, 0)
         logging.debug('clicked port={gpio}'.format(gpio=gpio_port_num))
 
@@ -124,6 +125,7 @@ class Cooker(GPIO_DEV):
         # TODO detect wrong power OR approximate
         try:
             self.target_power_index = self.powers.index(power)
+            logging.debug("target_power_index={}".format(self.target_power_index))
         except LookupError:
             logging.error('set_power index lookup', exc_info=True)
             self.switch_off()
@@ -131,10 +133,15 @@ class Cooker(GPIO_DEV):
         else:
             if self.power_index > self.target_power_index:
                 change_power = self.power_down
-            else:
+                do_change = True
+            elif self.power_index < self.target_power_index:
                 change_power = self.power_up
-            while self.power_index != self.target_power_index:
+                do_change = True
+            else:
+                do_change = False
+            while do_change:
                 change_power()
+                do_change = (self.power_index != self.target_power_index)
 
     def current_power(self):
         return self.powers[self.power_index]
@@ -170,9 +177,9 @@ if __name__ == '__main__':
 
         def play_script(self):
             for play_stage in self.play:
-                logging.debug('run play_stage={0}'.format(play_stage))
+                logging.debug('=== run play_stage={0}'.format(play_stage))
                 self.cooker.set_power(play_stage)
-                logging.info(self.cooker.current_power())
+                logging.info('>>> current_power={}'.format(self.cooker.current_power()))
                 sleep(3)
 
     (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
@@ -210,8 +217,12 @@ if __name__ == '__main__':
 
     bck_power = ckt.cooker.current_power()
     ckt.cooker.switch_off()
+    """
+    logging.debug('bck_power={}'.format(bck_power))
     sleep(2)
     ckt.cooker.switch_on(bck_power)
+    sleep(2)
+    """
 
     ckt.cooker.release()
 
