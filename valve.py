@@ -164,6 +164,7 @@ if __name__ == "__main__":
         v1 = Valve(valve_gpio=v_port1)
 
     v1.demo(sleep_time=args.delay)
+
     logging.info("release")
     v1.release()
     sys.exit()

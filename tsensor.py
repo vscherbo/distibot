@@ -105,9 +105,7 @@ if __name__ == '__main__':
     config = ConfigParser.RawConfigParser(allow_no_value=True)
     config.readfp(io.BytesIO(dib_config))
     tsensors = Tsensors(config)
-    print(tsensors.ts_dict.keys())
     tsensors.get_t()
-    print(tsensors.ts_data)
 
     # TODO read from conf file
     Talarms = [31.0, 49.5, 65.9, 98.5, 999.9]  # debug
