@@ -119,7 +119,7 @@ class Distibot(object):
                                                       gpio_heads_finish=self.config.getint('heads_sensor', 'gpio_hs_finish'),
                                                       timeout=200)
 
-        self.flow_sensor = flow_sensor.Flow_sensor(gpio_heads_start=self.config.getint('flow_sensor', 'gpio_fs'))
+        self.flow_sensor = flow_sensor.Flow_sensor(gpio_fs=self.config.getint('flow_sensor', 'gpio_fs'))
 
         self.pb = pb_wrap(self.config.get('pushbullet', 'api_key'))
         self.pb_channel = self.pb.get_channel()

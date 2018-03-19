@@ -18,7 +18,7 @@ class Flow_sensor(GPIO_DEV):
     instPour = 0.0  # current flow
     thisPour = 0.0  # in Liters
 
-    def __init__(self, gpio_flow_pin):
+    def __init__(self, gpio_fs):
         super(Flow_sensor, self).__init__()
         self.clicks = 0
         self.lastClick = int(time.time() * self.MS_IN_A_SECOND)
@@ -28,19 +28,19 @@ class Flow_sensor(GPIO_DEV):
         self.thisPour = 0.0
         self.totalPour = 0.0
         self.enabled = True
-        self.gpio_flow_pin = gpio_flow_pin
-        self.gpio_list.append(gpio_flow_pin)
-        logging.info('init flow-sensor GPIO_flow={0}'.format(self.gpio_flow_pin))
+        self.gpio_fs = gpio_fs
+        self.gpio_list.append(gpio_fs)
+        logging.info('init flow-sensor GPIO_flow={0}'.format(self.gpio_fs))
 
     def release(self):
-        GPIO.remove_event_detect(self.gpio_flow_pin)
+        GPIO.remove_event_detect(self.gpio_fs)
         super(Flow_sensor, self).release()
         logging.debug("flow_sensor released")
 
     def watch_flow(self, flow_callback):
-        GPIO.setup(self.gpio_flow_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(self.gpio_flow_pin, GPIO.FALLING)
-        GPIO.add_event_callback(self.gpio_flow_pin, callback=flow_callback)
+        GPIO.setup(self.gpio_fs, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.add_event_detect(self.gpio_fs, GPIO.FALLING)
+        GPIO.add_event_callback(self.gpio_fs, callback=flow_callback)
 
     def handle_click(self):
         currentTime = int(time.time() * self.MS_IN_A_SECOND)
