@@ -299,36 +299,46 @@ class Distibot(object):
         pass
 
     def start_process(self):
-        self.cooker.switch_on()
+        self.cooker_on()
         self.stage = 'heat'
         logging.debug('stage is "{}"'.format(self.stage))
 
     def stop_process(self):
         self.loop_flag = False
         time.sleep(self.T_sleep+0.5)
-        self.cooker.switch_off()
+        self.cooker_off()
         self.stage = 'finish'
         logging.debug('stage is "{}"'.format(self.stage))
 
     def cooker_off(self):
+        self.cooker_timer.cancel()
+        self.timers.remove(self.cooker_timer)
+
         self.cooker.switch_off()
-        self.cooker_pause_timer = threading.Timer(self.cooker_timeout, self.cooker_on)
-        self.cooker_pause_timer.start()
+
+        self.cooker_timer = threading.Timer(self.cooker_timeout, self.cooker_on)
+        self.timers.append(self.cooker_timer)
+        self.cooker_timer.start()
 
     def cooker_on(self):
+        self.cooker_timer.cancel()
+        self.timers.remove(self.cooker_timer)
+
         self.cooker.switch_on()
+
         self.cooker_timer = threading.Timer(self.cooker_period, self.cooker_off)
+        self.timers.append(self.cooker_timer)
         self.cooker_timer.start()
 
     def heat_on_pause(self):
-        self.cooker.switch_off()
+        self.cooker_off()
         self.pause_start_ts = time.time()
         self.stage = 'pause'
         logging.debug('stage is "{}"'.format(self.stage))
 
     def heat_for_heads(self):
         if 'heat' != self.stage:  # если и так фаза нагрева, выходим
-            self.cooker.set_power_600()
+            self.cooker.set_power(600)
             self.stage = 'heat'
             logging.debug('stage is "{}"'.format(self.stage))
 
@@ -350,9 +360,11 @@ class Distibot(object):
             logging.debug('stage is "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_finished'
             self.pb_channel.push_note("Закончились головы", "gpio_id={}".format(gpio_id))
-            self.valve3way.way_2()
-            self.cooker.switch_off()
-            self.cooker.switch_on()  # set initial_power
+            self.valve3way.way_2()  # way for body
+            self.cooker.set_power(1400)
+            # an obsolete apparoach:
+            # self.cooker.switch_off()
+            # self.cooker.switch_on()  # set initial_power
             self.heads_sensor.ignore_finish()
 
     def start_watch_heads(self):
@@ -362,7 +374,7 @@ class Distibot(object):
         self.cooker.set_power(300)
 
     def wait4body(self):
-        self.cooker.switch_on()
+        self.cooker_on()
         self.valve3way.way_2()
         self.stage = 'heat'
         logging.debug('stage is "{}"'.format(self.stage))
@@ -371,19 +383,35 @@ class Distibot(object):
         if not self.water_on:
             self.valve_water.power_on_way()
             self.water_on = True
-            # TODO self.flow_timer = threading.Timer(self.flow_period, self.release)
-            # self.timers.append(self.flow_timer)
-            logging.debug('water is on')
+            self.flow_timer = threading.Timer(self.flow_period, self.release)
+            self.timers.append(self.flow_timer)
+            self.flow_timer.start()
+            self.flow_sensor.watch_flow(self.flow_detected)
+            logging.debug('water_on={}, flow_sensor.is_alive={}'.format(self.water_on, self.flow_sensor.is_alive()))
 
     def drop_container(self):
+        self.drop_timer.cancel()
+        self.timers.remove(self.drop_timer)
+
         self.valve_drop.power_on_way()
-        self.drop_timer_off = threading.Timer(self.drop_timeout, self.close_container)
+
+        self.drop_timer = threading.Timer(self.drop_timeout, self.close_container)
+        self.timers.append(self.drop_timer)
+        self.drop_timer.start()
         logging.debug('drop is on')
+        self.pb_channel.push_note("Сброс сухопарника", "Клапан сброса включён")
 
     def close_container(self):
+        self.drop_timer.cancel()
+        self.timers.remove(self.drop_timer)
+
         self.valve_drop.default_way()
+
         self.drop_timer = threading.Timer(self.drop_period, self.drop_container)
+        self.timers.append(self.drop_timer)
+        self.drop_timer.start()
         logging.debug('drop is off')
+        self.pb_channel.push_note("Сухопарник закрыт", "Клапан сброса отключён")
 
 #    def stop_body_power_on(self):
 #        self.stop_body()
@@ -392,13 +420,17 @@ class Distibot(object):
         self.stage = 'tail'
         logging.debug('stage is "{}"'.format(self.stage))
         self.valve3way.way_3()
-        self.pb_channel.push_note("Закончилось тело",
-                                  "Клапан выключен")
+        self.pb_channel.push_note("Закончилось тело", "Клапан выключен")
 
     def flow_detected(self, gpio_id):
-        pass
-        # self.flow_timer = threading.Timer(self.flow_period, self.release)
-        # self.timers.append(self.flow_timer)
+        self.flow_timer.cancel()
+        self.timers.remove(self.flow_timer)
+
+        self.flow_sensor.handle_click()
+
+        self.flow_timer = threading.Timer(self.flow_period, self.release)
+        self.timers.append(self.flow_timer)
+        self.flow_timer.start()
 
     def finish(self):
         self.stop_process()
