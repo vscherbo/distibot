@@ -66,36 +66,51 @@ class FS_tester():
         self.timers.append(self.flow_timer)
 
     def release(self):
+        logging.debug('FS_tester.release')
         for t in self.timers:
             t.cancel()
         self.flow_sensor.release()
+        self.do_flag = False
 
     def flow_detected(self, gpio_id):
-        # self.timers.remove(self.flow_timer)
-        # self.flow_timer = threading.Timer(self.flow_period, self.release)
-        # self.timers.append(self.flow_timer)
+        self.flow_timer.cancel()
+        self.timers.remove(self.flow_timer)
+
+        self.flow_timer = threading.Timer(self.flow_period, self.release)
+        self.timers.append(self.flow_timer)
+        self.flow_timer.start()
+
         self.flow_sensor.handle_click()
-        print "flow_count={0} V={1} Pour={2}".format(self.flow_sensor.clicks, self.flow_sensor.flow*3600, self.flow_sensor.thisPour)
+        logging.debug("flow_count={0} V={1} Pour={2}".format(self.flow_sensor.clicks, self.flow_sensor.flow*3600, self.flow_sensor.thisPour))
                     
 
-
+"""
 def countPulse(gpio_id):
     global fs
     # fst.flow_sensor.handle_click()
     fs.handle_click()
     print "Count={0} V={1} Pour={2}".format(fs.clicks, fs.flow*3600, fs.thisPour)
+"""
 
 if __name__ == "__main__":
     import sys
     import threading
+    log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
+    numeric_level = logging.DEBUG
+    logging.basicConfig(stream=sys.stdout, format=log_format, level=numeric_level)
+
+
     gpio_fs = 11
-    fst = FS_tester(gpio_fs, 3)
+    fst = FS_tester(gpio_fs, 10)
     # fs = Flow_sensor(gpio_fs)
     # fs.watch_flow(countPulse)
     fst.flow_sensor.watch_flow(fst.flow_detected)
-    while True:
+    fst.flow_timer.start()
+    fst.do_flag = True
+    while fst.do_flag:
         try:
             time.sleep(1)
+            logging.debug('timer.is_alive={}'.format(fst.flow_timer.is_alive()))
         except KeyboardInterrupt:
             print '\ncaught keyboard interrupt!, bye'
             fst.release()
