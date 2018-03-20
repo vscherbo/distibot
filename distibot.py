@@ -444,7 +444,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Distibot module')
     parser.add_argument('--conf', type=str, default="distibot.conf", help='conf file')
-    parser.add_argument('--play', type=str, default="dib-test.json", help='play file')
+    # parser.add_argument('--play', type=str, default="dib-test.json", help='play file')
+    parser.add_argument('--play', type=str, default="dib-debug.play", help='play file')
     parser.add_argument('--log_to_file', type=bool, default=False, help='log destination')
     parser.add_argument('--log_level', type=str, default="DEBUG", help='log level')
     args = parser.parse_args()
@@ -467,7 +468,8 @@ if __name__ == "__main__":
     logging.info('Started')
 
     dib = Distibot()
-    dib.load_jscript(args.play)
+    # json dib.load_jscript(args.play)
+    dib.load_script(args.play)
     # logging.debug(dib.Tsteps['boiler'])
     b_play = dib.Tplays['boiler']
     # Tsteps = [t for t in b_play]
