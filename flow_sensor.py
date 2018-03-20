@@ -92,7 +92,6 @@ if __name__ == "__main__":
 
             self.flow_sensor.handle_click()
             logging.debug("flow_count={0} V={1} Pour={2}".format(self.flow_sensor.clicks, self.flow_sensor.flow*3600, self.flow_sensor.thisPour))
-                    
 
 
     gpio_fs = 11
