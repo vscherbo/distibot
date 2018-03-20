@@ -54,7 +54,7 @@ class pb_wrap(Pushbullet):
 class pb_channel_emu(object):
 
     def push_note(self, subject, body):
-        pass
+        logging.info("subj={}/body={}".format(subject, body))
 
 
 class Distibot(object):
@@ -319,6 +319,7 @@ class Distibot(object):
         self.cooker_timer = threading.Timer(self.cooker_timeout, self.cooker_on)
         self.timers.append(self.cooker_timer)
         self.cooker_timer.start()
+        self.pb_channel.push_note("Нагрев отключён", "Установлен таймер на {}".format(self.cooker_timeout))
 
     def cooker_on(self):
         self.cooker_timer.cancel()
@@ -329,6 +330,7 @@ class Distibot(object):
         self.cooker_timer = threading.Timer(self.cooker_period, self.cooker_off)
         self.timers.append(self.cooker_timer)
         self.cooker_timer.start()
+        self.pb_channel.push_note("Нагрев включён", "Установлен таймер на {}".format(self.cooker_period))
 
     def heat_on_pause(self):
         self.cooker_off()
@@ -387,7 +389,7 @@ class Distibot(object):
             self.timers.append(self.flow_timer)
             self.flow_timer.start()
             self.flow_sensor.watch_flow(self.flow_detected)
-            logging.debug('water_on={}, flow_sensor.is_alive={}'.format(self.water_on, self.flow_sensor.is_alive()))
+            logging.debug('water_on={}, flow_timer.is_alive={}'.format(self.water_on, self.flow_timer.is_alive()))
 
     def drop_container(self):
         self.drop_timer.cancel()
