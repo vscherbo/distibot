@@ -80,10 +80,10 @@ class Cooker(GPIO_DEV):
         if self.power_index < self.max_power_index:
             self.click_button(self.gpio_up)
             self.power_index += 1
-            logging.debug("power_up, new_index={}".format(self.power_index))
+            logging.debug("power_up, new_index={}, new_power={}".format(self.power_index, self.current_power()))
             return True
         else:
-            logging.debug("power_up False, index={}".format(self.power_index))
+            logging.debug("power_up, False index={}, power={}".format(self.power_index, self.current_power()))
             return False
 
     def set_power_max(self):
@@ -95,10 +95,10 @@ class Cooker(GPIO_DEV):
         if self.power_index > 0:
             self.click_button(self.gpio_down)
             self.power_index -= 1
-            logging.debug("power_down, new_index={}".format(self.power_index))
+            logging.debug("power_down, new_index={}, new_power={}".format(self.power_index, self.current_power()))
             return True
         else:
-            logging.debug("power_down False, index={}".format(self.power_index))
+            logging.debug("power_down, False index={}, power={}".format(self.power_index, self.current_power()))
             return False
 
     def set_power_min(self):
