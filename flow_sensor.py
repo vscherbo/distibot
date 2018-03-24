@@ -72,7 +72,7 @@ if __name__ == "__main__":
             self.flow_sensor = Flow_sensor(gpio_fs=gpio_fs)
             self.flow_period = flow_period
             self.timers = []
-            self.flow_timer = threading.Timer(self.flow_period, self.release)
+            self.flow_timer = threading.Timer(self.flow_period, self.no_flow)
             self.timers.append(self.flow_timer)
 
         def release(self):
@@ -81,6 +81,10 @@ if __name__ == "__main__":
                 t.cancel()
             self.flow_sensor.release()
             self.do_flag = False
+
+        def no_flow(self):
+            logging.warning('no flow detected after flow_period={}, exiting'.format(self.flow_period))
+            self.release()
 
         def flow_detected(self, gpio_id):
             self.flow_timer.cancel()
@@ -95,13 +99,13 @@ if __name__ == "__main__":
 
 
     gpio_fs = 11
-    fst = FS_tester(gpio_fs, 10)
+    fst = FS_tester(gpio_fs, 5)
     fst.flow_sensor.watch_flow(fst.flow_detected)
     fst.flow_timer.start()
     fst.do_flag = True
     while fst.do_flag:
         try:
-            time.sleep(1)
+            time.sleep(2)
             logging.debug('timer.is_alive={}'.format(fst.flow_timer.is_alive()))
         except KeyboardInterrupt:
             print '\ncaught keyboard interrupt!, bye'
