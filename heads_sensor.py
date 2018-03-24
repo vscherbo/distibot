@@ -105,7 +105,7 @@ if __name__ == "__main__":
     (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
     conf_file_name = "hs.conf"
 
-    parser = argparse.ArgumentParser(description='Distibot "tsensor" module')
+    parser = argparse.ArgumentParser(description='Distibot "heads_sensor" module')
     parser.add_argument('--conf', type=str, default=conf_file_name, help='conf file')
     parser.add_argument('--log_to_file', type=bool, default=False, help='log destination')
     parser.add_argument('--log_level', type=str, default="DEBUG", help='log level')
@@ -129,22 +129,6 @@ if __name__ == "__main__":
 
     dib = distibot.Distibot(args.conf)
     dib.start_watch_heads()
-
-    """
-    with open(args.conf) as f:
-        dib_config = f.read()
-        f.close()
-
-    config = ConfigParser.RawConfigParser(allow_no_value=True)
-    config.readfp(io.BytesIO(dib_config))
-
-    hs = Heads_sensor(hs_type=config.get('heads_sensor', 'hs_type'),
-                      gpio_heads_start=config.getint('heads_sensor', 'gpio_hs_start'),
-                      gpio_heads_finish=config.getint('heads_sensor', 'gpio_hs_finish'),
-                      timeout=200)
-    hs.watch_start(heads_started),
-    # hs.watch_finish(heads_finished),
-    """
 
     loop_flag = True
     step_counter = 0
