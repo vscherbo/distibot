@@ -474,12 +474,6 @@ if __name__ == "__main__":
     dib.load_script(args.play)
     # logging.debug(dib.Tsteps['boiler'])
     b_play = dib.Tplays['boiler']
-    # Tsteps = [t for t in b_play]
     logging.debug(dib.Tsteps['boiler'])
     for t in dib.Tsteps['boiler']:
         logging.debug(t.temperature)
-    # logging.debug(Tkeys)
-    # --- temps = b_play.index ...
-    # Tkeys = b_play.keys()
-    # Tstage = b_play.Tkeys.pop(0)
-    # Tcmd = b_play.funcs(self.Tstage)
