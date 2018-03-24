@@ -45,16 +45,16 @@ class Heads_sensor(GPIO_DEV):
             pass
         else:
             self.flag_ignore_start = True
-            logging.info('ignore_start: remove_event_detect on {0}'.format(self.gpio_heads_start))
             GPIO.remove_event_detect(self.gpio_heads_start)
+            logging.info('ignore_start: remove_event_detect on {0}'.format(self.gpio_heads_start))
 
     def ignore_finish(self):
         if self.flag_ignore_finish:
             pass
         else:
             self.flag_ignore_finish = True
-            logging.info('ignore_finish: remove_event_detect on {0}'.format(self.gpio_heads_finish))
             GPIO.remove_event_detect(self.gpio_heads_finish)
+            logging.info('ignore_finish: remove_event_detect on {0}'.format(self.gpio_heads_finish))
 
     # TODO merge watch_start & watch_finish in a single method
     def watch_start(self, start_callback):
@@ -64,6 +64,7 @@ class Heads_sensor(GPIO_DEV):
         GPIO.add_event_callback(self.gpio_heads_start, start_callback)
 
     def watch_finish(self, finish_callback):
+        self.ignore_start()
         self.flag_ignore_finish = False
         GPIO.setup(self.gpio_heads_finish, GPIO.IN, pull_up_down=self.PUD)
         GPIO.add_event_detect(self.gpio_heads_finish, self.edge, bouncetime=self.timeout)
