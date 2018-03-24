@@ -99,34 +99,28 @@ class Distibot(object):
 
         self.loop_flag = True
 
-        if self.config.has_section('cooker'):
-            self.cooker = Cooker(gpio_on_off=self.config.getint('cooker', 'gpio_cooker_on_off'),
-                                 gpio_up=self.config.getint('cooker', 'gpio_cooker_up'),
-                                 gpio_down=self.config.getint('cooker', 'gpio_cooker_down'),
-                                 gpio_special=self.config.getint('cooker', 'gpio_cooker_special'),
-                                 powers=eval(self.config.get('cooker', 'cooker_powers')),
-                                 init_power=self.config.getint('cooker', 'cooker_init_power'),
-                                 special_power=self.config.getint('cooker', 'cooker_special_power'),
-                                 do_init_special=self.config.getboolean('cooker', 'init_special')
-                                 )
+        self.cooker = Cooker(gpio_on_off=self.config.getint('cooker', 'gpio_cooker_on_off'),
+                             gpio_up=self.config.getint('cooker', 'gpio_cooker_up'),
+                             gpio_down=self.config.getint('cooker', 'gpio_cooker_down'),
+                             gpio_special=self.config.getint('cooker', 'gpio_cooker_special'),
+                             powers=eval(self.config.get('cooker', 'cooker_powers')),
+                             init_power=self.config.getint('cooker', 'cooker_init_power'),
+                             special_power=self.config.getint('cooker', 'cooker_special_power'),
+                             do_init_special=self.config.getboolean('cooker', 'init_special')
+                             )
 
-        if self.config.has_section('valve_water'):
-            self.valve_water = valve.Valve(valve_gpio=self.config.getint('valve_water', 'gpio_valve_water'))
-        if self.config.has_section('valve_drop'):
-            self.valve_drop = valve.Valve(valve_gpio=self.config.getint('valve_drop', 'gpio_valve_drop'))
+        self.valve_water = valve.Valve(valve_gpio=self.config.getint('valve_water', 'gpio_valve_water'))
+        self.valve_drop = valve.Valve(valve_gpio=self.config.getint('valve_drop', 'gpio_valve_drop'))
 
-        if self.config.has_section('dbl_valve'):
-            self.valve3way = valve.DoubleValve(gpio_v1=self.config.getint('dbl_valve', 'gpio_dbl_valve_1'),
+        self.valve3way = valve.DoubleValve(gpio_v1=self.config.getint('dbl_valve', 'gpio_dbl_valve_1'),
                                                gpio_v2=self.config.getint('dbl_valve', 'gpio_dbl_valve_2'))
 
-        if self.config.has_section('heads_sensor'):
-            self.heads_sensor = heads_sensor.Heads_sensor(hs_type=self.config.get('heads_sensor', 'hs_type'),
-                                                          gpio_heads_start=self.config.getint('heads_sensor', 'gpio_hs_start'),
-                                                          gpio_heads_finish=self.config.getint('heads_sensor', 'gpio_hs_finish'),
-                                                          timeout=200)
+        self.heads_sensor = heads_sensor.Heads_sensor(hs_type=self.config.get('heads_sensor', 'hs_type'),
+                                                      gpio_heads_start=self.config.getint('heads_sensor', 'gpio_hs_start'),
+                                                      gpio_heads_finish=self.config.getint('heads_sensor', 'gpio_hs_finish'),
+                                                      timeout=200)
 
-        if self.config.has_section('flow_sensor'):
-            self.flow_sensor = flow_sensor.Flow_sensor(gpio_fs=self.config.getint('flow_sensor', 'gpio_fs'))
+        self.flow_sensor = flow_sensor.Flow_sensor(gpio_fs=self.config.getint('flow_sensor', 'gpio_fs'))
 
         self.pb = pb_wrap(self.config.get('pushbullet', 'api_key'))
         self.pb_channel = self.pb.get_channel()
@@ -369,12 +363,12 @@ class Distibot(object):
             logging.debug('stage is "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_finished'
             self.pb_channel.push_note("Закончились головы", "gpio_id={}".format(gpio_id))
+            self.heads_sensor.ignore_finish()
             self.valve3way.way_2()  # way for body
             self.cooker.set_power(1400)
             # an obsolete apparoach:
             # self.cooker.switch_off()
             # self.cooker.switch_on()  # set initial_power
-            self.heads_sensor.ignore_finish()
 
     def start_watch_heads(self):
         self.valve3way.way_1()
