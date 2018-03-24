@@ -86,19 +86,6 @@ if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    """
-    def heads_started(gpio_id):
-        global hs
-        logging.info("{} Стартовали головы, gpio_id={}".format(time.strftime("%Y-%m-%d-%H-%M-%S"), gpio_id))
-        hs.watch_finish(heads_finished)
-        hs.ignore_start()
-
-    def heads_finished(gpio_id):
-        global hs
-        logging.info("{} Закончились головы, gpio_id={}".format(time.strftime("%Y-%m-%d-%H-%M-%S"), gpio_id))
-        hs.ignore_finish()
-    """
-
     log_dir = ''
     log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
 
