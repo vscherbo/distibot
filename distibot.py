@@ -386,7 +386,7 @@ class Distibot(object):
         if not self.water_on:
             self.valve_water.power_on_way()
             self.water_on = True
-            self.flow_timer = threading.Timer(self.flow_period, self.release)
+            self.flow_timer = threading.Timer(self.flow_period, self.no_flow)
             self.timers.append(self.flow_timer)
             self.flow_timer.start()
             self.flow_sensor.watch_flow(self.flow_detected)
@@ -431,9 +431,15 @@ class Distibot(object):
 
         self.flow_sensor.handle_click()
 
-        self.flow_timer = threading.Timer(self.flow_period, self.release)
+        self.flow_timer = threading.Timer(self.flow_period, self.no_flow)
         self.timers.append(self.flow_timer)
         self.flow_timer.start()
+
+    def no_flow(self):
+        logging.warning('Нет потока охлаждения за flow_period={}, Аварийное отключение'.format(self.flow_period))
+        self.pb_channel.push_note("Аварийное отключение", "Нет потока охлаждения")
+        self.stop_process()
+        self.release()
 
     def finish(self):
         self.stop_process()
