@@ -79,7 +79,7 @@ class Distibot(object):
         self.cooker_timeout = 10
         self.drop_period = 3600
         self.drop_timeout = 120
-        self.flow_period = 300
+        self.flow_period = 10
         self.T_sleep = 1
         self.csv_delay = 0
         self.water_on = False
