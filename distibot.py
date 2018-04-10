@@ -79,7 +79,6 @@ class Distibot(object):
         self.cooker_timeout = 10
         self.drop_period = 3600
         self.drop_timeout = 120
-        self.flow_period = 10
         self.T_sleep = 1
         self.csv_delay = 0
         self.water_on = False
@@ -120,7 +119,9 @@ class Distibot(object):
                                                       gpio_heads_finish=self.config.getint('heads_sensor', 'gpio_hs_finish'),
                                                       timeout=200)
 
+        # self.flow_period = 10
         self.flow_sensor = flow_sensor.Flow_sensor(gpio_fs=self.config.getint('flow_sensor', 'gpio_fs'))
+        self.flow_period = self.config.getint('flow_sensor', 'flow_period')
 
         self.pb = pb_wrap(self.config.get('pushbullet', 'api_key'))
         self.pb_channel = self.pb.get_channel()
