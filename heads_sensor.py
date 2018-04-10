@@ -103,8 +103,8 @@ if __name__ == "__main__":
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % numeric_level)
 
-    # log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
-    log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
+    log_format = '[%(filename)-22s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
+    # log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
 
     if args.log_to_file:
         log_dir = ''
