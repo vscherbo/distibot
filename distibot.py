@@ -77,6 +77,7 @@ class Distibot(object):
         self.pause_limit = 180
         self.cooker_period = 3600
         self.cooker_timeout = 10
+        self.cooker_current_power = 0
         self.drop_period = 3600
         self.drop_timeout = 120
         self.T_sleep = 1
@@ -170,6 +171,13 @@ class Distibot(object):
         self.Tcmd = self.Tsteps.pop(self.Tstage)
         # print(self.Tsteps)
 
+    def send_msg(self, msg_subj, msg_body):
+        try:
+            self.pb_channel.push_note(msg_subj, msg_body)
+        except Exception, exc:
+            logging.info(msg_subj, msg_body)
+            logging.exception('exception in send_msg', exc_info=True)
+
     def release(self):
         save_coord = open(self.outdir + self.dt_string+'.dat', 'w')
         for i_time, i_temp in zip(self.coord_time, self.coord_temp):
@@ -187,7 +195,8 @@ class Distibot(object):
         """
         if 'pause' == self.stage:
             if time.time()-self.pause_start_ts > self.pause_limit:
-                self.pb_channel.push_note("Пауза превысила {}".format(self.pause_limit), "Включаю нагрев")
+                # self.pb_channel.push_note("Пауза превысила {}".format(self.pause_limit), "Включаю нагрев")
+                self.send_msg("Пауза превысила {}".format(self.pause_limit), "Включаю нагрев")
                 self.heat_for_heads()
 
     def decrease_monitor(self):
@@ -200,7 +209,8 @@ class Distibot(object):
             if self.T_prev > self.tsensors.ts_data['boiler']:
                 self.downcount += 1
                 if self.downcount >= self.downcount_limit:
-                    self.pb_channel.push_note("Снижение температуры", "Включаю нагрев")
+                    # self.pb_channel.push_note("Снижение температуры", "Включаю нагрев")
+                    self.send_msg("Снижение температуры", "Включаю нагрев")
                     self.heat_for_heads()
                     self.downcount = 0
             elif self.T_prev < self.tsensors.ts_data['boiler']:
@@ -229,9 +239,13 @@ class Distibot(object):
 
     def do_cmd(self):
         self.Tcmd_last = self.Tcmd.__name__
+        """
         self.pb_channel.push_note("Превысили " + str(self.Tstage),
                                   str(self.tsensors.ts_data['boiler'])
                                   + ", Tcmd=" + str(self.Tcmd.__name__))
+        """
+        self.send_msg("Превысили {}".format(self.Tstage),
+                      "Tboiler={0}, Tcmd={1}".format(self.tsensors.ts_data['boiler'], self.Tcmd.__name__))
 
         self.Tcmd()
         try:
@@ -256,7 +270,8 @@ class Distibot(object):
 
             if t_failed_cnt > self.temperature_error_limit:
                 t_failed_cnt = 0
-                self.pb_channel.push_note("Сбой получения температуры", "Требуется вмешательство")
+                # self.pb_channel.push_note("Сбой получения температуры", "Требуется вмешательство")
+                self.send_msg("Сбой получения температуры", "Требуется вмешательство")
 
             if self.T_prev > 0:
                 if abs((self.tsensors.ts_data['boiler'] - self.T_prev) / self.T_prev) \
@@ -316,23 +331,30 @@ class Distibot(object):
         self.cooker_timer.cancel()
         self.timers.remove(self.cooker_timer)
 
+        self.cooker_current_power = self.cooker.current_power()
         self.cooker.switch_off()
 
         self.cooker_timer = threading.Timer(self.cooker_timeout, self.cooker_on)
         self.timers.append(self.cooker_timer)
         self.cooker_timer.start()
-        self.pb_channel.push_note("Нагрев отключён", "Установлен таймер на {}".format(self.cooker_timeout))
+        # self.pb_channel.push_note("Нагрев отключён", "Установлен таймер на {}".format(self.cooker_timeout))
+        self.send_msg("Нагрев отключён", "Установлен таймер на {}".format(self.cooker_timeout))
 
     def cooker_on(self):
         self.cooker_timer.cancel()
         self.timers.remove(self.cooker_timer)
 
-        self.cooker.switch_on()
+        # TODO simplify
+        if self.cooker.current_power is not None and self.cooker.current_power > 0:
+            self.cooker.switch_on(self.cooker.current_power)
+        else:    
+            self.cooker.switch_on()
 
         self.cooker_timer = threading.Timer(self.cooker_period, self.cooker_off)
         self.timers.append(self.cooker_timer)
         self.cooker_timer.start()
-        self.pb_channel.push_note("Нагрев включён", "Установлен таймер на {}".format(self.cooker_period))
+        # self.pb_channel.push_note("Нагрев включён", "Установлен таймер на {}".format(self.cooker_period))
+        self.send_msg("Нагрев включён", "Установлен таймер на {}".format(self.cooker_period))
 
     def heat_on_pause(self):
         self.cooker_off()
@@ -353,7 +375,8 @@ class Distibot(object):
             self.stage = 'heads'
             logging.debug('stage is "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_started'
-            self.pb_channel.push_note("Стартовали головы", "gpio_id={}".format(gpio_id))
+            # self.pb_channel.push_note("Стартовали головы", "gpio_id={}".format(gpio_id))
+            self.send_msg("Стартовали головы", "gpio_id={}".format(gpio_id))
             self.heads_sensor.watch_finish(self.heads_finished)  # including heads_sensor.ignore_start()
 
     def heads_finished(self, gpio_id):
@@ -363,7 +386,8 @@ class Distibot(object):
             self.stage = 'body'
             logging.debug('stage is "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_finished'
-            self.pb_channel.push_note("Закончились головы", "gpio_id={}".format(gpio_id))
+            # self.pb_channel.push_note("Закончились головы", "gpio_id={}".format(gpio_id))
+            self.send_msg("Закончились головы", "gpio_id={}".format(gpio_id))
             self.heads_sensor.ignore_finish()
             self.valve3way.way_2()  # way for body
             self.cooker.set_power(1400)
@@ -403,7 +427,8 @@ class Distibot(object):
         self.timers.append(self.drop_timer)
         self.drop_timer.start()
         logging.debug('drop is on')
-        self.pb_channel.push_note("Сброс сухопарника", "Клапан сброса включён")
+        # self.pb_channel.push_note("Сброс сухопарника", "Клапан сброса включён")
+        self.send_msg("Сброс сухопарника", "Клапан сброса включён")
 
     def close_container(self):
         self.drop_timer.cancel()
@@ -415,7 +440,8 @@ class Distibot(object):
         self.timers.append(self.drop_timer)
         self.drop_timer.start()
         logging.debug('drop is off')
-        self.pb_channel.push_note("Сухопарник закрыт", "Клапан сброса отключён")
+        # self.pb_channel.push_note("Сухопарник закрыт", "Клапан сброса отключён")
+        self.send_msg("Сухопарник закрыт", "Клапан сброса отключён")
 
 #    def stop_body_power_on(self):
 #        self.stop_body()
@@ -424,7 +450,8 @@ class Distibot(object):
         self.stage = 'tail'
         logging.debug('stage is "{}"'.format(self.stage))
         self.valve3way.way_3()
-        self.pb_channel.push_note("Закончилось тело", "Клапан выключен")
+        # self.pb_channel.push_note("Закончилось тело", "Клапан выключен")
+        self.send_msg("Закончилось тело", "Клапан выключен")
 
     def flow_detected(self, gpio_id):
         self.flow_timer.cancel()
@@ -438,7 +465,8 @@ class Distibot(object):
 
     def no_flow(self):
         logging.warning('Нет потока охлаждения за flow_period={}, Аварийное отключение'.format(self.flow_period))
-        self.pb_channel.push_note("Аварийное отключение", "Нет потока охлаждения")
+        # self.pb_channel.push_note("Аварийное отключение", "Нет потока охлаждения")
+        self.send_msg("Аварийное отключение", "Нет потока охлаждения")
         self.stop_process()
         self.release()
 
