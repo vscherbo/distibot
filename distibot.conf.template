@@ -33,6 +33,7 @@ gpio_hs_finish=25
 
 [flow_sensor]
 gpio_fs=11
+flow_period=3
 
 [pushbullet]
 api_key=xxx
