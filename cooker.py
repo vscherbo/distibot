@@ -31,7 +31,6 @@ class Cooker(GPIO_DEV):
         self.click_delay = 0.5
         self.state_on = False
         self.target_power_index = 0
-        self.power_index = 0
 
         # powers = (120, 300, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000)
         self.powers = powers
@@ -41,6 +40,10 @@ class Cooker(GPIO_DEV):
         self.do_init_special = do_init_special
         self.ini_power_index = self.powers.index(init_power)
         self.ini_special_index = self.powers.index(special_power)
+        if self.do_init_special:
+            self.power_index = self.ini_special_index
+        else:
+            self.power_index = self.ini_power_index
 
     def release(self):
         logging.info("cooker.release")
@@ -62,9 +65,10 @@ class Cooker(GPIO_DEV):
             self.state_on = True
             logging.info("switch_ON")
         if power_value is not None:
+            logging.debug("switch_on, arg power_value={}".format(power_value))
             self.set_power(power_value)
             self.power_index = self.powers.index(power_value)
-            logging.debug("switch_on, power={}".format(self.current_power()))
+            logging.debug("switched on, current_power={}".format(self.current_power()))
         elif self.do_init_special:  # power_value is a priority
             self.click_button(self.gpio_special)
             self.power_index = self.ini_special_index
@@ -123,11 +127,12 @@ class Cooker(GPIO_DEV):
 
     def set_power(self, power):
         # TODO detect wrong power OR approximate
+        logging.debug("target_power_index={}".format(self.target_power_index))
         try:
             self.target_power_index = self.powers.index(power)
-            logging.debug("target_power_index={}".format(self.target_power_index))
-        except LookupError:
-            logging.error('set_power index lookup', exc_info=True)
+        # except LookupError:
+        except Exception:
+            logging.exception('set_power index error', exc_info=True)
             self.switch_off()
             self.switch_on()
         else:
