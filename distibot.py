@@ -77,7 +77,6 @@ class Distibot(object):
         self.pause_limit = 180
         self.cooker_period = 3600
         self.cooker_timeout = 10
-        self.cooker_current_power = 0
         self.drop_period = 3600
         self.drop_timeout = 120
         self.T_sleep = 1
@@ -108,6 +107,7 @@ class Distibot(object):
                              special_power=self.config.getint('cooker', 'cooker_special_power'),
                              do_init_special=self.config.getboolean('cooker', 'init_special')
                              )
+        self.cooker_current_power = self.cooker.current_power()
 
         self.valve_water = valve.Valve(valve_gpio=self.config.getint('valve_water', 'gpio_valve_water'))
         self.valve_drop = valve.Valve(valve_gpio=self.config.getint('valve_drop', 'gpio_valve_drop'))
@@ -172,10 +172,10 @@ class Distibot(object):
         # print(self.Tsteps)
 
     def send_msg(self, msg_subj, msg_body):
+        logging.info("send_msg: subj={0}, msg='{1}'".format(msg_subj, msg_body))
         try:
             self.pb_channel.push_note(msg_subj, msg_body)
         except Exception, exc:
-            logging.info(msg_subj, msg_body)
             logging.exception('exception in send_msg', exc_info=True)
 
     def release(self):
@@ -244,10 +244,10 @@ class Distibot(object):
                                   str(self.tsensors.ts_data['boiler'])
                                   + ", Tcmd=" + str(self.Tcmd.__name__))
         """
-        self.send_msg("Превысили {}".format(self.Tstage),
+        self.Tcmd()
+        self.send_msg("Превысили {0}".format(self.Tstage),
                       "Tboiler={0}, Tcmd={1}".format(self.tsensors.ts_data['boiler'], self.Tcmd.__name__))
 
-        self.Tcmd()
         try:
             self.Tstage = self.Tkeys.pop(0)
         except IndexError:
@@ -306,7 +306,7 @@ class Distibot(object):
             self.csv_write()
             time.sleep(self.T_sleep)
 
-        logging.debug('temperature_loop exiting')
+        logging.info('temperature_loop exiting')
 
     def do_nothing(self, gpio_id=-1, value="-1"):
         print("do_nothing "
@@ -345,8 +345,8 @@ class Distibot(object):
         self.timers.remove(self.cooker_timer)
 
         # TODO simplify
-        if self.cooker.current_power is not None and self.cooker.current_power > 0:
-            self.cooker.switch_on(self.cooker.current_power)
+        if self.cooker_current_power is not None and self.cooker_current_power > 0:
+            self.cooker.switch_on(self.cooker_current_power)
         else:    
             self.cooker.switch_on()
 
@@ -363,12 +363,15 @@ class Distibot(object):
         logging.debug('stage is "{}"'.format(self.stage))
 
     def heat_for_heads(self):
+        logging.debug('inside heat_for_heads')
+        # TODO 600 from config "power_for_heads"
+        self.cooker.set_power(600)
         if 'heat' != self.stage:  # если и так фаза нагрева, выходим
-            self.cooker.set_power(600)
             self.stage = 'heat'
             logging.debug('stage is "{}"'.format(self.stage))
 
     def heads_started(self, gpio_id):
+        logging.debug('inside heads_started')
         if 'heads' == self.stage:
             pass
         else:
@@ -380,6 +383,7 @@ class Distibot(object):
             self.heads_sensor.watch_finish(self.heads_finished)  # including heads_sensor.ignore_start()
 
     def heads_finished(self, gpio_id):
+        logging.debug('inside heads_finished')
         if 'heads' != self.stage:
             pass
         else:
@@ -396,10 +400,11 @@ class Distibot(object):
             # self.cooker.switch_on()  # set initial_power
 
     def start_watch_heads(self):
-        self.valve3way.way_1()
+        logging.debug('inside start_watch_heads')
         self.start_water()
-        self.heads_sensor.watch_start(self.heads_started)
         self.cooker.set_power(300)
+        self.heads_sensor.watch_start(self.heads_started)
+        self.valve3way.way_1()
 
     def wait4body(self):
         self.cooker_on()
@@ -490,7 +495,7 @@ if __name__ == "__main__":
 
     numeric_level = getattr(logging, args.log_level, None)
     if not isinstance(numeric_level, int):
-        raise ValueError('Invalid log level: %s' % numeric_level)
+        raise ValueError('Invalid log level: {0}'.format(numeric_level))
 
     # log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
     log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
