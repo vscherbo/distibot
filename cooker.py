@@ -127,7 +127,7 @@ class Cooker(GPIO_DEV):
 
     def set_power(self, power):
         # TODO detect wrong power OR approximate
-        logging.debug("target_power_index={}".format(self.target_power_index))
+        logging.debug("set_power arg_power={}".format(power))
         try:
             self.target_power_index = self.powers.index(power)
         # except LookupError:
