@@ -33,15 +33,16 @@ def signal_handler(signal, frame):
     global dib
     global server
     global app
-    logging.info("signal_handler release")
+    logging.info('Catched signal {}'.format(signal))
     dib.stop_process()
     dib.release()
     app.close()
     server.stop()
 
-# signal.signal(signal.SIGINT, signal_handler)
-# signal.signal(signal.SIGHUP, signal_handler)
-# signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGHUP, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGUSR1, signal_handler)
 
 dib = Distibot(args.conf)
 dib.load_script(args.play)
