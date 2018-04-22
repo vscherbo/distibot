@@ -24,7 +24,7 @@ gpio_valve_water=9
 gpio_valve_drop=10
 
 [heads_sensor]
-# possible values are:
+# valid values are:
 # RES - resistive
 # OPT - optical
 hs_type=OPT
