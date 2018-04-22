@@ -81,8 +81,8 @@ if __name__ == "__main__":
     import distibot
 
     def signal_handler(signal, frame):
-
         global loop_flag
+        logging.info('Catched signal {}'.format(signal))
         loop_flag = False
 
     signal.signal(signal.SIGINT, signal_handler)
