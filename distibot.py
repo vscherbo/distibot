@@ -174,7 +174,7 @@ class Distibot(object):
     def send_msg(self, msg_subj, msg_body):
         logging.info("send_msg: subj={0}, msg='{1}'".format(msg_subj, msg_body))
         try:
-            self.pb_channel.push_note(msg_subj, msg_body)
+            self.pb_channel.push_note(msg_subj, "{0} {1}".format(time.strftime("%Y-%m-%d-%H-%M"), msg_body))
         except Exception, exc:
             logging.exception('exception in send_msg', exc_info=True)
 
