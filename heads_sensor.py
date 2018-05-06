@@ -11,7 +11,8 @@ class Heads_sensor(GPIO_DEV):
         super(Heads_sensor, self).__init__()
 
         if 'OPT' == hs_type:
-            self.edge = GPIO.FALLING
+            self.edge = GPIO.RISING
+            # self.edge = GPIO.FALLING
             self.PUD = GPIO.PUD_UP
         elif 'RES' == hs_type:
             self.edge = GPIO.RISING
