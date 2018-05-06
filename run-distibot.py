@@ -6,7 +6,7 @@ import logging
 from distibot import Distibot
 import sys
 import socket
-# import signal
+import signal
 import thread
 import webapp.distibot_httpd as distibot_httpd
 # from bottle import Bottle
