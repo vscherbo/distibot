@@ -40,10 +40,11 @@ class Cooker(GPIO_DEV):
         self.do_init_special = do_init_special
         self.ini_power_index = self.powers.index(init_power)
         self.ini_special_index = self.powers.index(special_power)
-        if self.do_init_special:
-            self.power_index = self.ini_special_index
-        else:
-            self.power_index = self.ini_power_index
+        # a right place is in switch_on()
+        # if self.do_init_special:
+        #    self.power_index = self.ini_special_index
+        # else:
+        #    self.power_index = self.ini_power_index
 
     def release(self):
         logging.info("cooker.release")
@@ -60,7 +61,6 @@ class Cooker(GPIO_DEV):
     def switch_on(self, power_value=None):
         if not self.state_on:
             self.click_button(self.gpio_on_off)
-            # self.power_index = 6  # 1400W
             self.power_index = self.ini_power_index
             self.state_on = True
             logging.info("switch_ON")
@@ -157,7 +157,6 @@ if __name__ == '__main__':
     import os
     import sys
 
-
     class Cooker_tester(object):
         def __init__(self, conf_filename='distibot.conf'):
             with open(conf_filename) as f:
@@ -221,13 +220,12 @@ if __name__ == '__main__':
     ckt.play_script()
 
     bck_power = ckt.cooker.current_power()
-    ckt.cooker.switch_off()
-    """
     logging.debug('bck_power={}'.format(bck_power))
+
+    ckt.cooker.switch_off()
     sleep(2)
     ckt.cooker.switch_on(bck_power)
     sleep(2)
-    """
 
     ckt.cooker.release()
 
