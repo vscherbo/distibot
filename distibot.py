@@ -113,7 +113,7 @@ class Distibot(object):
         self.valve_drop = valve.Valve(valve_gpio=self.config.getint('valve_drop', 'gpio_valve_drop'))
 
         self.valve3way = valve.DoubleValve(gpio_v1=self.config.getint('dbl_valve', 'gpio_dbl_valve_1'),
-                                               gpio_v2=self.config.getint('dbl_valve', 'gpio_dbl_valve_2'))
+                                           gpio_v2=self.config.getint('dbl_valve', 'gpio_dbl_valve_2'))
 
         self.heads_sensor = heads_sensor.Heads_sensor(hs_type=self.config.get('heads_sensor', 'hs_type'),
                                                       gpio_heads_start=self.config.getint('heads_sensor', 'gpio_hs_start'),
@@ -175,7 +175,7 @@ class Distibot(object):
         logging.info("send_msg: subj={0}, msg='{1}'".format(msg_subj, msg_body))
         try:
             self.pb_channel.push_note(msg_subj, "{0} {1}".format(time.strftime("%Y-%m-%d-%H-%M"), msg_body))
-        except Exception, exc:
+        except Exception:
             logging.exception('exception in send_msg', exc_info=True)
 
     def release(self):
@@ -337,7 +337,6 @@ class Distibot(object):
         self.cooker_timer = threading.Timer(self.cooker_timeout, self.cooker_on)
         self.timers.append(self.cooker_timer)
         self.cooker_timer.start()
-        # self.pb_channel.push_note("Нагрев отключён", "Установлен таймер на {}".format(self.cooker_timeout))
         self.send_msg("Нагрев отключён", "Установлен таймер на {}".format(self.cooker_timeout))
 
     def cooker_on(self):
@@ -347,13 +346,12 @@ class Distibot(object):
         # TODO simplify
         if self.cooker_current_power is not None and self.cooker_current_power > 0:
             self.cooker.switch_on(self.cooker_current_power)
-        else:    
+        else:
             self.cooker.switch_on()
 
         self.cooker_timer = threading.Timer(self.cooker_period, self.cooker_off)
         self.timers.append(self.cooker_timer)
         self.cooker_timer.start()
-        # self.pb_channel.push_note("Нагрев включён", "Установлен таймер на {}".format(self.cooker_period))
         self.send_msg("Нагрев включён", "Установлен таймер на {}".format(self.cooker_period))
 
     def heat_on_pause(self):
@@ -390,7 +388,6 @@ class Distibot(object):
             self.stage = 'body'
             logging.debug('stage is "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_finished'
-            # self.pb_channel.push_note("Закончились головы", "gpio_id={}".format(gpio_id))
             self.send_msg("Закончились головы", "gpio_id={}".format(gpio_id))
             self.heads_sensor.ignore_finish()
             self.valve3way.way_2()  # way for body
