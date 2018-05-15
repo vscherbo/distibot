@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Принципы работы дистибота</title>
+	<base href="" />
+			<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content="Отслеживаемые параметры, логика срабатывания" />
+	<meta name="keywords" content="автоматика,дистилляция,брага,самогон,дробная перегонка,автоматизация" />
+	<!-- Facebook Open Graph -->
+	<meta name="og:title" content="Принципы работы дистибота" />
+	<meta name="og:description" content="Отслеживаемые параметры, логика срабатывания" />
+	<meta name="og:image" content="" />
+	<meta name="og:type" content="article" />
+	<meta name="og:url" content="https://distibot.ru/rules" />
+	<!-- Facebook Open Graph end -->
+		
+	<link href="../css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+	<script src="../js/jquery-1.11.3.min.js" type="text/javascript"></script>
+	<script src="../js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="../js/main.js%3Fv=20180425111136" type="text/javascript"></script>
+
+	<link href="../css/font-awesome/font-awesome.min.css%3Fv=4.7.0.css" rel="stylesheet" type="text/css" />
+	<link href="../css/site.css%3Fv=20180425111137.css" rel="stylesheet" type="text/css" />
+	<link href="../css/common.css%3Fts=1524724566.css" rel="stylesheet" type="text/css" />
+	<link href="../css/5.css%3Fts=1524724566.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-110946042-1']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+</script><meta name="yandex-verification" content="a5a4db2e3644740f" /><link rel="shortcut icon" href="../gallery/favicon.ico" type="image/x-icon" /><meta name="google-site-verification" content="Y3ILSrmd0BGhx_uC3myoiGfUt6wmUnECz0EjZ3hhnpo" />
+	<script type="text/javascript">var currLang = '';</script>	
+	<!--[if lt IE 9]>
+	<script src="js/html5shiv.min.js"></script>
+	<![endif]-->
+</head>
+
+
+<body><div class="root"><div class="vbox wb_container" id="wb_header">
+	
+<div id="wb_cs_row_83" class="wb-cs-row"><div id="wb_cs_col_84" class="wb-cs-col"><div id="wb_element_instance40" class="wb_element wb-menu wb-menu-mobile wb-cs-elem"><a class="btn btn-default btn-collapser"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></a><ul class="hmenu"><li><a href="../index.html" target="_self">Главная</a></li><li class="active"><a href="index.html" target="_self">Алгоритм</a></li><li><a href="../components/index.html" target="_self">Компоненты</a></li><li><a href="../history/index.html" target="_self">История</a></li><li><a href="../gallery/index.html" target="_self">Галерея</a></li><li><a href="../contacts/index.html" target="_self">Контакты</a></li></ul><div class="clearfix"></div></div></div><div class="wb-cs-clear"></div></div><div id="wb_cs_row_85" class="wb-cs-row"><div id="wb_cs_col_86" class="wb-cs-col"><div id="wb_element_instance41" class="wb_element wb-cs-elem" style=" line-height: normal;"><h5 class="wb-stl-subtitle" style="text-align: center;">Дистибот</h5>
+
+<h4 class="wb-stl-pagetitle" style="text-align: center;"> </h4>
+
+<h4 class="wb-stl-pagetitle" style="text-align: center;">Робот-дистиллятор</h4>
+</div></div><div class="wb-cs-clear"></div></div></div>
+<div class="vbox wb_container" id="wb_main">
+	
+<div id="wb_cs_row_71" class="wb-cs-row"><div id="wb_cs_col_72" class="wb-cs-col"><div id="wb_element_instance46" class="wb_element wb-cs-elem" style=" line-height: normal;"><h1 class="wb-stl-heading1"><strong>Алгоритм</strong></h1>
+</div></div><div class="wb-cs-clear"></div></div><div id="wb_cs_row_73" class="wb-cs-row"><div id="wb_cs_col_74" class="wb-cs-col"><div id="wb_element_instance45" class="wb_element wb-cs-elem" style=" line-height: normal;"><p class="wb-stl-normal">Алгоритм действия дистибота станент понятен из разбора графика изменения температуры в кубе во времени.</p>
+</div></div><div class="wb-cs-clear"></div></div><div id="wb_cs_row_75" class="wb-cs-row"><div id="wb_cs_col_76" class="wb-cs-col"><div id="wb_element_instance43" class="wb_element wb_element_picture wb-cs-elem"><img alt="gallery/distibot-stages-example" src="../gallery_gen/7801dd0b037bf3325141b190095f70c0_1840x1000_-0x-0_1840x1160.png"></div></div><div class="wb-cs-clear"></div></div><div id="wb_cs_row_77" class="wb-cs-row"><div id="wb_cs_col_78" class="wb-cs-col"><div id="wb_element_instance44" class="wb_element wb-cs-elem" style=" line-height: normal;"><p class="wb-stl-normal">Скриншот страницы веб-сервера дистибота. Процесс дробной перегонки браги.</p>
+
+<ul><li class="wb-stl-normal">Крупно выводится текущие показания датчика температуры.</li>
+	<li class="wb-stl-normal">Далее идёт ряд иконок, соответствующих стадиям процесса: старт, нагрев, пауза, головы, тело, хвосты, финиш. На скриншоте - сейчас идёт стадия отбора тела.</li>
+	<li class="wb-stl-normal">График температуры, который демонстрирует алгоритм дистибота:</li>
+</ul><ol><li class="wb-stl-normal">Первичный нагрев. Дистибот включает индукционную плитку на максимальную мощность.</li>
+	<li class="wb-stl-normal">Пауза, которая обнуляет таймера автоматического отключения индукционной плитки и одновременно обеспечивает переход к медленному нагреву, необходимому для отбора голов. Дистибот выключает плитку и ...</li>
+	<li class="wb-stl-normal">спустя минуту включает, но уже на малой мощности. На рисунке видно, что график после резкого роста стал горизонтальным и дале его наклон значительно меньше, чем на фазе предварительного разогрева, что указывает на пониженную скорость нагрева.</li>
+	<li class="wb-stl-normal">При достижении температуры ожидания голов, заданной в конфигурационном файле, дистибот переводит плитку на режим самой малой мощности.</li>
+	<li class="wb-stl-normal">От первых капель срабатывает <a data-name="gallery/distibot_heads_sensor-20170218_180512-ts1512672060.jpg" data-target="true" data-title="Дистибот. Датчик голов" data-type="file" data-url="gallery/distibot_heads_sensor-20170218_180512-ts1512672060.jpg" href="../gallery/distibot_heads_sensor-20170218_180512-ts1512672060.jpg" target="_blank" title="Дистибот. Датчик голов">датчик старта голов</a> и дистибот на веб-сервере подсвечивает иконку "головы". По достижению предварительно выставленного (расчётного) объёма голов срабатывает датчик стопа голов и</li>
+	<li class="wb-stl-normal">дистибот переключает <a data-name="gallery/3-way-valves-ts1513020375.jpg" data-title="блок разделения фракций" data-type="file" data-url="gallery/3-way-valves-ts1513020375.jpg" href="../gallery/3-way-valves-ts1513020375.jpg.html" title="блок разделения фракций">клапаны</a> так, чтобы тело направлялось в соотвествующий сосуд и одновременно увеличивает мощность плитки до средней. На скриншоте виден подъём графика температуры.</li>
+	<li class="wb-stl-normal">Когда <a data-name="gallery/temperature_sensor-ts1513020375.jpg" data-title="датчик температуры" data-type="file" data-url="gallery/temperature_sensor-ts1513020375.jpg" href="../gallery/temperature_sensor-ts1513020375.jpg" title="датчик температуры">датчик температуры</a> зафиксирует 94,5 C° (задаётся в конфигурационном файле) дистибот переключит клапаны для направления хвостов в предназначенную ёмкость и увеличит мощность до максимума. Этот фрагмент на скриншоте отсутсвует.</li>
+</ol></div></div><div class="wb-cs-clear"></div></div><div id="wb_cs_row_79" class="wb-cs-row"><div id="wb_cs_col_80" class="wb-cs-col"><div id="wb_element_instance47" class="wb_element wb-cs-elem" style=" line-height: normal;"><p class="wb-stl-normal">Исходный код проекта опубликован на <a data-name="https://github.com/vscherbo/distibot" href="https://github.com/vscherbo/distibot" target="_blank" title="исходный код distibot">github.com</a></p>
+</div></div><div class="wb-cs-clear"></div></div><div id="wb_element_instance48" class="wb_element" style="width: 100%;">
+						<script type="text/javascript">
+				$(function() {
+					$("#wb_element_instance48").hide();
+				});
+			</script>
+						</div></div>
+<div class="vbox wb_container" id="wb_footer" style="height: 104px;">
+	
+<div id="wb_cs_row_81_wrp" class="wb_cont_inner_rel"><div id="wb_cs_row_81" class="wb-cs-row"><div id="wb_cs_col_82" class="wb-cs-col"><div id="wb_element_instance42" class="wb_element wb-cs-elem" style=" line-height: normal;"><p class="wb-stl-normal"><strong>Почта: <a data-name="info@distibot.ru" data-type="email" data-url="info@distibot.ru" href="mailto:info@distibot.ru" rollapp-href="mailto:distibot@gmail.com">info@distibot.ru</a></strong></p>
+</div></div><div class="wb-cs-clear"></div></div><div class="wb-cs-clear"></div></div><div id="wb_element_instance49" class="wb_element" style="text-align: center; width: 100%;"><div class="wb_footer"></div><script type="text/javascript">
+			$(function() {
+				var footer = $(".wb_footer");
+				var html = (footer.html() + "").replace(/^\s+|\s+$/g, "");
+				if (!html) {
+					footer.parent().remove();
+					footer = $("#wb_footer, #wb_footer .wb_cont_inner");
+					footer.css({height: ""});
+				}
+			});
+			</script></div></div><div class="wb_sbg"></div></div></body>
+</html>
