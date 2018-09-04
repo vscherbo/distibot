@@ -1,3 +1,4 @@
+{% include header.html %}
 ---
 title: Дистибот
 layout: default
@@ -26,3 +27,4 @@ layout: default
 <p>Весь процесс проведёт робот. О стадиях процесса он пришлёт Вам сообщения на смартфон. Наблюдать за температурным графиком и сменой стадий процесса Вы можете на веб-сайте робота.</p>
 <p>Аппаратная платформа робота - Raspberri Pi</p>
 <p>Язык программирования <a data-name="https://github.com/vscherbo/distibot" href="https://github.com/vscherbo/distibot" target="_blank" title="Исходный код проекта">Python</a></p>
+{% include footer.html %}
