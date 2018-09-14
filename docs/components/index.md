@@ -9,5 +9,5 @@ keywords: датчик температуры,датчик уровня,датч
 * ![датчик температуры]({{site.url}}/galery/temperature_sensor-ts1513020375.jpg "DS18B20") паров в кубе
 * ![датчик температуры]({{site.url}}/docs/galery/temperature_sensor-ts1513020375.jpg "DS18B20") паров в кубе
 * ![датчик температуры]({{site.url}}/docs/temperature_sensor-ts1513020375.jpg "DS18B20") паров в кубе
-* ![датчик температуры](https://vscherbo.github.io/distibot/galery/temperature_sensor-ts1513020375.jpg "DS18B20") паров в кубе
+* [датчик температуры](https://vscherbo.github.io/distibot/galery/temperature_sensor-ts1513020375.jpg "DS18B20") паров в кубе
 
