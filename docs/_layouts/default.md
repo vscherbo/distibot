@@ -1,12 +1,12 @@
 ---
 layout: default
 ---
-*[Главная](/distibot/index.html "Главная")
-*[Алгоритм](/distibot/rules/index.html "Алгоритм работы")
-*[Компоненты](/distibot/components/index.html "Компоненты дистибота")
-*[История](/distibot/history/index.html "История создания")
-*[Галерея](/distibot/gallery/index.html "Галерея")
-*[Контакты](/distibot/contacts/index.html "Контакты")
+- [Главная]({{site.url}}/{{site.project}}/distibot/index.html "Главная")
+- [Алгоритм]({{site.url}}/{{site.project}}/distibot/rules/index.html "Алгоритм работы")
+- [Компоненты]({{site.url}}/{{site.project}}/distibot/components/index.html "Компоненты дистибота")
+- [История]({{site.url}}/{{site.project}}/distibot/history/index.html "История создания")
+- [Галерея]({{site.url}}/{{site.project}}/distibot/gallery/index.html "Галерея")
+- [Контакты]({{site.url}}/{{site.project}}/distibot/contacts/index.html "Контакты")
   
 {{page.title}}
 ==============
