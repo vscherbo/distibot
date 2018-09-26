@@ -8,5 +8,6 @@ layout: default
 *[Галерея](/distibot/gallery/index.html "Галерея")
 *[Контакты](/distibot/contacts/index.html "Контакты")
   
-#{{page.title}}
+{{page.title}}
+==============
 {{ content }}
