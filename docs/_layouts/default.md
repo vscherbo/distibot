@@ -1,11 +1,6 @@
 ---
 layout: default
 ---
-* one
-* two
-
-[Главная]({{site.url}}/{{site.project}}/distibot/index.html "Главная")
-
 * [Главная]({{site.url}}/{{site.project}}/distibot/index.html "Главная")
 * [Алгоритм]({{site.url}}/{{site.project}}/distibot/rules/index.html "Алгоритм работы")
 * [Компоненты]({{site.url}}/{{site.project}}/distibot/components/index.html "Компоненты дистибота")
@@ -15,3 +10,7 @@ layout: default
 {{page.title}}
 ==============
 {{ content }}
+* one
+* two
+
+[Главная]({{site.url}}/{{site.project}}/distibot/index.html "Главная")
