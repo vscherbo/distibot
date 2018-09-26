@@ -1,8 +1,8 @@
 ---
 layout: default
 ---
-{% include header.md %}  
 
+{% include header.md %}  
 {{page.title}}
 ==============
 {{ content }}
