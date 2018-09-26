@@ -1,13 +1,7 @@
 ---
 layout: default
 ---
-[Главная]({{site.url}}/{{site.project}}/distibot/index.html "Главная")
-[Алгоритм]({{site.url}}/{{site.project}}/distibot/rules/index.html "Алгоритм работы")
-[Компоненты]({{site.url}}/{{site.project}}/distibot/components/index.html "Компоненты дистибота")
-[История]({{site.url}}/{{site.project}}/distibot/history/index.html "История создания")
-[Галерея]({{site.url}}/{{site.project}}/distibot/gallery/index.html "Галерея")
-[Контакты]({{site.url}}/{{site.project}}/distibot/contacts/index.html "Контакты")
-  
+{% include header.md %}
 {{page.title}}
 ==============
 {{ content }}
