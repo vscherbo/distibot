@@ -4,3 +4,4 @@
 * [История]({{site.url}}/{{site.project}}/distibot/history/index.html "История создания")
 * [Галерея]({{site.url}}/{{site.project}}/distibot/gallery/index.html "Галерея")
 * [Контакты]({{site.url}}/{{site.project}}/distibot/contacts/index.html "Контакты")
+# {{page.title}}
