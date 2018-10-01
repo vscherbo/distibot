@@ -1,3 +1,5 @@
+---
+---
 * [Главная]({{site.url}}/{{site.project}}/distibot/index.html "Главная")
 * [Алгоритм]({{site.url}}/{{site.project}}/distibot/rules/index.html "Алгоритм работы")
 * [Компоненты]({{site.url}}/{{site.project}}/distibot/components/index.html "Компоненты дистибота")
