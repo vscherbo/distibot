@@ -1,5 +1,4 @@
 ---
-layout: default
 ---
 {% capture md %}
 # {{page.title}}
@@ -11,4 +10,7 @@ layout: default
 * [Контакты]({{site.url}}/{{site.project}}/contacts/index.html "Контакты")
 {% endcapture %}
 {{ md | markdownify }}
+---
+layout: default
+---
 {{ content }}
