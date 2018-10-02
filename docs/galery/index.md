@@ -1,6 +1,6 @@
 ---
 title: Галерея
-layout: default
+layout: distibot
 description: Фотографии дистибота, скриншоты веб-сайта, ролики на Youtube
 keywords: Фотографии дистибота, скриншоты веб-сайта, ролики на Youtube
 ---

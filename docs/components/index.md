@@ -1,6 +1,6 @@
 ---
 title: Компоненты дистибота
-layout: default
+layout: distibot
 description: Компоненты робота-дистиллятора
 keywords: датчик температуры,датчик уровня,датчик потока,индукционная плитка,Raspberry Pi
 ---
