@@ -6,9 +6,9 @@
 * [Галерея]({{site.url}}/{{site.project}}/gallery/index.html "Галерея")
 * [Контакты]({{site.url}}/{{site.project}}/contacts/index.html "Контакты")
 # {{page.title}}
-{% endcapture %}
-{{ md | markdownify }}
 ---
 layout: default
 ---
 {{ content }}
+{% endcapture %}
+{{ md | markdownify }}
