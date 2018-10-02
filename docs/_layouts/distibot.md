@@ -1,6 +1,7 @@
 ---
 layout: default
 ---
+{% capture md %}
 # {{page.title}}
 * [Главная]({{site.url}}/{{site.project}}/index.html "Главная")
 * [Алгоритм]({{site.url}}/{{site.project}}/rules/index.html "Алгоритм работы")
@@ -8,4 +9,6 @@ layout: default
 * [История]({{site.url}}/{{site.project}}/history/index.html "История создания")
 * [Галерея]({{site.url}}/{{site.project}}/gallery/index.html "Галерея")
 * [Контакты]({{site.url}}/{{site.project}}/contacts/index.html "Контакты")
+{% endcapture %}
+{{ md | markdownify }}
 {{ content }}
