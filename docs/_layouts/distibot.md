@@ -1,3 +1,6 @@
+---
+layout: default
+---
 {% capture md %}
 * [Главная]({{site.url}}/{{site.project}}/index.html "Главная")
 * [Алгоритм]({{site.url}}/{{site.project}}/rules/index.html "Алгоритм работы")
@@ -6,9 +9,6 @@
 * [Галерея]({{site.url}}/{{site.project}}/gallery/index.html "Галерея")
 * [Контакты]({{site.url}}/{{site.project}}/contacts/index.html "Контакты")
 # {{page.title}}
----
-layout: default
----
 {{ content }}
 {% endcapture %}
 {{ md | markdownify }}
