@@ -1,7 +1,7 @@
 .hmenu { display: block; list-style-type: none; padding: 0px; margin: 0px; float: left; width: 100%; overflow: visible; }
 .hmenu { white-space: normal; }
 .hmenu li               { position: relative; display: block; display: inline-block; padding: 0 4px 0 0; margin: 0px; }
-.hmenu li a     { display: block; }
+.hmenu li a     { display: block; font-weight: bold;}
 .hmenu ul       { display: none; position: absolute; margin-left: 0; padding-left: 0; left: 100%; top: 0; z-index: 2; }
 .hmenu ul li    { display: block; }
 
