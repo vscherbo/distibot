@@ -38,11 +38,13 @@ layout: default
 -->
 <script>
 var header = document.getElementById("MainMenu");
-var btns = header.getElementsByClassName("li");
-for (var i = 0; i < btns.length; i++) {
-  btns[i].addEventListener("click", function() {
+var litems = header.getElementsByClassName("li");
+for (var i = 0; i < litems.length; i++) {
+  litems[i].addEventListener("click", function() {
     var current = document.getElementsByClassName("active");
-    current[0].className = current[0].className.replace(" active", "");
+    if (current.length > 0) {
+      current[0].className = current[0].className.replace(" active", "");
+    }
     this.className += " active";
   });
 }
