@@ -19,14 +19,14 @@ layout: default
         <script src="js/html5shiv.min.js"></script>
         <![endif]-->
         <link rel="stylesheet" href="/{{site.project}}/css/distibot.css">
-<nav> 
+<nav id="MainMenu"> 
 <ul class=hmenu>
-<li><a href="/{{site.project}}/index.html">Главная</a></li>
-<li><a href="/{{site.project}}/rules/index.html">Алгоритм</a></li>
-<li><a href="/{{site.project}}/components/index.html">Компоненты дистибота</a></li>
-<li><a href="/{{site.project}}/history/index.html">История создания</a></li>
-<li><a href="/{{site.project}}/gallery/index.html">Галерея</a></li>
-<li><a href="/{{site.project}}/contacts/index.html">Контакты</a></li>
+<li class="li active"><a href="/{{site.project}}/index.html">Главная</a></li>
+<li class="li"><a href="/{{site.project}}/rules/index.html">Алгоритм</a></li>
+<li class="li"><a href="/{{site.project}}/components/index.html">Компоненты дистибота</a></li>
+<li class="li"><a href="/{{site.project}}/history/index.html">История создания</a></li>
+<li class="li"><a href="/{{site.project}}/gallery/index.html">Галерея</a></li>
+<li class="li"><a href="/{{site.project}}/contacts/index.html">Контакты</a></li>
 </ul>
 <!--
 * [Главная]({{site.url}}/{{site.project}}/index.html "Главная")
@@ -36,5 +36,16 @@ layout: default
 * [Галерея]({{site.url}}/{{site.project}}/gallery/index.html "Галерея")
 * [Контакты]({{site.url}}/{{site.project}}/contacts/index.html "Контакты")
 -->
+<script>
+var header = document.getElementById("MainMenu");
+var btns = header.getElementsByClassName("li");
+for (var i = 0; i < btns.length; i++) {
+  btns[i].addEventListener("click", function() {
+    var current = document.getElementsByClassName("active");
+    current[0].className = current[0].className.replace(" active", "");
+    this.className += " active";
+  });
+}
+</script>        
 </nav>
 {{content}}
