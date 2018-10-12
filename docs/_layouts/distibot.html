@@ -2,7 +2,7 @@
 layout: default
 ---
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script type="text/javascript">
         var _gaq = _gaq || [];
         _gaq.push(['_setAccount', 'UA-110946042-1']);
@@ -36,18 +36,21 @@ layout: default
 * [Галерея]({{site.url}}/{{site.project}}/gallery/index.html "Галерея")
 * [Контакты]({{site.url}}/{{site.project}}/contacts/index.html "Контакты")
 -->
+
 <script>
-var header = document.getElementById("MainMenu");
-var litems = header.getElementsByClassName("li");
-for (var i = 0; i < litems.length; i++) {
-  litems[i].addEventListener("click", function() {
-    var current = document.getElementsByClassName("active");
-    if (current.length > 0) {
-      current[0].className = current[0].className.replace("active", "");
-    }
-    this.className = "active";
+jQuery(document).ready(function($){
+  // Get current path and find target link
+  var path = window.location.pathname.split("/").pop();
+  
+  // Account for home page with empty path
+  if ( path == '' ) {
+    path = 'index.html';
+  }
+      
+  var target = $('nav a[href="'+path+'"]');
+  // Add active class to target link
+  target.addClass('active');
   });
-}
 </script>        
 </nav>
 {{content}}
