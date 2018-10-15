@@ -28,29 +28,17 @@ layout: default
 <li class="li"><a href="/{{site.project}}/gallery/index.html">Галерея</a></li>
 <li class="li"><a href="/{{site.project}}/contacts/index.html">Контакты</a></li>
 </ul>
-<!--
-* [Главная]({{site.url}}/{{site.project}}/index.html "Главная")
-* [Алгоритм]({{site.url}}/{{site.project}}/rules/index.html "Алгоритм")
-* [Компоненты]({{site.url}}/{{site.project}}/components/index.html "Компоненты дистибота")
-* [История]({{site.url}}/{{site.project}}/history/index.html "История создания")
-* [Галерея]({{site.url}}/{{site.project}}/gallery/index.html "Галерея")
-* [Контакты]({{site.url}}/{{site.project}}/contacts/index.html "Контакты")
--->
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function () {
 
-<script type="text/javascript">
-jQuery(document).ready(function($){
-  // Get current path and find target link
-  var path = window.location.pathname.split("/").pop();
-  
-  // Account for home page with empty path
-  if ( path == '' ) {
-    path = 'index.html';
-  }
-      
-  var target = $('nav a[href="'+path+'"]');
-  // Add active class to target link
-  target.addClass('active');
-  });
-</script>        
+        $(function () {
+            $('li a').click(function (e) {
+                e.preventDefault();
+                $('a').removeClass('active');
+                $(this).addClass('active');
+            });
+        });
+    });
+</script>
 </nav>
 {{content}}
