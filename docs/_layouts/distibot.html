@@ -20,7 +20,7 @@ layout: default
         <![endif]-->
         <link rel="stylesheet" href="/{{site.project}}/css/distibot.css">
 <nav id="MainMenu"> 
-<ul class=hmenu>
+<ul id="nav" class=hmenu>
 <li class="li"><a href="/{{site.project}}/index.html">Главная</a></li>
 <li class="li"><a href="/{{site.project}}/rules/index.html">Алгоритм</a></li>
 <li class="li"><a href="/{{site.project}}/components/index.html">Компоненты дистибота</a></li>
@@ -29,16 +29,16 @@ layout: default
 <li class="li"><a href="/{{site.project}}/contacts/index.html">Контакты</a></li>
 </ul>
 <script type="text/javascript" charset="utf-8">
-    $(document).ready(function () {
-
-        $(function () {
-            $('li a').click(function (e) {
-                e.preventDefault();
-                $('a').removeClass('active');
-                $(this).addClass('active');
-            });
-        });
-    });
+$(function(){
+    var current = location.pathname;
+    $('#nav li a').each(function(){
+        var $this = $(this);
+        // if the current path is like this link, make it active
+        if($this.attr('href').indexOf(current) !== -1){
+            $this.addClass('active');
+        }
+    })
+})
 </script>
 </nav>
 {{content}}
