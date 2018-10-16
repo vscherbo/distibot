@@ -7,3 +7,5 @@
 li a:hover:not(.active) { background-color: #ff4d4d;}
 .active { background-color: #81ee81;}
 .comment_active { background-color: #ff8080;}
+
+#gallery_ul { padding-top: 40px;}
