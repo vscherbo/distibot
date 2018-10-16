@@ -20,7 +20,7 @@ layout: default
         <![endif]-->
         <link rel="stylesheet" href="/{{site.project}}/css/distibot.css">
 <nav id="MainMenu"> 
-<ul class=hmenu>
+<ul id="nav" class=hmenu>
 <li class="li"><a href="/{{site.project}}/index.html">Главная</a></li>
 <li class="li"><a href="/{{site.project}}/rules/index.html">Алгоритм</a></li>
 <li class="li"><a href="/{{site.project}}/components/index.html">Компоненты дистибота</a></li>
@@ -28,29 +28,17 @@ layout: default
 <li class="li"><a href="/{{site.project}}/gallery/index.html">Галерея</a></li>
 <li class="li"><a href="/{{site.project}}/contacts/index.html">Контакты</a></li>
 </ul>
-<!--
-* [Главная]({{site.url}}/{{site.project}}/index.html "Главная")
-* [Алгоритм]({{site.url}}/{{site.project}}/rules/index.html "Алгоритм")
-* [Компоненты]({{site.url}}/{{site.project}}/components/index.html "Компоненты дистибота")
-* [История]({{site.url}}/{{site.project}}/history/index.html "История создания")
-* [Галерея]({{site.url}}/{{site.project}}/gallery/index.html "Галерея")
-* [Контакты]({{site.url}}/{{site.project}}/contacts/index.html "Контакты")
--->
-
-<script type="text/javascript">
-jQuery(document).ready(function($){
-  // Get current path and find target link
-  var path = window.location.pathname.split("/").pop();
-  
-  // Account for home page with empty path
-  if ( path == '' ) {
-    path = 'index.html';
-  }
-      
-  var target = $('nav a[href="'+path+'"]');
-  // Add active class to target link
-  target.addClass('active');
-  });
-</script>        
+<script type="text/javascript" charset="utf-8">
+$(function(){
+    var current = location.pathname;
+    $('#nav li a').each(function(){
+        var $this = $(this);
+        // if the current path is like this link, make it active
+        if($this.attr('href').indexOf(current) !== -1){
+            $this.addClass('active');
+        }
+    })
+})
+</script>
 </nav>
 {{content}}
