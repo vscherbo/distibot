@@ -3,4 +3,4 @@ remote_theme: pages-themes/slate
 title: Distibot site
 #project: distibot
 #repository: vscherbo/distibot
-baseurl: "http://vscherbo.github.io/distibot"
+baseurl: "https://vscherbo.github.io/distibot"
