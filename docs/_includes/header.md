@@ -1,9 +1,10 @@
 ---
+layout: default
 ---
-* [Главная](/index.html "Главная")
-* [Алгоритм](/rules/index.html "Алгоритм работы")
-* [Компоненты](/components/index.html "Компоненты дистибота")
-* [История](/history/index.html "История создания")
-* [Галерея](/gallery/index.html "Галерея")
-* [Контакты](/contacts/index.html "Контакты")
+* [Главная]({{ site.baseurl }}/index.html "Главная")
+* [Алгоритм]({{ site.baseurl }}/rules/index.html "Алгоритм работы")
+* [Компоненты]({{ site.baseurl }}/components/index.html "Компоненты дистибота")
+* [История]({{ site.baseurl }}/history/index.html "История создания")
+* [Галерея]({{ site.baseurl }}/gallery/index.html "Галерея")
+* [Контакты]({{ site.baseurl }}/contacts/index.html "Контакты")
 # {{page.title}}
