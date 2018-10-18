@@ -4,4 +4,5 @@ title: Distibot
 description: Перегонка без хлопот
 #project: distibot
 #repository: vscherbo/distibot
-baseurl: "https://vscherbo.github.io/distibot"
+#baseurl: "https://vscherbo.github.io/distibot"
+relative_url: "/distibot"
