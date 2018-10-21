@@ -2,7 +2,9 @@
 remote_theme: pages-themes/slate 
 title: Distibot
 description: Перегонка без хлопот
-#project: distibot
-#repository: vscherbo/distibot
 #baseurl: "https://vscherbo.github.io/distibot"
 relative_url: "/distibot"
+show_excerpts: true
+google_analytics: UA-110946042-1
+disqus:
+    shortname: distibot_disqus

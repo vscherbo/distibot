@@ -1,0 +1,17 @@
+- title: Главная
+  url: /index.html
+
+- title: Алгоритм
+  url: /rules/index.html
+
+- title: Компоненты
+  url: /components/index.html
+
+- title: История
+  url: /history/index.html
+
+- title: Галерея
+  url: /gallery/index.html
+
+- title: Контакты
+  url: /contacts/index.html
