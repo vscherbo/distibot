@@ -3,7 +3,9 @@ layout: default
 ---
 <ul id="nav" class=hmenu>
 {% for item in site.data.dib_pages %}
-      <li><a href="{{ site.baseurl }}{{ item.url }}" alt="{{ item.title }}">{{ item.title }}</a></li>
+        <li class="{% if item.url == page.url %}active{% endif %}">
+                <a href="{{ site.baseurl }}{{ item.url }}" alt="{{ item.title }}">{{ item.title }}</a>
+        </li>
 {% endfor %}
 </ul>
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
