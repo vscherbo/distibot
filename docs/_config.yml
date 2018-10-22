@@ -1,6 +1,7 @@
 #theme: jekyll-theme-merlot
 remote_theme: pages-themes/slate 
-title: Distibot
+lang: ru-RU
+title: Дистибот
 description: Перегонка без хлопот
 #baseurl: "https://vscherbo.github.io/distibot"
 relative_url: "/distibot"
