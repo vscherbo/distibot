@@ -1,7 +1,7 @@
 ---
 layout: default
 ---
-<ul id="nav" class=hmenu>
+<ul id="mobile-menu" class=hmenu>
 {% for item in site.data.dib_pages %}
         <li class="{% if item.url == page.url %}active{% endif %}">
                 <a href="{{ site.baseurl }}{{ item.url }}" alt="{{ item.title }}">{{ item.title }}</a>
@@ -19,3 +19,4 @@ layout: default
 <div class=main_body>
 {{content}}
 </div>
+{% include mobile-menu.html color="#777777" width="757" %}
