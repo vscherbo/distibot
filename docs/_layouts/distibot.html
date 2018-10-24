@@ -1,8 +1,7 @@
 ---
 layout: default
 ---
-<!-- ul id="mobile-menu" class=hmenu -->
-<ul id="mobile-menu">
+<ul id="mobile-menu" class=hmenu>
 {% for item in site.data.dib_pages %}
         <li class="{% if item.url == page.url %}active{% endif %}">
                 <a href="{{ site.baseurl }}{{ item.url }}" alt="{{ item.title }}">{{ item.title }}</a>
