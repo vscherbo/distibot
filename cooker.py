@@ -40,6 +40,7 @@ class Cooker(GPIO_DEV):
         self.do_init_special = do_init_special
         self.ini_power_index = self.powers.index(init_power)
         self.ini_special_index = self.powers.index(special_power)
+        self.power_index = None
         # a right place is in switch_on()
         # if self.do_init_special:
         #    self.power_index = self.ini_special_index
