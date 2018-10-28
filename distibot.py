@@ -372,22 +372,24 @@ class Distibot(object):
     def heads_started(self, gpio_id):
         logging.debug('inside heads_started')
         if 'heads' == self.stage:
+            logging.debug('stage is already heads. Skipping')
             pass
         else:
             self.stage = 'heads'
-            logging.debug('stage is "{}"'.format(self.stage))
+            logging.debug('stage was set to "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_started'
-            # self.pb_channel.push_note("Стартовали головы", "gpio_id={}".format(gpio_id))
             self.send_msg("Стартовали головы", "gpio_id={}".format(gpio_id))
             self.heads_sensor.watch_finish(self.heads_finished)  # including heads_sensor.ignore_start()
+            logging.debug('after watch_finish')
 
     def heads_finished(self, gpio_id):
         logging.debug('inside heads_finished')
         if 'heads' != self.stage:
+            logging.debug('NOT heads, stage="{}". Skipping'.format(self.stage))
             pass
         else:
             self.stage = 'body'
-            logging.debug('stage is "{}"'.format(self.stage))
+            logging.debug('stage was set to "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_finished'
             self.send_msg("Закончились головы", "gpio_id={}".format(gpio_id))
             self.heads_sensor.ignore_finish()

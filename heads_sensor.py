@@ -66,11 +66,16 @@ class Heads_sensor(GPIO_DEV):
         GPIO.add_event_callback(self.gpio_heads_start, start_callback)
 
     def watch_finish(self, finish_callback):
+        logging.info('inside')
         self.ignore_start()
+        logging.info('after ignore_start')
         self.flag_ignore_finish = False
         GPIO.setup(self.gpio_heads_finish, GPIO.IN, pull_up_down=self.PUD)
+        logging.info('after GPIO.setup')
         GPIO.add_event_detect(self.gpio_heads_finish, self.edge, bouncetime=self.timeout)
+        logging.info('after GPIO.add_event_detect(finish)')
         GPIO.add_event_callback(self.gpio_heads_finish, finish_callback)
+        logging.info('after GPIO.add_event_callback(finish)')
 
 if __name__ == "__main__":
     import time
@@ -84,7 +89,9 @@ if __name__ == "__main__":
 
     def signal_handler(signal, frame):
         global loop_flag
+        global dib
         logging.info('Catched signal {}'.format(signal))
+        dib.release()
         loop_flag = False
 
     signal.signal(signal.SIGINT, signal_handler)
@@ -120,6 +127,8 @@ if __name__ == "__main__":
     logging.info('Started')
 
     dib = distibot.Distibot(args.conf)
+    dib.start_process()
+    time.sleep(2)
     dib.start_watch_heads()
 
     loop_flag = True
@@ -129,5 +138,7 @@ if __name__ == "__main__":
         logging.info("step={step:>4}".format(step=step_counter))
         time.sleep(2)
 
-    # hs.release()
-    dib.release()
+    logging.info('after loop "while", loop_flag={0}'.format(loop_flag))
+
+    if loop_flag:  # not unset inside signal_handler
+        dib.release()
