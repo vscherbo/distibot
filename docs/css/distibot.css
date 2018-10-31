@@ -4,10 +4,13 @@
 .hmenu ul li    { display: block; }
 .hmenu li       { position: relative; display: block; display: inline-block; padding: 0 8px 0 0; margin: 0px; }
 .hmenu li a     { display: block; font-weight: bold; color: #fff; }
+/*
 li a:hover:not(.active) { background-color: #777;}
 .active { background-color: #777; color: #000; }
-
+*/
 #gallery_ul { padding-top: 40px;}
 
+/**/
 #header_wrap { position: fixed; height: 170px; z-index: 9; }
+/**/
 .main_body { padding-top: 170px; }
