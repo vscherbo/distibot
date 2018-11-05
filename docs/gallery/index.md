@@ -13,8 +13,23 @@ keywords: Фотографии дистибота, скриншоты веб-с�
 [![]({{ site.baseurl }}/gallery/distibot_on_prototyping_board_small.jpg)]({{ site.baseurl }}/gallery/distibot_on_prototyping_board-20161120_183635-ts1512672061.jpg)
 [![]({{ site.baseurl }}/gallery/screenshot-messages-small.png)]({{ site.baseurl }}/gallery/screenshot-messages_20171212-190849-ts1513104214.png)
 
+* __Веб-сервер Дистибота__
+[![]({{ site.baseurl }}/gallery/web-heads-small.png)]({{ site.baseurl }}/gallery/web-heads.png  "Отбор голов")
+[![]({{ site.baseurl }}/gallery/web-body-small.png)]({{ site.baseurl }}/gallery/web-body.png "Отбор тела")
+[![]({{ site.baseurl }}/gallery/web-t-graph-small.png)]({{ site.baseurl }}/gallery/web-t-graph.png "График t° от времени")
+[![]({{ site.baseurl }}/gallery/web-phone-small.png)]({{ site.baseurl }}/gallery/web-phone.png "Вид на смартфоне")
 
 * __Компоненты__
-* __Distibot-2__
+[![]({{ site.baseurl }}/gallery/distibot_heads_sensor_small.jpg)]({{ site.baseurl }}/gallery/distibot_heads_sensor-20170218_180512-ts1512672060.jpg "Резистивный датчик голов")
+[![]({{ site.baseurl }}/gallery/optical-level-sensor-small.jpg)]({{ site.baseurl }}/gallery/optical-level-sensor-ts1513020375.jpg "Оптический датчик уровня")
+[![]({{ site.baseurl }}/gallery/distibot_heads_optical_sensor-small.jpg)]({{ site.baseurl }}/gallery/distibot_heads_optical_sensor-01-ts1514999010.jpg "Датчик старта-стопа голов на оптических датчиках")
+[![]({{ site.baseurl }}/gallery/temperature_sensor_small.jpg)]({{ site.baseurl }}/gallery/temperature_sensor-ts1513020375.jpg "Датчик температуры")
+
+* __Дистибот-2__
+[![]({{ site.baseurl }}/gallery/distibot_ver_2_small.jpg)]({{ site.baseurl }}/gallery/distibot_ver_2-ts1513008896.jpg "Дистибот-2 в сборе")
+
 * __Видео__
+[![](https://img.youtube.com/vi/NM50EDFDwC4/0.jpg)](http://www.youtube.com/watch?feature=player_embedded&v=NM50EDFDwC4 "Дистибот управляет индукционной плиткой, часть 1/2"){:target="_blank"}
+[![](https://img.youtube.com/vi/Xp3yWm6DmFE/0.jpg)](http://www.youtube.com/watch?feature=player_embedded&v=Xp3yWm6DmFE "Дистибот управляет индукционной плиткой, часть 2/2"){:target="_blank"}
+
 </div>
