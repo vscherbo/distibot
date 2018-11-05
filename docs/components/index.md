@@ -7,7 +7,7 @@ keywords: датчик температуры,датчик уровня,датч
 В состав дистибота первой версии входили следующие компоненты:
 * одноплатный компьютер [Raspberry Pi](https://ru.wikipedia.org/wiki/Raspberry_Pi "Raspberry Pi")
 * [датчик температуры]({{ site.baseurl }}/gallery/temperature_sensor-ts1513020375.jpg "DS18B20") паров в кубе
-* [клапаны разделения фракций]({{ site.baseurl }}/gallery/distibot-3way-valve-20160613_173816-ts1512672060.jpg "блок разделения фракций")
+* [клапаны разделения фракций]({{ site.baseurl }}/gallery/distibot-3way-valve-20160613_173816-ts1512672060.jpg "блок разделения фракций"){:target="_blank"}
 * [резистивный датчик голов]({{ site.baseurl }}/gallery/distibot_heads_sensor-20170218_180512-ts1512672060.jpg "резистивный датчик голов")
 * блок управления индукционной плиткой
 
