@@ -5,7 +5,7 @@ description: Автоматизация перегонки самогона пр
 keywords: самогон,автоматика для дистилляции,автоматика для самогона,дистилляция,дробная перегонка,самогоноварение
 ---
 # Робот-дистиллятор
-![distibot_logo](/gallery/distiller_raspberry.jpg "Distibot Logo")
+![distibot_logo]({{ site.baseurl }}/gallery/distiller_raspberry.jpg "Distibot Logo")
 
 Традиционно процесс выглядит так:  
 * Контролировать температуру в кубе.
