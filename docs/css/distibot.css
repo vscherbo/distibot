@@ -15,5 +15,6 @@ li a:hover:not(.active) { background-color: #777;}
 #header_wrap { position: fixed; height: 170px; z-index: 9; }
 /**/
 .main_body { padding-top: 170px; }
-img[alt=distibot_logo] { width: 45%; float: left; padding-right: 25px; }
+img[alt=distibot_logo] { width: 45%; float: left; }
 h2[id=проект-дистибот---дистиляционный-робот] { padding-top: 25px; }
+.right-ul { padding-left: 50%; }
