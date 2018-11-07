@@ -9,7 +9,7 @@ body {background: #faf4df none no-repeat scroll center top; }
 li a:hover:not(.active) { background-color: #777;}
 .active { background-color: #777; color: #000; }
 /**/
-#gallery_ul { padding-top: 40px;}
+//#gallery_ul { padding-top: 40px;}
 
 /**/
 #header_wrap { position: fixed; height: 170px; z-index: 9; }
