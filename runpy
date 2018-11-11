@@ -1,6 +1,4 @@
 #!/bin/sh
 rm -f nohup.out
-# nohup ./myprogram.sh > /dev/null 2>&1 & echo $! > run.pid
 nohup sudo { PYTHONPATH=/home/pi/mshine:/home/pi/mshine/webapp python $* 2>&1 & echo $! > runpy.pid }
-# nohup sudo PYTHONPATH=/home/pi/mshine:/home/pi/mshine/webapp python $* &
-
+echo "exitcode="$?
