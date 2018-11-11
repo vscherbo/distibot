@@ -66,16 +66,11 @@ class Heads_sensor(GPIO_DEV):
         GPIO.add_event_callback(self.gpio_heads_start, start_callback)
 
     def watch_finish(self, finish_callback):
-        logging.info('inside')
-        self.ignore_start()
-        logging.info('after ignore_start')
-        self.flag_ignore_finish = False
         GPIO.setup(self.gpio_heads_finish, GPIO.IN, pull_up_down=self.PUD)
-        logging.info('after GPIO.setup')
+        self.ignore_start()
+        self.flag_ignore_finish = False
         GPIO.add_event_detect(self.gpio_heads_finish, self.edge, bouncetime=self.timeout)
-        logging.info('after GPIO.add_event_detect(finish)')
         GPIO.add_event_callback(self.gpio_heads_finish, finish_callback)
-        logging.info('after GPIO.add_event_callback(finish)')
 
 if __name__ == "__main__":
     import time
@@ -85,18 +80,22 @@ if __name__ == "__main__":
     import sys
 #    import ConfigParser
 #    import io
-    import distibot
+
+    def segv_handler(signal, frame):
+        logging.info('Catched signal {}'.format(signal))
+        logging.info('frame.f_locals={}'.format(frame.f_locals))
+        logging.info('frame: filename={}, function={}, line_no={}'.format(frame.f_code.co_filename, frame.f_code.co_name, frame.f_lineno))
 
     def signal_handler(signal, frame):
         global loop_flag
-        global dib
         logging.info('Catched signal {}'.format(signal))
-        dib.release()
+        hs.release()
         loop_flag = False
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGUSR1, signal_handler)
+    signal.signal(signal.SIGSEGV, segv_handler)
 
     log_dir = ''
     log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
@@ -124,12 +123,18 @@ if __name__ == "__main__":
     else:
         logging.basicConfig(stream=sys.stdout, format=log_format, level=numeric_level)
 
-    logging.info('Started')
+    hs = Heads_sensor(hs_type='OPT', gpio_heads_start=25, gpio_heads_finish=14, timeout=200)
 
-    dib = distibot.Distibot(args.conf)
-    dib.start_process()
-    time.sleep(2)
-    dib.start_watch_heads()
+    def heads_started(gpio_id):
+        logging.debug('inside heads_started, gpio_id={}'.format(gpio_id))
+        hs.watch_finish(heads_finished)
+
+    def heads_finished(gpio_id):
+        logging.debug('inside heads_finished, gpio_id={}'.format(gpio_id))
+        hs.ignore_finish()
+
+    hs.watch_start(heads_started)
+    logging.info('Started')
 
     loop_flag = True
     step_counter = 0
@@ -138,7 +143,5 @@ if __name__ == "__main__":
         logging.info("step={step:>4}".format(step=step_counter))
         time.sleep(2)
 
-    logging.info('after loop "while", loop_flag={0}'.format(loop_flag))
-
     if loop_flag:  # not unset inside signal_handler
-        dib.release()
+        hs.release()
