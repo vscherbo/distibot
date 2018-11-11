@@ -31,7 +31,7 @@ class Tsensor(object):
             logging.error('w1thermsensor.core.KernelModuleLoadError', exc_info=True)
 
     def get_temperature(self, unit=w1thermsensor.W1ThermSensor.DEGREES_C):
-        loc_T = self.sensor.get_temperature(unit)
+        loc_T = round(self.sensor.get_temperature(unit), 1)
         # logging.debug('get_temperature loc_T={}'.format(loc_T))
         return loc_T
 
