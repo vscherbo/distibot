@@ -7,5 +7,6 @@ description: Перегонка без хлопот
 relative_url: "/distibot"
 show_excerpts: true
 google_analytics: UA-110946042-1
+comments: true
 disqus:
     shortname: distibot_disqus

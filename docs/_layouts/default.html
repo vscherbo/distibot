@@ -16,7 +16,7 @@
     <div id="header_wrap" class="outer">
         <header class="inner">
           <ul id="mobile-menu">
-          {% for item in site.data.dib_pages %}
+          {% for item in site.data.pages %}
           <li class="{% if item.url == page.url %}active{% endif %}">
                   <a href="{{ site.baseurl }}{{ item.url }}" alt="{{ item.title }}">{{ item.title }}</a>
           </li>
@@ -55,6 +55,13 @@
         <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
+
+    {% include disqus.html %}
+    <!--
+    {% if page.comments %}
+            {% include disqus.html %}
+    {% endif %}
+    -->
 
     {% if site.google_analytics %}
       <script>
