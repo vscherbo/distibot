@@ -15,7 +15,7 @@
     <!-- HEADER -->
     <div id="header_wrap" class="outer">
         <header class="inner">
-          <ul id="mobile-menu" class=hmenu>
+          <ul id="mobile-menu">
           {% for item in site.data.dib_pages %}
           <li class="{% if item.url == page.url %}active{% endif %}">
                   <a href="{{ site.baseurl }}{{ item.url }}" alt="{{ item.title }}">{{ item.title }}</a>
@@ -66,6 +66,7 @@
         ga('send', 'pageview');
       </script>
     {% endif %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> 
     {% include mobile-menu.html color="#777777" width="757" %}
   </body>
 </html>
