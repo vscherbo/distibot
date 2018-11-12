@@ -4,3 +4,7 @@
 @import "{{ site.theme }}";
 #forkme_banner {display: none;}
 #main_content_wrap { background: #faf4df; }
+#main_content { padding-top: 0; }
+#header_wrap .inner { padding-top: 15px; }
+#project_title { padding-left: 10px; }
+#project_tagline { padding-left: 10px; }

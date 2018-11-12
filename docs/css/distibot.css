@@ -1,17 +1,8 @@
-/**/
-body {background: #faf4df none no-repeat scroll center top; }
-.hmenu { display: block; list-style-type: none; padding: 0px; margin: 0px; float: left; overflow: hidden; position: fixed; top: 10px;  background: transparent; height: 35px; z-index: 999; }
-.hmenu { white-space: normal; }
-.hmenu ul       { display: none; position: absolute; margin-left: 0; padding-left: 0; left: 100%; top: 0; z-index: 2; }
-.hmenu ul li    { display: block; }
-.hmenu li       { position: relative; display: block; display: inline-block; padding: 0 8px 0 0; margin: 0px; }
-.hmenu li a     { display: block; font-weight: bold; color: #fff; }
-li a:hover:not(.active) { background-color: #777;}
-.active { background-color: #777; color: #000; }
-/**/
-/* #gallery_ul { padding-top: 40px;} */
-#header_wrap { position: fixed; height: 170px; z-index: 9; }
-.main_body { padding-top: 170px; }
+/* #header_wrap { position: fixed; height: 170px; z-index: 9; } */
+.main_body { padding-top: 130px; }
 img[alt=distibot_logo] { width: 45%; float: left; }
 h2[id=проект-дистибот---дистиляционный-робот] { padding-top: 25px; }
 .right-ul { padding-left: 50%; }
+#mobile-menu li a { padding: 0 5px 0 5px; font-weight: bold; color: #fff; }
+#mobile-menu li a:hover:not(.active) { color: #000; background-color: #fff;}
+#mobile-menu .active { background-color: #777; color: #000; }
