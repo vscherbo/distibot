@@ -369,7 +369,7 @@ class Distibot(object):
             self.stage = 'heat'
             logging.debug('stage is "{}"'.format(self.stage))
 
-    def heads_started(self, gpio_id):
+    def heads_started(self, gpio_id=-1):
         logging.debug('inside heads_started')
         if 'heads' == self.stage:
             logging.debug('stage is already heads. Skipping')
@@ -378,11 +378,12 @@ class Distibot(object):
             self.stage = 'heads'
             logging.debug('stage was set to "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_started'
-            self.send_msg("Стартовали головы", "gpio_id={}".format(gpio_id))
-            self.heads_sensor.watch_finish(self.heads_finished)  # including heads_sensor.ignore_start()
+            if gpio_id > 0:
+                self.send_msg("Стартовали головы", "gpio_id={}".format(gpio_id))
+                self.heads_sensor.watch_finish(self.heads_finished)  # including heads_sensor.ignore_start()
             logging.debug('after watch_finish')
 
-    def heads_finished(self, gpio_id):
+    def heads_finished(self, gpio_id=-1):
         logging.debug('inside heads_finished')
         if 'heads' != self.stage:
             logging.debug('NOT heads, stage="{}". Skipping'.format(self.stage))
@@ -391,8 +392,9 @@ class Distibot(object):
             self.stage = 'body'
             logging.debug('stage was set to "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_finished'
-            self.send_msg("Закончились головы", "gpio_id={}".format(gpio_id))
-            self.heads_sensor.ignore_finish()
+            if gpio_id > 0:
+                self.send_msg("Закончились головы", "gpio_id={}".format(gpio_id))
+                self.heads_sensor.ignore_finish()
             self.valve3way.way_2()  # way for body
             self.cooker.set_power(1400)
             # an obsolete apparoach:
