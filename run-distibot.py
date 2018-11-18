@@ -38,10 +38,10 @@ def signal_handler(signal, frame):
     logging.info('after stop_process')
     dib.release()
     logging.info('after dib.release')
-    app.close()
-    logging.info('after app.close')
     server.stop()
     logging.info('after server.stop')
+    app.close()
+    logging.info('after app.close')
 
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGHUP, signal_handler)
