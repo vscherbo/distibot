@@ -175,7 +175,7 @@ class Distibot(object):
     def send_msg(self, msg_subj, msg_body):
         logging.info("send_msg: subj={0}, msg='{1}'".format(msg_subj, msg_body))
         try:
-            self.pb_channel.push_note(msg_subj, "{0} {1}".format(time.strftime("%Y-%m-%d-%H-%M"), msg_body))
+            self.pb_channel.push_note(msg_subj, "{0}: {1}".format(time.strftime("%Y-%m-%d %H:%M"), msg_body))
         except Exception:
             logging.exception('exception in send_msg', exc_info=True)
 
@@ -187,8 +187,11 @@ class Distibot(object):
         save_coord.close()
         for t in self.timers:
             t.cancel()
+        self.flow_sensor.release()
         self.cooker.release()
         self.valve3way.release()
+        self.valve_water.release()
+        self.valve_drop.release()
         self.heads_sensor.release()
 
     def pause_monitor(self):
@@ -246,8 +249,9 @@ class Distibot(object):
                                   + ", Tcmd=" + str(self.Tcmd.__name__))
         """
         self.Tcmd()
+        # TODO добавить t холодильника, если есть датчик
         self.send_msg("Превысили {0}".format(self.Tstage),
-                      "Tboiler={0}, Tcmd={1}".format(self.tsensors.ts_data['boiler'], self.Tcmd.__name__))
+                      "t в кубе={0}, команда={1}".format(self.tsensors.ts_data['boiler'], self.Tcmd.__name__))
 
         try:
             self.Tstage = self.Tkeys.pop(0)
@@ -324,8 +328,8 @@ class Distibot(object):
     def stop_process(self):
         self.loop_flag = False
         time.sleep(self.T_sleep+0.5)
+        self.stage = 'finish'  # before cooker_off!
         self.cooker_off()
-        self.stage = 'finish'
         logging.debug('stage is "{}"'.format(self.stage))
 
     def cooker_off(self):
@@ -335,10 +339,15 @@ class Distibot(object):
         self.cooker_current_power = self.cooker.current_power()
         self.cooker.switch_off()
 
-        self.cooker_timer = threading.Timer(self.cooker_timeout, self.cooker_on)
-        self.timers.append(self.cooker_timer)
-        self.cooker_timer.start()
-        self.send_msg("Нагрев отключён", "Установлен таймер на {}".format(self.cooker_timeout))
+        if self.stage == 'finish':
+            loc_str = "Финиш"
+        else:
+            self.cooker_timer = threading.Timer(self.cooker_timeout, self.cooker_on)
+            self.timers.append(self.cooker_timer)
+            self.cooker_timer.start()
+            loc_str = "Установлен таймер на {}".format(self.cooker_timeout)
+
+        self.send_msg("Нагрев отключён", loc_str)
 
     def cooker_on(self):
         self.cooker_timer.cancel()
@@ -397,9 +406,6 @@ class Distibot(object):
                 self.heads_sensor.ignore_finish()
             self.valve3way.way_2()  # way for body
             self.cooker.set_power(1400)
-            # an obsolete apparoach:
-            # self.cooker.switch_off()
-            # self.cooker.switch_on()  # set initial_power
 
     def start_watch_heads(self):
         logging.debug('inside start_watch_heads')
