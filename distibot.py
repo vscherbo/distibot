@@ -490,6 +490,15 @@ if __name__ == "__main__":
     import argparse
     import os
     import sys
+    import signal
+
+    def segv_handler(signal, frame):
+        logging.info('Catched signal {}'.format(signal))
+        logging.info('frame.f_locals={}'.format(frame.f_locals))
+        logging.info('frame: filename={}, function={}, line_no={}'.format(frame.f_code.co_filename, frame.f_code.co_name, frame.f_lineno))
+
+    signal.signal(signal.SIGSEGV, segv_handler)
+
     (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
     # conf_file = prg_name +".conf"
 
