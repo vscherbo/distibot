@@ -527,6 +527,8 @@ if __name__ == "__main__":
     # end of prolog
     logging.info('Started')
 
+    # Tsensor emulator
+    tsensor.emu_mode = True
     dib = Distibot()
     # json dib.load_jscript(args.play)
     # json b_play = dib.Tplays['boiler']
