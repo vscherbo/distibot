@@ -506,7 +506,7 @@ if __name__ == "__main__":
     parser.add_argument('--conf', type=str, default="distibot.conf", help='conf file')
     # parser.add_argument('--play', type=str, default="dib-test.json", help='play file')
     parser.add_argument('--play', type=str, default="dib-debug.play", help='play file')
-    parser.add_argument('--log_to_file', type=bool, default=False, help='log destination')
+    parser.add_argument('--log_to_file', type=bool, default=True, help='log destination')
     parser.add_argument('--log_level', type=str, default="DEBUG", help='log level')
     args = parser.parse_args()
 
@@ -514,8 +514,8 @@ if __name__ == "__main__":
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: {0}'.format(numeric_level))
 
-    # log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
-    log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
+    log_format = '[%(filename)-22s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
+    # log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
 
     if args.log_to_file:
         log_dir = ''
@@ -527,13 +527,8 @@ if __name__ == "__main__":
     # end of prolog
     logging.info('Started')
 
-    # Tsensor emulator
-    tsensor.emu_mode = True
-    dib = Distibot()
+    dib = Distibot(conf_filename=args.conf)
     # json dib.load_jscript(args.play)
     # json b_play = dib.Tplays['boiler']
     dib.load_script(args.play)
-    # logging.debug(dib.Tsteps['boiler'])
-    logging.debug(dib.Tsteps['boiler'])
-    for t in dib.Tsteps['boiler']:
-        logging.debug(t.temperature)
+    dib.temperature_loop()
