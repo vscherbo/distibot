@@ -53,8 +53,8 @@ class pb_wrap(Pushbullet):
 
 class pb_channel_emu(object):
 
-    def push_note(self, subject, body):
-        logging.info("subj={}/body={}".format(subject, body))
+    def push_note(self, subject, msg):
+        logging.info("subj={}/msg={}".format(subject, msg))
 
 
 class Distibot(object):
@@ -380,26 +380,34 @@ class Distibot(object):
 
     def heads_started(self, gpio_id=-1):
         logging.debug('inside heads_started')
+        if self.heads_sensor.flag_ignore_start:
+            logging.info('flag_ignore_start detected!')
+            return
+
         if 'heads' == self.stage:
             logging.debug('stage is already heads. Skipping')
             pass
         else:
             self.stage = 'heads'
-            logging.debug('stage was set to "{}"'.format(self.stage))
+            logging.debug('stage set to "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_started'
             if gpio_id > 0:
                 self.send_msg("Стартовали головы", "gpio_id={}".format(gpio_id))
-                self.heads_sensor.watch_finish(self.heads_finished)  # including heads_sensor.ignore_start()
+                self.heads_sensor.watch_finish(self.heads_finished)  # call heads_sensor.ignore_start()
             logging.debug('after watch_finish')
 
     def heads_finished(self, gpio_id=-1):
         logging.debug('inside heads_finished')
+        if self.heads_sensor.flag_ignore_finish:
+            logging.info('flag_ignore_finish detected!')
+            return
+
         if 'heads' != self.stage:
             logging.debug('NOT heads, stage="{}". Skipping'.format(self.stage))
             pass
         else:
             self.stage = 'body'
-            logging.debug('stage was set to "{}"'.format(self.stage))
+            logging.debug('stage set to "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_finished'
             if gpio_id > 0:
                 self.send_msg("Закончились головы", "gpio_id={}".format(gpio_id))
@@ -492,10 +500,27 @@ if __name__ == "__main__":
     import sys
     import signal
 
+    def dib_stop():
+        global dib
+        dib.stop_process()
+        logging.info('after stop_process')
+        dib.release()
+        logging.info('after dib.release')
+
+    def signal_handler(signal, frame):
+        logging.info('Catched signal {}'.format(signal))
+        dib_stop()
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGHUP, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGUSR1, signal_handler)
+
     def segv_handler(signal, frame):
         logging.info('Catched signal {}'.format(signal))
         logging.info('frame.f_locals={}'.format(frame.f_locals))
         logging.info('frame: filename={}, function={}, line_no={}'.format(frame.f_code.co_filename, frame.f_code.co_name, frame.f_lineno))
+        dib_stop()
 
     signal.signal(signal.SIGSEGV, segv_handler)
 
@@ -532,3 +557,5 @@ if __name__ == "__main__":
     # json b_play = dib.Tplays['boiler']
     dib.load_script(args.play)
     dib.temperature_loop()
+
+    logging.info('Exit')
