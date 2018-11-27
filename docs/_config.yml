@@ -10,3 +10,5 @@ google_analytics: UA-110946042-1
 comments: true
 disqus:
     shortname: distibot_disqus
+plugins:
+  - jekyll-sitemap        
