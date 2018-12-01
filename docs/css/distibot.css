@@ -1,6 +1,6 @@
-img[alt=distibot_logo] { width: 45%; float: left; }
+img[alt=distibot_logo] {width: 45%;/* padding: 0 20px 0 0; */float: left;margin: 0 25px 0 0;}
 h2[id=проект-дистибот---дистиляционный-робот] { padding-top: 25px; }
-.right-ul { padding-left: 50%; }
 #mobile-menu li a { padding: 0 5px 0 5px; font-weight: bold; color: #fff; }
 #mobile-menu li a:hover:not(.active) { color: #000; background-color: #fff;}
 #mobile-menu .active { background-color: #777; color: #000; }
+#disqus_thread { margin: 15px 0 0 0; }
