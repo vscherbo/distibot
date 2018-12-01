@@ -1,19 +1,27 @@
-#!/usr/bin/python -t
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # from __future__ import print_function
 import logging
-from distibot import Distibot
+import argparse
 import sys
 import socket
 import signal
 import thread
-import webapp.distibot_httpd as distibot_httpd
+
 # from bottle import Bottle
 # from bottle import route, run, debug, template, static_file, request, get
 # from bottle import post, ServerAdapter, Bottle
-from bottle import debug, template, static_file, Bottle
-import argparse
+# from bottle import debug, template, static_file, Bottle
+from bottle import template, static_file, Bottle
+import plotly
+# from plotly.graph_objs import Box
+import plotly.graph_objs as pgo
+# import Scatter, Layout, Margin
+
+from distibot import Distibot
+import webapp.distibot_httpd as distibot_httpd
+
 
 # import numpy as np
 
@@ -21,13 +29,17 @@ webapp_path = 'webapp'
 
 parser = argparse.ArgumentParser(description='Distillation robot .')
 parser.add_argument('--play', type=str, required=True, help='config file')
-parser.add_argument('--conf', type=str, default='distibot.conf', help='config file')
+parser.add_argument('--conf', type=str, default='distibot.conf',
+                    help='config file')
 parser.add_argument('--log', type=str, default="DEBUG", help='log level')
 args = parser.parse_args()
 
-log_format = '[%(filename)-18s:%(lineno)4s - %(funcName)18s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
+log_format = '[%(filename)-18s:%(lineno)4s - %(funcName)18s()] %(levelname)-7s\
+        | %(asctime)-15s | %(message)s'
 # log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
-logging.basicConfig(filename='distibot.log', format=log_format, level=logging.DEBUG)
+logging.basicConfig(filename='distibot.log', format=log_format,
+                    level=logging.DEBUG)
+
 
 def signal_handler(signal, frame):
     global dib
@@ -43,6 +55,7 @@ def signal_handler(signal, frame):
     app.close()
     logging.info('after app.close')
 
+
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGHUP, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
@@ -54,14 +67,10 @@ logging.debug('loaded script {0}.'.format(args.play))
 
 try:
     thread.start_new_thread(dib.temperature_loop, ())
-except Exception, exc:
+except Exception:
     logging.exception("Error: unable to start thread", exc_info=True)
 
 # ################################
-import plotly
-# from plotly.graph_objs import Box
-from plotly.graph_objs import Scatter, Layout, Margin
-
 app = Bottle()
 app.dib = dib
 
@@ -85,6 +94,7 @@ def images(filename):
 @app.get('/<filename:re:.*\.html>')
 def html_pages(filename):
     return static_file(filename, root=webapp_path + '/static/html')
+
 
 """
 @app.get('/<filename:re:.*\.wav>')
@@ -119,7 +129,8 @@ def t_show():
 def ask_temperature():
     if app.dib.loop_flag:
         # return "{0}".format(app.dib.tsensors.ts_data['boiler'])
-        return "{0} {1}".format(app.dib.tsensors.ts_data['boiler'], app.dib.tsensors.ts_data['condenser'])
+        return "{0} {1}".format(app.dib.tsensors.ts_data['boiler'],
+                                app.dib.tsensors.ts_data['condenser'])
 
 
 @app.route('/ask_stage')
@@ -145,10 +156,14 @@ def ask_stage():
 def plot():
     if app.dib.loop_flag:
         # prepare plot params
-        margin = Margin(l=35, r=5, b=100, t=10, pad=0)
-        layout = Layout(autosize=True, margin=margin, width=900, height=600)
-        scatter = [Scatter(x=app.dib.coord_time, y=app.dib.coord_temp),
-                   Scatter(x=app.dib.coord_time, y=app.dib.coord_temp_condenser)]
+        margin = pgo.layout.Margin(b=100, l=35, pad=0, r=5, t=10)
+        layout = pgo.Layout(autosize=True,
+                            width=900, height=600,
+                            margin=margin
+                            )
+        scatter = [pgo.Scatter(x=app.dib.coord_time, y=app.dib.coord_temp),
+                   pgo.Scatter(x=app.dib.coord_time,
+                               y=app.dib.coord_temp_condenser)]
         div_plot = plotly.offline.plot({"data": scatter, "layout": layout},
                                        show_link=False, output_type='div')
         return div_plot
@@ -164,7 +179,7 @@ server = distibot_httpd.DistibotHTTPD(host=loc_host, port=8080)
 
 try:
     app.run(server=server)
-except Exception, ex:
+except Exception:
     logging.exception('exception in app.run', exc_info=True)
 finally:
     logging.info("app.run finally")
