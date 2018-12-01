@@ -1,4 +1,4 @@
-#!/usr/bin/python -t
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
@@ -8,7 +8,7 @@ import ConfigParser
 import io
 import threading
 import logging
-import jsontree
+# import jsontree
 
 from pushbullet import Pushbullet
 
@@ -186,6 +186,7 @@ class Distibot(object):
         self.set_Tsteps()
         # TODO check methods existance and so on
 
+    """
     def load_jscript(self, play_filename):
         with open(play_filename, 'r') as script:
             jt = jsontree.load(script)
@@ -202,6 +203,7 @@ class Distibot(object):
 
     def set_jsteps(self):
         self.Tkeys = [t.temperature for t in dib.Tsteps['boiler']]
+    """
 
     def set_Tsteps(self):
         self.Tkeys = self.Tsteps.keys()
@@ -372,7 +374,8 @@ class Distibot(object):
 
     def cooker_off(self):
         self.cooker_timer.cancel()
-        self.timers.remove(self.cooker_timer)
+        if self.cooker_timer in self.timers:
+            self.timers.remove(self.cooker_timer)
 
         self.cooker_current_power = self.cooker.current_power()
         self.cooker.switch_off()
