@@ -62,11 +62,12 @@ class Distibot(object):
     def __init__(self, conf_filename='distibot.conf'):
         logging.getLogger(__name__).addHandler(logging.NullHandler())
         self.parse_conf(conf_filename)
-        self.outdir = 'output/'  # TODO config
+        self.outdir = 'output'  # TODO config
         self.Tcmd_prev = 'before start'
         self.Tcmd_last = 'before start'
         self.downcount = 0
-        self.downcount_limit = 5  # количество шагов подряд с неожидаемым снижением температуры
+        # количество шагов подряд с неожидаемым снижением температуры
+        self.downcount_limit = 5
         self.csv_write_period = 3
         self.temperature_error_limit = 3
         self.temperature_over_limit = 3
@@ -85,44 +86,72 @@ class Distibot(object):
         self.print_str = []
         self.dt_string = time.strftime("%Y-%m-%d-%H-%M")
         self.timers = []
-        self.drop_timer = threading.Timer(self.drop_period, self.drop_container)
+        self.drop_timer = threading.Timer(self.drop_period,
+                                          self.drop_container)
         self.timers.append(self.drop_timer)
-        self.cooker_timer = threading.Timer(self.cooker_period, self.cooker_off)
+        self.cooker_timer = threading.Timer(self.cooker_period,
+                                            self.cooker_off)
         self.timers.append(self.cooker_timer)
 
         if self.config.has_option('tsensors', 'gpio_ts'):
             # TODO switch gpio to INPUT
             self.tsensors = tsensor.Tsensors(self.config)
             self.tsensors.get_t()
-            self.T_prev = self.tsensors.ts_data['boiler']  # TODO Tsensors(dict)
+            # TODO Tsensors(dict)
+            self.T_prev = self.tsensors.ts_data['boiler']
 
         self.loop_flag = True
 
-        self.cooker = Cooker(gpio_on_off=self.config.getint('cooker', 'gpio_cooker_on_off'),
-                             gpio_up=self.config.getint('cooker', 'gpio_cooker_up'),
-                             gpio_down=self.config.getint('cooker', 'gpio_cooker_down'),
-                             gpio_special=self.config.getint('cooker', 'gpio_cooker_special'),
-                             powers=eval(self.config.get('cooker', 'cooker_powers')),
-                             init_power=self.config.getint('cooker', 'cooker_init_power'),
-                             special_power=self.config.getint('cooker', 'cooker_special_power'),
-                             do_init_special=self.config.getboolean('cooker', 'init_special')
+        self.cooker = Cooker(gpio_on_off=self.config.getint(
+                                        'cooker', 'gpio_cooker_on_off'),
+                             gpio_up=self.config.getint(
+                                    'cooker', 'gpio_cooker_up'),
+                             gpio_down=self.config.getint(
+                                      'cooker', 'gpio_cooker_down'),
+                             gpio_special=self.config.getint(
+                                         'cooker', 'gpio_cooker_special'),
+                             powers=eval(self.config.get(
+                                   'cooker', 'cooker_powers')),
+                             init_power=self.config.getint(
+                                       'cooker', 'cooker_init_power'),
+                             special_power=self.config.getint(
+                                          'cooker', 'cooker_special_power'),
+                             do_init_special=self.config.getboolean(
+                                            'cooker', 'init_special')
                              )
         # self.cooker_current_power = self.cooker.current_power()
         self.cooker_current_power = None
 
-        self.valve_water = valve.Valve(valve_gpio=self.config.getint('valve_water', 'gpio_valve_water'))
-        self.valve_drop = valve.Valve(valve_gpio=self.config.getint('valve_drop', 'gpio_valve_drop'))
+        self.valve_water = valve.Valve(valve_gpio=self.config.getint(
+                                                 'valve_water',
+                                                 'gpio_valve_water'))
+        self.valve_drop = valve.Valve(valve_gpio=self.config.getint(
+                                                'valve_drop',
+                                                'gpio_valve_drop'))
 
-        self.valve3way = valve.DoubleValve(gpio_v1=self.config.getint('dbl_valve', 'gpio_dbl_valve_1'),
-                                           gpio_v2=self.config.getint('dbl_valve', 'gpio_dbl_valve_2'))
+        self.valve3way = valve.DoubleValve(gpio_v1=self.config.getint(
+                                                  'dbl_valve',
+                                                  'gpio_dbl_valve_1'),
+                                           gpio_v2=self.config.getint(
+                                                  'dbl_valve',
+                                                  'gpio_dbl_valve_2'))
 
-        self.heads_sensor = heads_sensor.Heads_sensor(hs_type=self.config.get('heads_sensor', 'hs_type'),
-                                                      gpio_heads_start=self.config.getint('heads_sensor', 'gpio_hs_start'),
-                                                      gpio_heads_finish=self.config.getint('heads_sensor', 'gpio_hs_finish'),
-                                                      timeout=200)
+        self.heads_sensor = \
+            heads_sensor.Heads_sensor(hs_type=self.config.get(
+                                                             'heads_sensor',
+                                                             'hs_type'),
+                                      gpio_heads_start=self.config.getint(
+                                                      'heads_sensor',
+                                                      'gpio_hs_start'),
+                                      gpio_heads_finish=self.config.getint(
+                                                       'heads_sensor',
+                                                       'gpio_hs_finish'),
+                                      timeout=200)
 
         # self.flow_period = 10
-        self.flow_sensor = flow_sensor.Flow_sensor(gpio_fs=self.config.getint('flow_sensor', 'gpio_fs'))
+        self.flow_sensor = flow_sensor.Flow_sensor(gpio_fs=self.config.getint(
+                                                          'flow_sensor',
+                                                          'gpio_fs'))
         self.flow_period = self.config.getint('flow_sensor', 'flow_period')
 
         self.pb = pb_wrap(self.config.get('pushbullet', 'api_key'))
@@ -130,9 +159,8 @@ class Distibot(object):
         self.coord_time = []
         self.coord_temp = []
         self.coord_temp_condenser = []
-        self.log = open(self.outdir + 'sensor-'  # + ('emu-' if emu_mode else '')
-                        + self.dt_string
-                        + '.csv', 'w', 0)  # 0 - unbuffered write
+        self.log = open('{}/sensor-{}.csv'.format(self.outdir, self.dt_string),
+                        'w', 0)  # 0 - unbuffered write
 
     def parse_conf(self, conf_filename):
         # Load and parse the conf file
@@ -142,10 +170,19 @@ class Distibot(object):
             self.config.readfp(io.BytesIO(dib_config))
 
     def load_script(self, play_filename):
+        """
         script = open(play_filename, 'r')
-        self.Tsteps = collections.OrderedDict(sorted(eval(script.read()).items(),
+        self.Tsteps = \
+                collections.OrderedDict(sorted(eval(script.read()).items(),
                                               key=lambda t: t[0]))
         script.close()
+        """
+
+        with open(play_filename, 'r') as script:
+            self.Tsteps = collections.OrderedDict(sorted(eval(
+                                                  script.read()).items(),
+                                                  key=lambda t: t[0])
+                                                  )
         self.set_Tsteps()
         # TODO check methods existance and so on
 
@@ -173,9 +210,11 @@ class Distibot(object):
         # print(self.Tsteps)
 
     def send_msg(self, msg_subj, msg_body):
-        logging.info("send_msg: subj={0}, msg='{1}'".format(msg_subj, msg_body))
+        logging.info("send_msg: subj={0}, msg='{1}'".format(
+                                                     msg_subj, msg_body))
+        msg_body = "{}: {}".format(time.strftime("%Y-%m-%d %H:%M"), msg_body)
         try:
-            self.pb_channel.push_note(msg_subj, "{0}: {1}".format(time.strftime("%Y-%m-%d %H:%M"), msg_body))
+            self.pb_channel.push_note(msg_subj, msg_body)
         except Exception:
             logging.exception('exception in send_msg', exc_info=True)
 
@@ -199,21 +238,21 @@ class Distibot(object):
         """
         if 'pause' == self.stage:
             if time.time()-self.pause_start_ts > self.pause_limit:
-                # self.pb_channel.push_note("Пауза превысила {}".format(self.pause_limit), "Включаю нагрев")
-                self.send_msg("Пауза превысила {}".format(self.pause_limit), "Включаю нагрев")
+                self.send_msg("Пауза превысила {}".format(
+                               self.pause_limit), "Включаю нагрев")
                 self.heat_for_heads()
 
     def decrease_monitor(self):
         """ слежение за снижением температуры
         TODO: сейчас включение нагрева срабатывает только для фазы "pause".
-        Если было защитное выключение плитки, то фаза остаётся "нагрев", монитор срабатывает,
+        Если было защитное выключение плитки, то фаза остаётся "нагрев",
+        монитор срабатывает,
         но включение не происходит.
         """
         if 'pause' == self.stage:
             if self.T_prev > self.tsensors.ts_data['boiler']:
                 self.downcount += 1
                 if self.downcount >= self.downcount_limit:
-                    # self.pb_channel.push_note("Снижение температуры", "Включаю нагрев")
                     self.send_msg("Снижение температуры", "Включаю нагрев")
                     self.heat_for_heads()
                     self.downcount = 0
@@ -243,15 +282,11 @@ class Distibot(object):
 
     def do_cmd(self):
         self.Tcmd_last = self.Tcmd.__name__
-        """
-        self.pb_channel.push_note("Превысили " + str(self.Tstage),
-                                  str(self.tsensors.ts_data['boiler'])
-                                  + ", Tcmd=" + str(self.Tcmd.__name__))
-        """
         self.Tcmd()
         # TODO добавить t холодильника, если есть датчик
         self.send_msg("Превысили {0}".format(self.Tstage),
-                      "t в кубе={0}, команда={1}".format(self.tsensors.ts_data['boiler'], self.Tcmd.__name__))
+                      "t в кубе={0}, команда={1}".format(
+                        self.tsensors.ts_data['boiler'], self.Tcmd.__name__))
 
         try:
             self.Tstage = self.Tkeys.pop(0)
@@ -268,21 +303,23 @@ class Distibot(object):
             try:
                 self.tsensors.get_t()
                 t_failed_cnt = 0
-            except:
+            except BaseException:
                 t_failed_cnt += 1
             else:
                 self.T_prev = self.tsensors.ts_data['boiler']
 
             if t_failed_cnt > self.temperature_error_limit:
                 t_failed_cnt = 0
-                # self.pb_channel.push_note("Сбой получения температуры", "Требуется вмешательство")
-                self.send_msg("Сбой получения температуры", "Требуется вмешательство")
+                self.send_msg("Сбой получения температуры",
+                              "Требуется вмешательство")
 
             if self.T_prev > 0:
-                if abs((self.tsensors.ts_data['boiler'] - self.T_prev) / self.T_prev) \
-                   > self.temperature_delta_limit:
-                    self.tsensors.ts_data['boiler'] = self.T_prev  # ignore, use prev value
-                    logging.warning('Over {:.0%} difference T_prev={}, t_in_Cels={}'.
+                if abs((self.tsensors.ts_data['boiler'] - self.T_prev)
+                        / self.T_prev) > self.temperature_delta_limit:
+                    # ignore, use prev value
+                    self.tsensors.ts_data['boiler'] = self.T_prev
+                    logging.warning('Over {:.0%} difference T_prev={},\
+                                     t_in_Cels={}'.
                                     format(self.temperature_delta_limit,
                                            self.T_prev,
                                            self.tsensors.ts_data['boiler'])
@@ -304,7 +341,8 @@ class Distibot(object):
             if self.tsensors.ts_data['boiler'] > self.Tstage:
                 over_cnt += 1
 
-            if over_cnt > self.temperature_over_limit:
+            if over_cnt > self.temperature_over_limit or \
+               self.Tstage == 0.0:
                 over_cnt = 0
                 self.do_cmd()
 
@@ -342,7 +380,8 @@ class Distibot(object):
         if self.stage == 'finish':
             loc_str = "Финиш"
         else:
-            self.cooker_timer = threading.Timer(self.cooker_timeout, self.cooker_on)
+            self.cooker_timer = threading.Timer(self.cooker_timeout,
+                                                self.cooker_on)
             self.timers.append(self.cooker_timer)
             self.cooker_timer.start()
             loc_str = "Установлен таймер на {}".format(self.cooker_timeout)
@@ -354,15 +393,18 @@ class Distibot(object):
         self.timers.remove(self.cooker_timer)
 
         # TODO simplify
-        if self.cooker_current_power is not None and self.cooker_current_power > 0:
+        if self.cooker_current_power is not None and \
+           self.cooker_current_power > 0:
             self.cooker.switch_on(self.cooker_current_power)
         else:
             self.cooker.switch_on()
 
-        self.cooker_timer = threading.Timer(self.cooker_period, self.cooker_off)
+        self.cooker_timer = threading.Timer(self.cooker_period,
+                                            self.cooker_off)
         self.timers.append(self.cooker_timer)
         self.cooker_timer.start()
-        self.send_msg("Нагрев включён", "Установлен таймер на {}".format(self.cooker_period))
+        self.send_msg("Нагрев включён",
+                      "Установлен таймер на {}".format(self.cooker_period))
 
     def heat_on_pause(self):
         self.cooker_off()
@@ -392,8 +434,10 @@ class Distibot(object):
             logging.debug('stage set to "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_started'
             if gpio_id > 0:
-                self.send_msg("Стартовали головы", "gpio_id={}".format(gpio_id))
-                self.heads_sensor.watch_finish(self.heads_finished)  # call heads_sensor.ignore_start()
+                self.send_msg("Стартовали головы",
+                              "gpio_id={}".format(gpio_id))
+                # call heads_sensor.ignore_start()
+                self.heads_sensor.watch_finish(self.heads_finished)
             logging.debug('after watch_finish')
 
     def heads_finished(self, gpio_id=-1):
@@ -410,7 +454,8 @@ class Distibot(object):
             logging.debug('stage set to "{}"'.format(self.stage))
             self.Tcmd_last = 'heads_finished'
             if gpio_id > 0:
-                self.send_msg("Закончились головы", "gpio_id={}".format(gpio_id))
+                self.send_msg("Закончились головы",
+                              "gpio_id={}".format(gpio_id))
                 self.heads_sensor.ignore_finish()
             self.valve3way.way_2()  # way for body
             self.cooker.set_power(1400)
@@ -436,7 +481,8 @@ class Distibot(object):
             self.timers.append(self.flow_timer)
             self.flow_timer.start()
             self.flow_sensor.watch_flow(self.flow_detected)
-            logging.debug('water_on={}, flow_timer.is_alive={}'.format(self.water_on, self.flow_timer.is_alive()))
+            logging.debug('water_on={}, flow_timer.is_alive={}'.format(
+                          self.water_on, self.flow_timer.is_alive()))
 
     def drop_container(self):
         self.drop_timer.cancel()
@@ -444,11 +490,11 @@ class Distibot(object):
 
         self.valve_drop.power_on_way()
 
-        self.drop_timer = threading.Timer(self.drop_timeout, self.close_container)
+        self.drop_timer = threading.Timer(self.drop_timeout,
+                                          self.close_container)
         self.timers.append(self.drop_timer)
         self.drop_timer.start()
         logging.debug('drop is on')
-        # self.pb_channel.push_note("Сброс сухопарника", "Клапан сброса включён")
         self.send_msg("Сброс сухопарника", "Клапан сброса включён")
 
     def close_container(self):
@@ -457,11 +503,11 @@ class Distibot(object):
 
         self.valve_drop.default_way()
 
-        self.drop_timer = threading.Timer(self.drop_period, self.drop_container)
+        self.drop_timer = threading.Timer(self.drop_period,
+                                          self.drop_container)
         self.timers.append(self.drop_timer)
         self.drop_timer.start()
         logging.debug('drop is off')
-        # self.pb_channel.push_note("Сухопарник закрыт", "Клапан сброса отключён")
         self.send_msg("Сухопарник закрыт", "Клапан сброса отключён")
 
 #    def stop_body_power_on(self):
@@ -471,7 +517,6 @@ class Distibot(object):
         self.stage = 'tail'
         logging.debug('stage is "{}"'.format(self.stage))
         self.valve3way.way_3()
-        # self.pb_channel.push_note("Закончилось тело", "Клапан выключен")
         self.send_msg("Закончилось тело", "Клапан выключен")
 
     def flow_detected(self, gpio_id):
@@ -485,14 +530,15 @@ class Distibot(object):
         self.flow_timer.start()
 
     def no_flow(self):
-        logging.warning('Нет потока охлаждения за flow_period={}, Аварийное отключение'.format(self.flow_period))
-        # self.pb_channel.push_note("Аварийное отключение", "Нет потока охлаждения")
+        logging.warning("Нет потока охлаждения \
+        за flow_period={}, Аварийное отключение".format(self.flow_period))
         self.send_msg("Аварийное отключение", "Нет потока охлаждения")
         self.stop_process()
         self.release()
 
     def finish(self):
         self.stop_process()
+
 
 if __name__ == "__main__":
     import argparse
@@ -519,7 +565,9 @@ if __name__ == "__main__":
     def segv_handler(signal, frame):
         logging.info('Catched signal {}'.format(signal))
         logging.info('frame.f_locals={}'.format(frame.f_locals))
-        logging.info('frame: filename={}, function={}, line_no={}'.format(frame.f_code.co_filename, frame.f_code.co_name, frame.f_lineno))
+        logging.info('frame: filename={}, function={}, line_no={}'.format(
+                      frame.f_code.co_filename,
+                      frame.f_code.co_name, frame.f_lineno))
         dib_stop()
 
     signal.signal(signal.SIGSEGV, segv_handler)
