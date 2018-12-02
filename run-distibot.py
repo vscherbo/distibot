@@ -156,7 +156,7 @@ def ask_stage():
 def plot():
     if app.dib.loop_flag:
         # prepare plot params
-        margin = pgo.layout.Margin(b=100, l=35, pad=0, r=5, t=10)
+        margin = pgo.Margin(b=100, l=35, pad=0, r=5, t=10)
         layout = pgo.Layout(autosize=True,
                             width=900, height=600,
                             margin=margin
