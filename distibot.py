@@ -78,8 +78,8 @@ class Distibot(object):
         self.pause_limit = 180
         self.cooker_period = 3600
         self.cooker_timeout = 10
-        self.drop_period = 3600
-        self.drop_timeout = 120
+        self.drop_period = 3000
+        self.drop_timeout = 15
         self.T_sleep = 1
         self.csv_delay = 0
         self.water_on = False
@@ -221,7 +221,7 @@ class Distibot(object):
             logging.exception('exception in send_msg', exc_info=True)
 
     def release(self):
-        save_coord = open(self.outdir + self.dt_string+'.dat', 'w')
+        save_coord = open('{}/{}.dat'.format(self.outdir, self.dt_string), 'w')
         for i_time, i_temp in zip(self.coord_time, self.coord_temp):
             save_str = '{}^{}\n'.format(i_time, i_temp)
             save_coord.write(save_str)
@@ -492,26 +492,26 @@ class Distibot(object):
         self.timers.remove(self.drop_timer)
 
         self.valve_drop.power_on_way()
+        logging.debug('drop is on')
+        self.send_msg("Сброс сухопарника", "Клапан сброса включён")
 
         self.drop_timer = threading.Timer(self.drop_timeout,
                                           self.close_container)
         self.timers.append(self.drop_timer)
         self.drop_timer.start()
-        logging.debug('drop is on')
-        self.send_msg("Сброс сухопарника", "Клапан сброса включён")
 
     def close_container(self):
         self.drop_timer.cancel()
         self.timers.remove(self.drop_timer)
 
         self.valve_drop.default_way()
+        logging.debug('drop is off')
+        self.send_msg("Сухопарник закрыт", "Клапан сброса отключён")
 
         self.drop_timer = threading.Timer(self.drop_period,
                                           self.drop_container)
         self.timers.append(self.drop_timer)
         self.drop_timer.start()
-        logging.debug('drop is off')
-        self.send_msg("Сухопарник закрыт", "Клапан сброса отключён")
 
 #    def stop_body_power_on(self):
 #        self.stop_body()
