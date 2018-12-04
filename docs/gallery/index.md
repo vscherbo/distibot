@@ -14,7 +14,7 @@ keywords: Фотографии дистибота, скриншоты веб-с�
 [![]({{ site.baseurl }}/gallery/screenshot-messages-small.png)]({{ site.baseurl }}/gallery/screenshot-messages_20171212-190849-ts1513104214.png)
 
 * __Веб-сервер Дистибота__  
-[![]({{ site.baseurl }}/gallery/web-heads-small.png)]({{ site.baseurl }}/gallery/web-heads.png  "Отбор голов")
+[![]({{ site.baseurl }}/gallery/web-heads-small.png)]({{ site.baseurl }}/gallery/web-heads.jpg  "Отбор голов")
 [![]({{ site.baseurl }}/gallery/web-body-small.png)]({{ site.baseurl }}/gallery/web-body.png "Отбор тела")
 [![]({{ site.baseurl }}/gallery/web-t-graph-small.png)]({{ site.baseurl }}/gallery/web-t-graph.png "График t° от времени")
 [![]({{ site.baseurl }}/gallery/web-phone-small.png)]({{ site.baseurl }}/gallery/web-phone.png "Вид на смартфоне")
