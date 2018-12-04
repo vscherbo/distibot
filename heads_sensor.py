@@ -131,7 +131,13 @@ if __name__ == "__main__":
 
     def heads_started(gpio_id):
         logging.debug('inside heads_started, gpio_id={}'.format(gpio_id))
-        hs.watch_finish(heads_finished)
+        if hs.flag_ignore_start:
+            logging.debug('heads_started. Again')
+        else:
+            try:
+                hs.watch_finish(heads_finished)
+            except Exception:
+                logging.exception('heads_started, hs.watch_finish')
 
     def heads_finished(gpio_id):
         logging.debug('inside heads_finished, gpio_id={}'.format(gpio_id))
