@@ -18,7 +18,7 @@ keywords: автоматика,дистилляция,брага,самогон,
 
 [Первая версия]({{ site.baseurl }}/gallery/distibot_on_prototyping_board-20161120_183635-ts1512672061.jpg "Первая версия дистибота") дистилляционного робота в сборе.
 
-За процессом можно следить на экране своего смартфона, планшета или ПК, зайдя на встроенный [веб-сайт]({{ site.baseurl }}/gallery/screenshot_2017-02-18-19-49-25-ts1512591128.png "Скриншот веб-сайта дистибота")
+За процессом можно следить на экране своего смартфона, планшета или ПК, зайдя на встроенный [веб-сайт]({{ site.baseurl }}/gallery/screenshot_2017-02-18-19-49-25-ts1512591128.jpg "Скриншот веб-сайта дистибота")
 
 Протокол работы робот записывает в протокол (csv файл), который легко конвертировать в [график](https://docs.google.com/spreadsheets/d/e/2PACX-1vQKVkhn2IV3O2DWPfm31xbuuNPdL8AR2d5d1wyDTlDyx5drlEgdRp8TZ8kN6Dnzw809yDsPuS1UphSW/pubchart?oid=1961167213&amp;format=interactive "График на Google Docs")
 

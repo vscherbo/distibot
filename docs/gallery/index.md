@@ -11,13 +11,13 @@ keywords: Фотографии дистибота, скриншоты веб-с�
 [![]({{ site.baseurl }}/gallery/distibot_heads_sensor-small.jpg)]({{ site.baseurl }}/gallery/distibot_heads_sensor-20170218_180512-ts1512672060.jpg)
 [![]({{ site.baseurl }}/gallery/distibot_on_breadboard_small.jpg)]({{ site.baseurl }}/gallery/distibot_on_breadboard-20160613_173816-ts1512672061.jpg)
 [![]({{ site.baseurl }}/gallery/distibot_on_prototyping_board_small.jpg)]({{ site.baseurl }}/gallery/distibot_on_prototyping_board-20161120_183635-ts1512672061.jpg)
-[![]({{ site.baseurl }}/gallery/screenshot-messages-small.png)]({{ site.baseurl }}/gallery/screenshot-messages_20171212-190849-ts1513104214.png)
+[![]({{ site.baseurl }}/gallery/screenshot-messages-small.png)]({{ site.baseurl }}/gallery/screenshot-messages_20171212-190849-ts1513104214.jpg)
 
 * __Веб-сервер Дистибота__  
 [![]({{ site.baseurl }}/gallery/web-heads-small.png)]({{ site.baseurl }}/gallery/web-heads.jpg  "Отбор голов")
-[![]({{ site.baseurl }}/gallery/web-body-small.png)]({{ site.baseurl }}/gallery/web-body.png "Отбор тела")
-[![]({{ site.baseurl }}/gallery/web-t-graph-small.png)]({{ site.baseurl }}/gallery/web-t-graph.png "График t° от времени")
-[![]({{ site.baseurl }}/gallery/web-phone-small.png)]({{ site.baseurl }}/gallery/web-phone.png "Вид на смартфоне")
+[![]({{ site.baseurl }}/gallery/web-body-small.png)]({{ site.baseurl }}/gallery/web-body.jpg "Отбор тела")
+[![]({{ site.baseurl }}/gallery/web-t-graph-small.png)]({{ site.baseurl }}/gallery/web-t-graph.jpg "График t° паров в кубе от времени")
+[![]({{ site.baseurl }}/gallery/web-phone-small.png)]({{ site.baseurl }}/gallery/web-phone.jpg "Вид веб-сайта дистибота на смартфоне")
 
 * __Компоненты__  
 [![]({{ site.baseurl }}/gallery/distibot_heads_sensor_small.jpg)]({{ site.baseurl }}/gallery/distibot_heads_sensor-20170218_180512-ts1512672060.jpg "Резистивный датчик голов")
