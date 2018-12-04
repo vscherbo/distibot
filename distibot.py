@@ -427,41 +427,39 @@ class Distibot(object):
         logging.debug('inside heads_started')
         if self.heads_sensor.flag_ignore_start:
             logging.info('flag_ignore_start detected!')
-            return
-
-        if 'heads' == self.stage:
-            logging.debug('stage is already heads. Skipping')
-            pass
         else:
-            self.stage = 'heads'
-            logging.debug('stage set to "{}"'.format(self.stage))
-            self.Tcmd_last = 'heads_started'
-            if gpio_id > 0:
-                self.send_msg("Стартовали головы",
-                              "gpio_id={}".format(gpio_id))
-                # call heads_sensor.ignore_start()
-                self.heads_sensor.watch_finish(self.heads_finished)
-            logging.debug('after watch_finish')
+            if 'heads' == self.stage:
+                # ? Never will occured
+                logging.debug('stage is already heads. Skipping')
+            else:
+                self.stage = 'heads'
+                logging.debug('stage set to "{}"'.format(self.stage))
+                self.Tcmd_last = 'heads_started'
+                if gpio_id > 0:
+                    self.send_msg("Стартовали головы",
+                                  "gpio_id={}".format(gpio_id))
+                    # call heads_sensor.ignore_start()
+                    self.heads_sensor.watch_finish(self.heads_finished)
+                logging.debug('after watch_finish')
 
     def heads_finished(self, gpio_id=-1):
         logging.debug('inside heads_finished')
         if self.heads_sensor.flag_ignore_finish:
             logging.info('flag_ignore_finish detected!')
-            return
-
-        if 'heads' != self.stage:
-            logging.debug('NOT heads, stage="{}". Skipping'.format(self.stage))
-            pass
         else:
-            self.stage = 'body'
-            logging.debug('stage set to "{}"'.format(self.stage))
-            self.Tcmd_last = 'heads_finished'
-            if gpio_id > 0:
-                self.send_msg("Закончились головы",
-                              "gpio_id={}".format(gpio_id))
-                self.heads_sensor.ignore_finish()
-            self.valve3way.way_2()  # way for body
-            self.cooker.set_power(1400)
+            if 'heads' != self.stage:
+                logging.debug('NOT heads, stage="{}". Skipping'.format(self.stage))
+                pass
+            else:
+                self.stage = 'body'
+                logging.debug('stage set to "{}"'.format(self.stage))
+                self.Tcmd_last = 'heads_finished'
+                if gpio_id > 0:
+                    self.send_msg("Закончились головы",
+                                  "gpio_id={}".format(gpio_id))
+                    self.heads_sensor.ignore_finish()
+                self.valve3way.way_2()  # way for body
+                self.cooker.set_power(1400)  # TODO from config?
 
     def start_watch_heads(self):
         logging.debug('inside start_watch_heads')

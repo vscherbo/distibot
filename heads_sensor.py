@@ -44,23 +44,23 @@ class Heads_sensor(GPIO_DEV):
 
     def ignore_start(self):
         if self.flag_ignore_start:
-            logging.info('ignore_start: pass')
+            logging.info('pass')
             pass
         else:
             self.flag_ignore_start = True
             # GPIO.remove_event_detect(self.gpio_heads_start)
             # logging.info('ignore_start: remove_event_detect on {0}'.format(self.gpio_heads_start))
-            logging.info('ignore_start: FIRST')
+            logging.info('FIRST')
 
     def ignore_finish(self):
         if self.flag_ignore_finish:
-            logging.info('ignore_finish: pass')
+            logging.info('pass')
             pass
         else:
             self.flag_ignore_finish = True
             # GPIO.remove_event_detect(self.gpio_heads_finish)
             # logging.info('ignore_finish: remove_event_detect on {0}'.format(self.gpio_heads_finish))
-            logging.info('ignore_finish: FIRST')
+            logging.info('FIRST')
 
     # TODO merge watch_start & watch_finish in a single method
     def watch_start(self, start_callback):
@@ -129,21 +129,21 @@ if __name__ == "__main__":
 
     hs = Heads_sensor(hs_type='OPT', gpio_heads_start=25, gpio_heads_finish=14, timeout=200)
 
-    def heads_started(gpio_id):
-        logging.debug('inside heads_started, gpio_id={}'.format(gpio_id))
+    def loc_heads_started(gpio_id):
+        logging.debug('inside, gpio_id={}'.format(gpio_id))
         if hs.flag_ignore_start:
-            logging.debug('heads_started. Again')
+            logging.debug('Again')
         else:
             try:
-                hs.watch_finish(heads_finished)
+                hs.watch_finish(loc_heads_finished)
             except Exception:
-                logging.exception('heads_started, hs.watch_finish')
+                logging.exception('inside heads_started, try:hs.watch_finish')
 
-    def heads_finished(gpio_id):
-        logging.debug('inside heads_finished, gpio_id={}'.format(gpio_id))
+    def loc_heads_finished(gpio_id):
+        logging.debug('inside, gpio_id={}'.format(gpio_id))
         hs.ignore_finish()
 
-    hs.watch_start(heads_started)
+    hs.watch_start(loc_heads_started)
     logging.info('Started')
 
     loop_flag = True
