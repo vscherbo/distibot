@@ -146,7 +146,7 @@ class Distibot(object):
                                       gpio_heads_finish=self.config.getint(
                                                        'heads_sensor',
                                                        'gpio_hs_finish'),
-                                      timeout=200)
+                                      timeout=1000)
 
         # self.flow_period = 10
         self.flow_sensor = flow_sensor.Flow_sensor(gpio_fs=self.config.getint(
@@ -270,7 +270,7 @@ class Distibot(object):
             t2 = 0
         self.print_str.append(str(t2))
         # self.print_str.append(str(self.tsensors.ts_data['condenser']))
-        logging.debug('ts_data={0}'.format(self.tsensors.ts_data))
+        # logging.debug('ts_data={0}'.format(self.tsensors.ts_data))
         if self.csv_delay >= self.csv_write_period:
             self.csv_delay = 0
             print(','.join(self.print_str), file=self.log)
