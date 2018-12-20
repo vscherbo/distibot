@@ -5,7 +5,7 @@ description: Описание компонентов робота-дистилл
 keywords: датчик температуры,датчик уровня,датчик потока,индукционная плитка,Raspberry Pi
 ---
 В состав дистибота первой версии входили следующие компоненты:
-* одноплатный компьютер [Raspberry Pi](https://ru.wikipedia.org/wiki/Raspberry-Pi "Raspberry Pi")
+* одноплатный компьютер [Raspberry Pi](https://ru.wikipedia.org/wiki/Raspberry_Pi "Raspberry Pi")
 * [датчик температуры]({{ site.baseurl }}/gallery/temperature-sensor-ts1513020375.jpg "DS18B20") паров в кубе
 * [клапаны разделения фракций]({{ site.baseurl }}/gallery/distibot-3way-valve-20160613-173816-ts1512672060.jpg "блок разделения фракций"){:target="-blank"}
 * [резистивный датчик голов]({{ site.baseurl }}/gallery/distibot-heads-sensor-20170218-180512-ts1512672060.jpg "резистивный датчик голов")
