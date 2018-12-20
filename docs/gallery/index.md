@@ -4,14 +4,14 @@ layout: distibot
 description: Фотографии дистибота, скриншоты веб-сайта, ролики на Youtube
 keywords: Фотографии дистибота, скриншоты веб-сайта, ролики на Youtube
 ---
-<div id="gallery_ul" markdown='1'>
+<div id="gallery-ul" markdown='1'>
 * __Дистибот-1__  
-[![]({{ site.baseurl }}/gallery/distibot-3way-valve-small.jpg)]({{ site.baseurl }}/gallery/distibot-3way-valve-20160613_173816-ts1512672060.jpg "3-х ходовой клапан разделения фракций")
-[![]({{ site.baseurl }}/gallery/distibot_1st_release_small.jpg)]({{ site.baseurl }}/gallery/distibot_1st_release-20170122_201133-ts1512672060.jpg)
-[![]({{ site.baseurl }}/gallery/distibot_heads_sensor-small.jpg)]({{ site.baseurl }}/gallery/distibot_heads_sensor-20170218_180512-ts1512672060.jpg)
-[![]({{ site.baseurl }}/gallery/distibot_on_breadboard_small.jpg)]({{ site.baseurl }}/gallery/distibot_on_breadboard-20160613_173816-ts1512672061.jpg)
-[![]({{ site.baseurl }}/gallery/distibot_on_prototyping_board_small.jpg)]({{ site.baseurl }}/gallery/distibot_on_prototyping_board-20161120_183635-ts1512672061.jpg)
-[![]({{ site.baseurl }}/gallery/screenshot-messages-small.png)]({{ site.baseurl }}/gallery/screenshot-messages_20171212-190849-ts1513104214.jpg)
+[![]({{ site.baseurl }}/gallery/distibot-3way-valve-small.jpg)]({{ site.baseurl }}/gallery/distibot-3way-valve-20160613-173816-ts1512672060.jpg "3-х ходовой клапан разделения фракций")
+[![]({{ site.baseurl }}/gallery/distibot-1st-release-small.jpg)]({{ site.baseurl }}/gallery/distibot-1st-release-20170122-201133-ts1512672060.jpg)
+[![]({{ site.baseurl }}/gallery/distibot-heads-sensor-small.jpg)]({{ site.baseurl }}/gallery/distibot-heads-sensor-20170218-180512-ts1512672060.jpg)
+[![]({{ site.baseurl }}/gallery/distibot-on-breadboard-small.jpg)]({{ site.baseurl }}/gallery/distibot-on-breadboard-20160613-173816-ts1512672061.jpg)
+[![]({{ site.baseurl }}/gallery/distibot-on-prototyping-board-small.jpg)]({{ site.baseurl }}/gallery/distibot-on-prototyping-board-20161120-183635-ts1512672061.jpg)
+[![]({{ site.baseurl }}/gallery/screenshot-messages-small.png)]({{ site.baseurl }}/gallery/screenshot-messages-20171212-190849-ts1513104214.jpg)
 
 * __Веб-сервер Дистибота__  
 [![]({{ site.baseurl }}/gallery/web-heads-small.png)]({{ site.baseurl }}/gallery/web-heads.jpg  "Отбор голов")
@@ -20,16 +20,16 @@ keywords: Фотографии дистибота, скриншоты веб-с�
 [![]({{ site.baseurl }}/gallery/web-phone-small.png)]({{ site.baseurl }}/gallery/web-phone.jpg "Вид веб-сайта дистибота на смартфоне")
 
 * __Компоненты__  
-[![]({{ site.baseurl }}/gallery/distibot_heads_sensor_small.jpg)]({{ site.baseurl }}/gallery/distibot_heads_sensor-20170218_180512-ts1512672060.jpg "Резистивный датчик голов")
+[![]({{ site.baseurl }}/gallery/distibot-heads-sensor-small.jpg)]({{ site.baseurl }}/gallery/distibot-heads-sensor-20170218-180512-ts1512672060.jpg "Резистивный датчик голов")
 [![]({{ site.baseurl }}/gallery/optical-level-sensor-small.jpg)]({{ site.baseurl }}/gallery/optical-level-sensor-ts1513020375.jpg "Оптический датчик уровня")
-[![]({{ site.baseurl }}/gallery/distibot_heads_optical_sensor-small.jpg)]({{ site.baseurl }}/gallery/distibot_heads_optical_sensor-01-ts1514999010.jpg "Датчик старта-стопа голов на оптических датчиках")
-[![]({{ site.baseurl }}/gallery/temperature_sensor_small.jpg)]({{ site.baseurl }}/gallery/temperature_sensor-ts1513020375.jpg "Датчик температуры")
+[![]({{ site.baseurl }}/gallery/distibot-heads-optical-sensor-small.jpg)]({{ site.baseurl }}/gallery/distibot-heads-optical-sensor-01-ts1514999010.jpg "Датчик старта-стопа голов на оптических датчиках")
+[![]({{ site.baseurl }}/gallery/temperature-sensor-small.jpg)]({{ site.baseurl }}/gallery/temperature-sensor-ts1513020375.jpg "Датчик температуры")
 
 * __Дистибот-2__  
-[![]({{ site.baseurl }}/gallery/distibot_ver_2_small.jpg)]({{ site.baseurl }}/gallery/distibot_ver_2-ts1513008896.jpg "Дистибот-2 в сборе")
+[![]({{ site.baseurl }}/gallery/distibot-ver-2-small.jpg)]({{ site.baseurl }}/gallery/distibot-ver-2-ts1513008896.jpg "Дистибот-2 в сборе")
 
 * __Видео__  
-[![](https://img.youtube.com/vi/NM50EDFDwC4/0.jpg)](http://www.youtube.com/watch?feature=player_embedded&v=NM50EDFDwC4 "Дистибот управляет индукционной плиткой, часть 1/2"){:target="_blank"}
-[![](https://img.youtube.com/vi/Xp3yWm6DmFE/0.jpg)](http://www.youtube.com/watch?feature=player_embedded&v=Xp3yWm6DmFE "Дистибот управляет индукционной плиткой, часть 2/2"){:target="_blank"}
+[![](https://img.youtube.com/vi/NM50EDFDwC4/0.jpg)](http://www.youtube.com/watch?feature=player-embedded&v=NM50EDFDwC4 "Дистибот управляет индукционной плиткой, часть 1/2"){:target="-blank"}
+[![](https://img.youtube.com/vi/Xp3yWm6DmFE/0.jpg)](http://www.youtube.com/watch?feature=player-embedded&v=Xp3yWm6DmFE "Дистибот управляет индукционной плиткой, часть 2/2"){:target="-blank"}
 
 </div>
