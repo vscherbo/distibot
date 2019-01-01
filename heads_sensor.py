@@ -127,7 +127,7 @@ if __name__ == "__main__":
     else:
         logging.basicConfig(stream=sys.stdout, format=log_format, level=numeric_level)
 
-    hs = Heads_sensor(hs_type='OPT', gpio_heads_start=25, gpio_heads_finish=14, timeout=200)
+    hs = Heads_sensor(hs_type='OPT', gpio_heads_start=25, gpio_heads_finish=14, timeout=2000)
 
     def loc_heads_started(gpio_id):
         logging.debug('inside, gpio_id={}'.format(gpio_id))
