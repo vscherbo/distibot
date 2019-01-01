@@ -5,6 +5,14 @@
     font-size: 67px;
 }
 
+#div_flow {
+    display: flex;
+    width: 600px;
+    height: 90px;
+    float: right;
+    font-size: 55px;
+}
+
 #button_start {
     width: 313px;
     height: 91px;

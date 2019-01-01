@@ -46,14 +46,14 @@ def signal_handler(signal, frame):
     global server
     global app
     logging.info('Catched signal {}'.format(signal))
-    dib.stop_process()
+    app.dib.stop_process()
     logging.info('after stop_process')
-    dib.release()
+    app.dib.release()
     logging.info('after dib.release')
-    server.stop()
-    logging.info('after server.stop')
     app.close()
     logging.info('after app.close')
+    server.stop()
+    logging.info('after server.stop')
 
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -125,12 +125,18 @@ def t_show():
         return output
 
 
+@app.route('/ask_flow')
+def ask_flow():
+    if app.dib.loop_flag:
+        return "{0} об.  {1} Hz".format(app.dib.flow_sensor.clicks,
+                                        app.dib.flow_sensor.hertz)
+
 @app.route('/ask_t')
 def ask_temperature():
     if app.dib.loop_flag:
         # return "{0}".format(app.dib.tsensors.ts_data['boiler'])
-        return "{0} {1}".format(app.dib.tsensors.ts_data['boiler'],
-                                app.dib.tsensors.ts_data['condenser'])
+        return "Куб:{0}  Хол:{1}".format(app.dib.tsensors.ts_data['boiler'],
+                                         app.dib.tsensors.ts_data['condenser'])
 
 
 @app.route('/ask_stage')

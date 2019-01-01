@@ -1,4 +1,4 @@
-%#template to generate a HTML table from a list of tuples (or list of lists, or tuple of tuples or ...)
+%#template to show distibot page
 <head>
 <link type="text/css" href="main.css" rel="stylesheet">
 <script type="text/javascript" src="jquery.js"></script>
@@ -44,6 +44,13 @@
                     $("#div_stage").html(html);
                 }
             });
+            $.ajax({
+                url: '/ask_flow',
+                cache: false,
+                success: function(html){
+                    $("#div_flow_content").html(html);
+                }
+            });
             // if ( cnt++ >= 3 ) {
             if ( true ) {
                cnt = 1;
@@ -85,8 +92,11 @@
 </div>
 
 <div id="div_t">
-    <!-- div id="t_label">Температура</div -->
     <div id="div_content"></div><div>&nbsp;°C</div>
+</div>
+
+<div id="div_flow">
+    <div id="div_flow_content"></div>
 </div>
 
 <div id="div_icons">
