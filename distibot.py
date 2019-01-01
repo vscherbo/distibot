@@ -460,6 +460,7 @@ class Distibot(object):
                     self.heads_sensor.ignore_finish()
                 self.valve3way.way_2()  # way for body
                 self.cooker.set_power(1400)  # TODO from config?
+                self.start_water()
 
     def start_watch_heads(self):
         logging.debug('inside start_watch_heads')
@@ -516,6 +517,7 @@ class Distibot(object):
 
     def stop_body(self):
         self.stage = 'tail'
+        self.start_water()
         logging.debug('stage is "{}"'.format(self.stage))
         self.valve3way.way_3()
         self.send_msg("Закончилось тело", "Клапан выключен")
