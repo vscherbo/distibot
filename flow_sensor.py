@@ -90,7 +90,7 @@ if __name__ == "__main__":
             self.flow_timer.cancel()
             self.timers.remove(self.flow_timer)
 
-            self.flow_timer = threading.Timer(self.flow_period, self.release)
+            self.flow_timer = threading.Timer(self.flow_period, self.no_flow)
             self.timers.append(self.flow_timer)
             self.flow_timer.start()
 
