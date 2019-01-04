@@ -369,6 +369,7 @@ class Distibot(object):
     def start_process(self):
         self.cooker_on()
         self.stage = 'heat'
+        self.drop_timer.start()
         logging.debug('stage is "{}"'.format(self.stage))
 
     def stop_process(self):
