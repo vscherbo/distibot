@@ -215,10 +215,14 @@ class Distibot(object):
         logging.info("send_msg: subj={0}, msg='{1}'".format(
                                                      msg_subj, msg_body))
         msg_body = "{}: {}".format(time.strftime("%Y-%m-%d %H:%M"), msg_body)
-        try:
-            self.pb_channel.push_note(msg_subj, msg_body)
-        except Exception:
-            logging.exception('exception in send_msg', exc_info=True)
+        for i in range(1, 3):
+            try:
+                self.pb_channel.push_note(msg_subj, msg_body)
+            except Exception:
+                logging.exception('exception in send_msg', exc_info=True)
+                time.sleep(1)
+            else:
+                break
 
     def release(self):
         save_coord = open('{}/{}.dat'.format(self.outdir, self.dt_string), 'w')
@@ -269,6 +273,8 @@ class Distibot(object):
         except KeyError:
             t2 = 0
         self.print_str.append(str(t2))
+        self.print_str.append(str(self.flow_sensor.clicks))
+        self.print_str.append(str(self.flow_sensor.hertz))
         # self.print_str.append(str(self.tsensors.ts_data['condenser']))
         # logging.debug('ts_data={0}'.format(self.tsensors.ts_data))
         if self.csv_delay >= self.csv_write_period:
@@ -448,7 +454,8 @@ class Distibot(object):
             logging.info('flag_ignore_finish detected!')
         else:
             if 'heads' != self.stage:
-                logging.debug('NOT heads, stage="{}". Skipping'.format(self.stage))
+                logging.debug('NOT heads, stage="{}". Skipping'.
+                              format(self.stage))
                 pass
             else:
                 self.stage = 'body'
@@ -483,7 +490,7 @@ class Distibot(object):
             self.timers.append(self.flow_timer)
             self.flow_timer.start()
             self.flow_sensor.watch_flow(self.flow_detected)
-            logging.debug('water_on={}, flow_timer.is_alive={}'.format(
+            logging.info('water_on={}, flow_timer.is_alive={}'.format(
                           self.water_on, self.flow_timer.is_alive()))
 
     def drop_container(self):
@@ -526,18 +533,19 @@ class Distibot(object):
         self.flow_timer.cancel()
         self.timers.remove(self.flow_timer)
 
-        self.flow_sensor.handle_click()
-
         self.flow_timer = threading.Timer(self.flow_period, self.no_flow)
         self.timers.append(self.flow_timer)
         self.flow_timer.start()
+
+        self.flow_sensor.handle_click()
 
     def no_flow(self):
         logging.warning("Нет потока охлаждения \
         за flow_period={}, Аварийное отключение".format(self.flow_period))
         self.send_msg("Аварийное отключение", "Нет потока охлаждения")
-        self.stop_process()
-        self.release()
+        # temporary do not STOP
+        # self.stop_process()
+        # self.release()
 
     def finish(self):
         self.stop_process()
@@ -579,26 +587,32 @@ if __name__ == "__main__":
     # conf_file = prg_name +".conf"
 
     parser = argparse.ArgumentParser(description='Distibot module')
-    parser.add_argument('--conf', type=str, default="distibot.conf", help='conf file')
-    # parser.add_argument('--play', type=str, default="dib-test.json", help='play file')
-    parser.add_argument('--play', type=str, default="dib-debug.play", help='play file')
-    parser.add_argument('--log_to_file', type=bool, default=True, help='log destination')
-    parser.add_argument('--log_level', type=str, default="DEBUG", help='log level')
+    parser.add_argument('--conf', type=str, default="distibot.conf",
+                        help='conf file')
+    parser.add_argument('--play', type=str, default="dib-debug.play",
+                        help='play file')
+    parser.add_argument('--log_to_file', type=bool, default=True,
+                        help='log destination')
+    parser.add_argument('--log_level', type=str, default="DEBUG",
+                        help='log level')
     args = parser.parse_args()
 
     numeric_level = getattr(logging, args.log_level, None)
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: {0}'.format(numeric_level))
 
-    log_format = '[%(filename)-22s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
+    log_format = '[%(filename)-22s:%(lineno)4s - %(funcName)20s()] \
+            %(levelname)-7s | %(asctime)-15s | %(message)s'
     # log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
 
     if args.log_to_file:
         log_dir = ''
         log_file = log_dir + prg_name + ".log"
-        logging.basicConfig(filename=log_file, format=log_format, level=numeric_level)
+        logging.basicConfig(filename=log_file, format=log_format,
+                            level=numeric_level)
     else:
-        logging.basicConfig(stream=sys.stdout, format=log_format, level=numeric_level)
+        logging.basicConfig(stream=sys.stdout, format=log_format,
+                            level=numeric_level)
 
     # end of prolog
     logging.info('Started')
