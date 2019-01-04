@@ -46,7 +46,7 @@ class Flow_sensor(GPIO_DEV):
         # get the time delta
         self.clickDelta = max((currentTime - self.lastClick), 1)
         # calculate the instantaneous speed
-        self.hertz = self.MS_IN_A_SECOND / self.clickDelta
+        self.hertz = round(self.MS_IN_A_SECOND / self.clickDelta)
         self.flow = self.hertz / 700
         self.instPour = self.flow * (self.clickDelta / self.MS_IN_A_SECOND)
         self.thisPour += self.instPour
