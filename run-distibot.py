@@ -135,7 +135,7 @@ def ask_flow():
 def ask_temperature():
     if app.dib.loop_flag:
         # return "{0}".format(app.dib.tsensors.ts_data['boiler'])
-        return "Куб:{0}  Хол:{1}".format(app.dib.tsensors.ts_data['boiler'],
+        return "Куб:{0}   Хол:{1}".format(app.dib.tsensors.ts_data['boiler'],
                                          app.dib.tsensors.ts_data['condenser'])
 
 
