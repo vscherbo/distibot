@@ -26,7 +26,8 @@ class DistibotHTTPD(ServerAdapter):
 
     def stop(self):
         # self.server.server_close() <- alternative but causes fd exception
-        self.server.shutdown()
+        self.server.server_close()
+        # self.server.shutdown()
 
 # Static Routes
 
