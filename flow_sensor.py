@@ -93,10 +93,9 @@ if __name__ == "__main__":
             self.flow_timer.start()
 
             self.flow_sensor.handle_click()
-            logging.debug("flow_count={0} V={1} Pour={2}".format(
+            logging.debug("flow_count={0} FREQ={1}".format(
                           self.flow_sensor.clicks,
-                          self.flow_sensor.flow*3600,
-                          self.flow_sensor.thisPour))
+                          self.flow_sensor.hertz))
 
     gpio_fs = 11
     fst = FS_tester(gpio_fs, 5)
