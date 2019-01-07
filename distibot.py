@@ -219,7 +219,8 @@ class Distibot(object):
             try:
                 self.pb_channel.push_note(msg_subj, msg_body)
             except Exception:
-                logging.exception('exception in send_msg', exc_info=True)
+                logging.exception('exception in send_msg[{0}]'.format(i),
+                                  exc_info=True)
                 time.sleep(1)
             else:
                 break
