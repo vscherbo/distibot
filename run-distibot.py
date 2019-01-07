@@ -7,7 +7,7 @@ import argparse
 import sys
 import socket
 import signal
-import thread
+import threading
 
 # from bottle import Bottle
 # from bottle import route, run, debug, template, static_file, request, get
@@ -46,14 +46,14 @@ def signal_handler(signal, frame):
     global server
     global app
     logging.info('Catched signal {}'.format(signal))
-    app.dib.stop_process()
+    dib.stop_process()
     logging.info('after stop_process')
-    app.dib.release()
+    dib.release()
     logging.info('after dib.release')
-    app.close()
-    logging.info('after app.close')
     server.stop()
     logging.info('after server.stop')
+    app.close()
+    logging.info('after app.close')
 
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -66,7 +66,9 @@ dib.load_script(args.play)
 logging.debug('loaded script {0}.'.format(args.play))
 
 try:
-    thread.start_new_thread(dib.temperature_loop, ())
+    t_dib = threading.Thread(target=dib.temperature_loop)
+    t_dib.start()
+    # thread.start_new_thread(dib.temperature_loop, ())
 except Exception:
     logging.exception("Error: unable to start thread", exc_info=True)
 
@@ -131,11 +133,12 @@ def ask_flow():
         return "{0} об.  {1} Hz".format(app.dib.flow_sensor.clicks,
                                         app.dib.flow_sensor.hertz)
 
+
 @app.route('/ask_t')
 def ask_temperature():
     if app.dib.loop_flag:
         # return "{0}".format(app.dib.tsensors.ts_data['boiler'])
-        return "Куб:{0}   Хол:{1}".format(app.dib.tsensors.ts_data['boiler'],
+        return "Куб:{0}, Хол:{1}".format(app.dib.tsensors.ts_data['boiler'],
                                          app.dib.tsensors.ts_data['condenser'])
 
 
