@@ -149,7 +149,7 @@ class Distibot(object):
                                       timeout=1000)
 
         # self.flow_period = 10
-        self.flow_sensor = flow_sensor.Flow_sensor(gpio_fs=self.config.getint(
+        self.flow_sensor = flow_sensor.FlowSensor(gpio_fs=self.config.getint(
                                                           'flow_sensor',
                                                           'gpio_fs'))
         self.flow_period = self.config.getint('flow_sensor', 'flow_period')
