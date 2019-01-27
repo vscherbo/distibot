@@ -66,21 +66,25 @@ class DoubleValve(GPIO_DEV):
     def v1_turn_on(self):
         if not self.v1_on:
             GPIO.output(self.gpio_v1, GPIO.HIGH)
+            logging.info("DblValve v1_turn_on")
             self.v1_on = True
 
     def v1_turn_off(self):
         if self.v1_on:
             GPIO.output(self.gpio_v1, GPIO.LOW)
+            logging.info("DblValve v1_turn_off")
             self.v1_on = False
 
     def v2_turn_on(self):
         if not self.v2_on:
             GPIO.output(self.gpio_v2, GPIO.HIGH)
+            logging.info("DblValve v2_turn_on")
             self.v2_on = True
 
     def v2_turn_off(self):
         if self.v2_on:
             GPIO.output(self.gpio_v2, GPIO.LOW)
+            logging.info("DblValve v2_turn_off")
             self.v2_on = False
 
     def way_1(self):
