@@ -479,10 +479,12 @@ class Distibot(object):
         self.valve3way.way_1()
 
     def wait4body(self):
-        self.cooker_on()
+        # self.cooker_on()
+        self.cooker.set_power(1400)                                             
+        self.start_water()
         self.valve3way.way_2()
         self.stage = 'heat'
-        logging.debug('stage is "{}"'.format(self.stage))
+        logging.info('stage is "{}"'.format(self.stage))
 
     def start_water(self):
         if not self.water_on:
