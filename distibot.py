@@ -77,7 +77,7 @@ class Distibot(object):
         self.pause_start_ts = 0
         self.pause_limit = 180
         self.cooker_period = 3600
-        self.cooker_timeout = 10
+        self.cooker_timeout = 3
         self.drop_period = 3000
         self.drop_timeout = 15
         self.T_sleep = 1
