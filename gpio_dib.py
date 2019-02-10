@@ -30,9 +30,13 @@ class GPIO_DIB(object):
         GPIO.setmode(GPIO.BCM)
         logging.info('gpio_class initialized')
 
-    def setup(self, channel, mode, initial=None, pull_up_down=None):
+    def setup(self, channel, mode, initial=None, pull_up_down=GPIO.PUD_OFF):
         GPIO.setup(channel, mode, initial=initial, pull_up_down=pull_up_down)
-        self.gpio_list.append(channel)
+        logging.info('BEFORE append gpio_list=%s, channel=%s', self.gpio_list, channel)
+        if isinstance(channel, list):
+            self.gpio_list.extend(channel)
+        else:
+            self.gpio_list.append(channel)
         logging.info('gpio_list=%s', self.gpio_list)
 
     def output(self, channel, value):
