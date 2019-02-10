@@ -3,6 +3,7 @@
 
 from gpio_dev import GPIO_DEV, GPIO
 import logging
+import inspect
 
 
 class Valve(GPIO_DEV):
@@ -19,19 +20,34 @@ class Valve(GPIO_DEV):
         super(Valve, self).release()
 
     def default_way(self):
-        logging.info("valve.default_way")
+        stack = inspect.stack()
+        the_class = stack[1][0].f_locals["self"].__class__
+        the_method = stack[1][0].f_code.co_name
+        logging.info("called from method=%s.%s", the_class, the_method)
+        logging.info('gpio_state=%d, self.valve_default_way=%s', 
+                      GPIO.input(self.valve_gpio),
+                      self.valve_default_way)
         if self.valve_default_way:
-            pass
+            logging.info("Do nothing, already on default way")
         else:
             GPIO.output(self.valve_gpio, GPIO.LOW)
             self.valve_default_way = True
 
     def power_on_way(self):
-        logging.info("valve.power_on_way")
+        stack = inspect.stack()
+        the_class = stack[1][0].f_locals["self"].__class__
+        the_method = stack[1][0].f_code.co_name
+        logging.info("called from method=%s.%s", the_class, the_method)
+        logging.info('gpio_state=%d, self.valve_default_way=%s', 
+                      GPIO.input(self.valve_gpio),
+                      self.valve_default_way)
         if self.valve_default_way:
             GPIO.output(self.valve_gpio, GPIO.HIGH)
             self.valve_default_way = False
+        else:
+            logging.info("Do nothing, already power_on_way")
 
+    # create Demo class, move method to it
     def demo(self, sleep_time=2):
         logging.info("SingleValve power_on_way")
         v1.power_on_way()
@@ -58,8 +74,8 @@ class DoubleValve(GPIO_DEV):
         # super(DoubleValve, self).setup((gpio_v1, gpio_v2), GPIO.OUT, initial=GPIO.LOW)
 
     def release(self):
-        self.v1_turn_off()
-        self.v2_turn_off()
+        # forced set way_3: both valves are off
+        self.way_3(True)
         super(DoubleValve, self).release()
         logging.info("DblValve switched off")
 
@@ -70,6 +86,9 @@ class DoubleValve(GPIO_DEV):
             self.v1_on = True
 
     def v1_turn_off(self):
+        logging.info('gpio_state=%d, self.valve_default_way=%s', 
+                      GPIO.input(self.valve_gpio),
+                      self.valve_default_way)
         if self.v1_on:
             GPIO.output(self.gpio_v1, GPIO.LOW)
             logging.info("DblValve v1_turn_off")
@@ -92,19 +111,26 @@ class DoubleValve(GPIO_DEV):
             self.v1_turn_on()
             self.v2_turn_off()
             self.way = 1
+        else:
+            logging.info("Do nothing: DblValve is on way_1")
 
     def way_2(self):
         if not self.way == 2:
             self.v1_turn_off()
             self.v2_turn_on()
             self.way = 2
+        else:
+            logging.info("Do nothing: DblValve is on way_2")
 
-    def way_3(self):
-        if not self.way == 3:
+    def way_3(self, forced=True):
+        if forced or (not self.way == 3):
             self.v1_turn_off()
             self.v2_turn_off()
             self.way = 3
+        else:
+            logging.info("Do nothing: DblValve is on way_3")
 
+    # create Demo class, move method to it
     def demo(self, sleep_time=2):
         logging.info("way_1")
         v1.way_1()
@@ -143,8 +169,8 @@ if __name__ == "__main__":
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % numeric_level)
 
-    # log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
-    log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
+    log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)18s()] %(levelname)-7s\
+        | %(asctime)-15s | %(message)s'
 
     if args.log_to_file:
         log_dir = ''
