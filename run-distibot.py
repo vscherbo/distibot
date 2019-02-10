@@ -46,10 +46,11 @@ def signal_handler(signal, frame):
     global server
     global app
     logging.info('Catched signal {}'.format(signal))
-    dib.stop_process()
-    logging.info('after stop_process')
-    dib.release()
-    logging.info('after dib.release')
+    ### in main, finally section
+    # dib.stop_process()
+    # logging.info('after stop_process')
+    # dib.release()
+    # logging.info('after dib.release')
     server.stop()
     logging.info('after server.stop')
     app.close()
