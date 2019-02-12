@@ -31,6 +31,7 @@ keywords: Фотографии дистибота, скриншоты веб-с�
 [![]({{ site.baseurl }}/gallery/distibot-2-pcb-2-small.jpg)]({{ site.baseurl }}/gallery/distibot-2-pcb-2.jpg "Печатная плата Дистибот-2, дорожки")
 
 * __Видео__  
+[![](https://img.youtube.com/vi/1DVAEUIRZJs/0.jpg)](http://www.youtube.com/watch?feature=player-embedded&v=1DVAEUIRZJs "Дистибот проводит покапельный отбор "голов""){:target="-blank"}
 [![](https://img.youtube.com/vi/NM50EDFDwC4/0.jpg)](http://www.youtube.com/watch?feature=player-embedded&v=NM50EDFDwC4 "Дистибот управляет индукционной плиткой, часть 1/2"){:target="-blank"}
 [![](https://img.youtube.com/vi/Xp3yWm6DmFE/0.jpg)](http://www.youtube.com/watch?feature=player-embedded&v=Xp3yWm6DmFE "Дистибот управляет индукционной плиткой, часть 2/2"){:target="-blank"}
 
