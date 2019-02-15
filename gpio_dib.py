@@ -32,7 +32,8 @@ class GPIO_DIB(object):
 
     def setup(self, channel, mode, initial=None, pull_up_down=GPIO.PUD_OFF):
         GPIO.setup(channel, mode, initial=initial, pull_up_down=pull_up_down)
-        logging.info('BEFORE append gpio_list=%s, channel=%s', self.gpio_list, channel)
+        logging.info('BEFORE append gpio_list=%s, channel=%s',
+                     self.gpio_list, channel)
         if isinstance(channel, list):
             self.gpio_list.extend(channel)
         else:
@@ -46,7 +47,8 @@ class GPIO_DIB(object):
     def release(self):
         if self.gpio_list is not None:
             GPIO.cleanup(self.gpio_list)
-            s = "cleaned gpio_list=[" + ', '.join(['{}']*len(self.gpio_list)) + "]"
+            s = "cleaned gpio_list=["
+            + ', '.join(['{}']*len(self.gpio_list)) + "]"
             logging.info(s.format(*self.gpio_list))
             logging.info('gpio_class released')
 
@@ -55,12 +57,14 @@ if __name__ == "__main__":
     import os
     import sys
     log_dir = ''
-    log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
+    log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] \
+            %(levelname)-7s | %(asctime)-15s | %(message)s'
 
     (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
-    # logging.basicConfig(filename=prg_name+'.log', format=log_format, level=logging.INFO)
-    logging.basicConfig(stream=sys.stdout, format=log_format, level=logging.DEBUG)
-
+    # logging.basicConfig(filename=prg_name+'.log', \
+    #        format=log_format, level=logging.INFO)
+    logging.basicConfig(stream=sys.stdout, format=log_format,
+                        level=logging.DEBUG)
 
     logging.info('Started')
     g1 = GPIO_DIB()
