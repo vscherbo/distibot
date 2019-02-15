@@ -24,9 +24,11 @@ class Valve(GPIO_DEV):
         the_class = stack[1][0].f_locals["self"].__class__
         the_method = stack[1][0].f_code.co_name
         logging.info("called from method=%s.%s", the_class, the_method)
-        logging.info('gpio_state=%d, self.valve_default_way=%s', 
-                      GPIO.input(self.valve_gpio),
-                      self.valve_default_way)
+        gpio_state = GPIO.input(self.valve_gpio)
+        logging.info('gpio_state=%d, self.valve_default_way=%s',
+                     gpio_state,
+                     self.valve_default_way)
+        # if (gpio_state == GPIO.HIGH) and self.valve_default_way:
         if self.valve_default_way:
             logging.info("Do nothing, already on default way")
         else:
@@ -38,9 +40,10 @@ class Valve(GPIO_DEV):
         the_class = stack[1][0].f_locals["self"].__class__
         the_method = stack[1][0].f_code.co_name
         logging.info("called from method=%s.%s", the_class, the_method)
-        logging.info('gpio_state=%d, self.valve_default_way=%s', 
-                      GPIO.input(self.valve_gpio),
-                      self.valve_default_way)
+        gpio_state = GPIO.input(self.valve_gpio)
+        logging.info('gpio_state=%d, self.valve_default_way=%s',
+                     gpio_state,
+                     self.valve_default_way)
         if self.valve_default_way:
             GPIO.output(self.valve_gpio, GPIO.HIGH)
             self.valve_default_way = False
