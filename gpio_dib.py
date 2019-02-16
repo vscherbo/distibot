@@ -5,6 +5,7 @@
 Class for GPIO devices
 """
 
+import inspect
 
 import imp
 try:
@@ -20,6 +21,7 @@ except ImportError:
 
 import logging
 
+GPIO_LEVEL = {False: 'LOW', True: 'HIGH'}
 
 class GPIO_DIB(object):
 
@@ -42,7 +44,13 @@ class GPIO_DIB(object):
 
     def output(self, channel, value):
         GPIO.output(channel, value)
-        logging.info('OUTPUT channel=%s, value=%s', channel, value)
+        logging.info('OUTPUT channel=%s, value=%s', channel, GPIO_LEVEL[value])
+
+    def call_log(self):
+        stack = inspect.stack()
+        the_class = stack[1][0].f_locals["self"].__class__
+        the_method = stack[1][0].f_code.co_name
+        logging.info("called %s.%s", the_class, the_method)
 
     def release(self):
         if self.gpio_list is not None:
