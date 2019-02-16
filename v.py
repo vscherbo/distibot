@@ -3,7 +3,6 @@
 
 from gpio_dib import GPIO_DIB, GPIO
 import logging
-import inspect
 
 
 class Valve(GPIO_DIB):
@@ -18,9 +17,6 @@ class Valve(GPIO_DIB):
         self.output(self.valve_gpio, GPIO.LOW)
         super(Valve, self).release()
 
-    def output(self, channel, value):
-        super(Valve, self).output(channel, value)
-
     @property
     def default_way(self):
         """ Returns True if valve is switched off (default way)."""
@@ -28,36 +24,36 @@ class Valve(GPIO_DIB):
         return not GPIO.input(self.valve_gpio)
 
     def switch_off(self):
-        stack = inspect.stack()
-        the_class = stack[1][0].f_locals["self"].__class__
-        the_method = stack[1][0].f_code.co_name
-        logging.info("called from method=%s.%s", the_class, the_method)
+        self.call_log()
         logging.info('self.default_way=%s', 
                       self.default_way)
         if self.default_way:
-            logging.info("Do nothing, already on default way")
+            logging.info("=== Do nothing, already on default way")
         else:
             self.output(self.valve_gpio, GPIO.LOW)
 
     def power_on_way(self):
-        stack = inspect.stack()
-        the_class = stack[1][0].f_locals["self"].__class__
-        the_method = stack[1][0].f_code.co_name
-        logging.info("called from method=%s.%s", the_class, the_method)
+        self.call_log()
         logging.info('self.default_way=%s', 
                       self.default_way)
         if self.default_way:
             self.output(self.valve_gpio, GPIO.HIGH)
         else:
-            logging.info("Do nothing, already power_on_way")
+            logging.info("=== Do nothing, already power_on_way")
 
     # create Demo class
     def demo(self, sleep_time=2):
-        logging.info("SingleValve power_on_way")
+        logging.info("SingleValve before power_on_way")
         v1.power_on_way()
+        logging.info("SingleValve before 2nd power_on_way")
+        v1.power_on_way()
+
         sleep(sleep_time)
 
-        logging.info("SingleValve default_way")
+        logging.info("SingleValve before switch_off")
+        v1.switch_off()
+
+        logging.info("SingleValve before 2nd switch_off")
         v1.switch_off()
 
 
@@ -137,22 +133,22 @@ class DoubleValve(GPIO_DIB):
 
     # create Demo class, move method to it
     def demo(self, sleep_time=2):
-        #logging.info("way_1")
-        #v1.way_1()
-        #sleep(sleep_time)
+        logging.info("way_1")
+        v1.way_1()
+        sleep(sleep_time)
 
         logging.info("way_2")
         v1.way_2()
         sleep(sleep_time)
 
         # default way, both valves are off
-        #logging.info("way_3")
-        #v1.way_3()
-        #sleep(sleep_time)
+        logging.info("way_3")
+        v1.way_3()
+        sleep(sleep_time)
 
-        #logging.info("way_1 again")
-        #v1.way_1()
-        #sleep(sleep_time)
+        logging.info("way_1 again")
+        v1.way_1()
+        sleep(sleep_time)
 
 
 if __name__ == "__main__":
@@ -191,8 +187,8 @@ if __name__ == "__main__":
 
     ports = args.ports.split(",")
     if len(ports) > 1:
-        v_port1 = int(ports[0])  # 23
-        v_port2 = int(ports[1])  # 24
+        v_port1 = int(ports[0])
+        v_port2 = int(ports[1])
         logging.debug('DoubleValve port1={0}, port2={1}'.format(v_port1, v_port2))
         v1 = DoubleValve(gpio_v1=v_port1, gpio_v2=v_port2)
     else:
