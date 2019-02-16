@@ -47,8 +47,7 @@ class GPIO_DIB(object):
     def release(self):
         if self.gpio_list is not None:
             GPIO.cleanup(self.gpio_list)
-            s = "cleaned gpio_list=["
-            + ', '.join(['{}']*len(self.gpio_list)) + "]"
+            s = "cleaned gpio_list=[" + ', '.join(['{}']*len(self.gpio_list)) + "]"
             logging.info(s.format(*self.gpio_list))
             logging.info('gpio_class released')
 

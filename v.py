@@ -10,59 +10,61 @@ class Valve(GPIO_DIB):
 
     def __init__(self, valve_gpio):
         super(Valve, self).__init__()
-        self.valve_default_way = True
         self.valve_gpio = valve_gpio
         self.gpio_list.append(valve_gpio)
         GPIO.setup(self.valve_gpio, GPIO.OUT, initial=GPIO.LOW)
 
     def release(self):
-        self.default_way()
+        self.output(self.valve_gpio, GPIO.LOW)
         super(Valve, self).release()
 
+    def output(self, channel, value):
+        super(Valve, self).output(channel, value)
+
+    @property
     def default_way(self):
+        """ Returns True if valve is switched off (default way)."""
+        # LOW=0=False
+        return not GPIO.input(self.valve_gpio)
+
+    def switch_off(self):
         stack = inspect.stack()
         the_class = stack[1][0].f_locals["self"].__class__
         the_method = stack[1][0].f_code.co_name
         logging.info("called from method=%s.%s", the_class, the_method)
-        logging.info('gpio_state=%d, self.valve_default_way=%s', 
-                      GPIO.input(self.valve_gpio),
-                      self.valve_default_way)
-        if self.valve_default_way:
+        logging.info('self.default_way=%s', 
+                      self.default_way)
+        if self.default_way:
             logging.info("Do nothing, already on default way")
         else:
-            GPIO.output(self.valve_gpio, GPIO.LOW)
-            self.valve_default_way = True
+            self.output(self.valve_gpio, GPIO.LOW)
 
     def power_on_way(self):
         stack = inspect.stack()
         the_class = stack[1][0].f_locals["self"].__class__
         the_method = stack[1][0].f_code.co_name
         logging.info("called from method=%s.%s", the_class, the_method)
-        logging.info('gpio_state=%d, self.valve_default_way=%s', 
-                      GPIO.input(self.valve_gpio),
-                      self.valve_default_way)
-        if self.valve_default_way:
-            GPIO.output(self.valve_gpio, GPIO.HIGH)
-            self.valve_default_way = False
+        logging.info('self.default_way=%s', 
+                      self.default_way)
+        if self.default_way:
+            self.output(self.valve_gpio, GPIO.HIGH)
         else:
             logging.info("Do nothing, already power_on_way")
 
-    # create Demo class, move method to it
+    # create Demo class
     def demo(self, sleep_time=2):
         logging.info("SingleValve power_on_way")
         v1.power_on_way()
         sleep(sleep_time)
 
         logging.info("SingleValve default_way")
-        v1.default_way()
+        v1.switch_off()
 
 
 class DoubleValve(GPIO_DIB):
 
     def __init__(self, gpio_v1, gpio_v2):
         super(DoubleValve, self).__init__()
-        self.v1_on = False
-        self.v2_on = False
         self.way = 3
         # TODO check initial values
         self.gpio_v1 = gpio_v1
@@ -77,29 +79,37 @@ class DoubleValve(GPIO_DIB):
         super(DoubleValve, self).release()
         logging.info("DblValve switched off")
 
+    @property
+    def v1_on(self):
+        """ Returns True if v1 is switched on."""
+        # HIGH=1=True
+        return GPIO.input(self.gpio_v1)
+
+    @property
+    def v2_on(self):
+        """ Returns True if v2 is switched on."""
+        # HIGH=1=True
+        return GPIO.input(self.gpio_v2)
+
     def v1_turn_on(self):
         if not self.v1_on:
             super(DoubleValve, self).output(self.gpio_v1, GPIO.HIGH)
             logging.info("DblValve v1_turn_on")
-            self.v1_on = True
 
     def v1_turn_off(self):
         if self.v1_on:
             super(DoubleValve, self).output(self.gpio_v1, GPIO.LOW)
             logging.info("DblValve v1_turn_off")
-            self.v1_on = False
 
     def v2_turn_on(self):
         if not self.v2_on:
             super(DoubleValve, self).output(self.gpio_v2, GPIO.HIGH)
             logging.info("DblValve v2_turn_on")
-            self.v2_on = True
 
     def v2_turn_off(self):
         if self.v2_on:
             super(DoubleValve, self).output(self.gpio_v2, GPIO.LOW)
             logging.info("DblValve v2_turn_off")
-            self.v2_on = False
 
     def way_1(self):
         if not self.way == 1:
