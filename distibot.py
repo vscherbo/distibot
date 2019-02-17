@@ -514,7 +514,7 @@ class Distibot(object):
         self.drop_timer.cancel()
         self.timers.remove(self.drop_timer)
 
-        self.valve_drop.default_way()
+        self.valve_drop.switch_off()
         logging.debug('drop is off')
         self.send_msg("Сухопарник закрыт", "Клапан сброса отключён")
 

@@ -13,20 +13,16 @@ class Cooker(GPIO_DEV):
     def __init__(self, gpio_on_off, gpio_up, gpio_down, gpio_special, powers, init_power, special_power, do_init_special):
         super(Cooker, self).__init__()
         self.gpio_on_off = gpio_on_off
-        self.gpio_list.append(gpio_on_off)
-        GPIO.setup(self.gpio_on_off, GPIO.OUT, initial=GPIO.LOW)
+        self.setup(self.gpio_on_off, GPIO.OUT, initial=GPIO.LOW)
         #
         self.gpio_up = gpio_up
-        self.gpio_list.append(gpio_up)
-        GPIO.setup(self.gpio_up, GPIO.OUT, initial=GPIO.LOW)
+        self.setup(self.gpio_up, GPIO.OUT, initial=GPIO.LOW)
         #
         self.gpio_down = gpio_down
-        self.gpio_list.append(gpio_down)
-        GPIO.setup(self.gpio_down, GPIO.OUT, initial=GPIO.LOW)
+        self.setup(self.gpio_down, GPIO.OUT, initial=GPIO.LOW)
         #
         self.gpio_special = gpio_special
-        self.gpio_list.append(gpio_special)
-        GPIO.setup(self.gpio_special, GPIO.OUT, initial=GPIO.LOW)
+        self.setup(self.gpio_special, GPIO.OUT, initial=GPIO.LOW)
         #
         self.click_delay = 0.5
         self.state_on = False
@@ -48,18 +44,20 @@ class Cooker(GPIO_DEV):
         #    self.power_index = self.ini_power_index
 
     def release(self):
+        self.call_log()
         logging.info("cooker.release")
         self.switch_off()
         super(Cooker, self).release()
 
     def click_button(self, gpio_port_num):
         time.sleep(self.click_delay)  # для двух "нажатий" подряд
-        GPIO.output(gpio_port_num, 1)
+        self.output(gpio_port_num, GPIO.HIGH)
         time.sleep(self.click_delay)
-        GPIO.output(gpio_port_num, 0)
-        logging.debug('clicked port={gpio}'.format(gpio=gpio_port_num))
+        self.output(gpio_port_num, GPIO.LOW)
+        # logging.debug('clicked port={gpio}'.format(gpio=gpio_port_num))
 
     def switch_on(self, power_value=None):
+        self.call_log()
         if not self.state_on:
             self.click_button(self.gpio_on_off)
             self.power_index = self.ini_power_index
@@ -76,6 +74,7 @@ class Cooker(GPIO_DEV):
             self.do_init_special = False
 
     def switch_off(self):
+        self.call_log()
         if self.state_on:
             logging.info("switch_OFF")
             self.click_button(self.gpio_on_off)

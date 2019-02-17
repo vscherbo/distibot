@@ -13,7 +13,7 @@ RPIO.setmode(RPIO.BCM)
 
 v1 = valve.Valve(gpio_1_2 = 23)
 print('default')
-v1.default_way()
+v1.switch_off()
 time.sleep(3)
 
 print('power_on')
