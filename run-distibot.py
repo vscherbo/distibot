@@ -171,9 +171,12 @@ def plot():
                             width=900, height=600,
                             margin=margin
                             )
-        scatter = [pgo.Scatter(x=app.dib.coord_time, y=app.dib.coord_temp),
+        scatter = [pgo.Scatter(x=app.dib.coord_time,
+                               y=app.dib.coord_temp
+                               name='Куб'),
                    pgo.Scatter(x=app.dib.coord_time,
-                               y=app.dib.coord_temp_condenser)]
+                               y=app.dib.coord_temp_condenser,
+                               name='Хол')]
         div_plot = plotly.offline.plot({"data": scatter, "layout": layout},
                                        show_link=False, output_type='div')
         return div_plot
