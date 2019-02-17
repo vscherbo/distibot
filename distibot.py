@@ -170,21 +170,13 @@ class Distibot(object):
             self.config.readfp(io.BytesIO(dib_config))
 
     def load_script(self, play_filename):
-        """
-        script = open(play_filename, 'r')
-        self.Tsteps = \
-                collections.OrderedDict(sorted(eval(script.read()).items(),
-                                              key=lambda t: t[0]))
-        script.close()
-        """
-
         with open(play_filename, 'r') as script:
             self.Tsteps = collections.OrderedDict(sorted(eval(
                                                   script.read()).items(),
                                                   key=lambda t: t[0])
                                                   )
         self.set_Tsteps()
-        # TODO check methods existance and so on
+        # TODO check methods existance
 
     """
     def load_jscript(self, play_filename):
@@ -485,6 +477,9 @@ class Distibot(object):
         self.valve3way.way_2()
         self.stage = 'heat'
         logging.info('stage is "{}"'.format(self.stage))
+
+    def set_stage_body(self):
+        self.stage = 'body'
 
     def start_water(self):
         if not self.water_on:
