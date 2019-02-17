@@ -553,6 +553,7 @@ class Distibot(object):
 
     def finish(self):
         self.stop_process()
+        self.release()
 
 
 if __name__ == "__main__":
