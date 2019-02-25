@@ -1,108 +1,138 @@
-#!/usr/bin/python -t
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+import time
 import collections
-import sys
+import ConfigParser
+import io
+import logging
 
-class Moonshine_controller(object):
+import inspect
 
-    def __init__(self, log):
-        self.log = log
-        self.Tsteps = collections.OrderedDict()
+class Distibot(object):
 
-    def load_config(self, conf_file_name):
-        conf = open(conf_file_name, 'r')
-        # self.Tsteps = collections.OrderedDict(sorted(eval(conf.read()).items(), key=lambda t: t[0]))
-        self.conf_dict = collections.OrderedDict(sorted(eval(conf.read()).items(), key=lambda t: t[0]))
-        conf.close()
-        # self.set_Tsteps(self.Tsteps)
+    def __init__(self, conf_filename='distibot.conf'):
+        logging.getLogger(__name__).addHandler(logging.NullHandler())
+        self.parse_conf(conf_filename)                                          
+        self.outdir = 'output'  # TODO config
 
-    def set_Tsteps(self, Tsteps):
-        self.Tkeys = Tsteps.keys()
-        self.Talarm = self.Tkeys.pop(0)
-        self.Tcmd = Tsteps.pop(self.Talarm)
+        self.loop_flag = True
+
+    def call_log(self):
+        stack = inspect.stack()
+        the_class = stack[1][0].f_locals["self"].__class__
+        the_method = stack[1][0].f_code.co_name
+        logging.info("called %s.%s", the_class, the_method)
+
+    def parse_conf(self, conf_filename):                                        
+        # Load and parse the conf file                                          
+        with open(conf_filename) as f:                                          
+            dib_config = f.read()                                               
+            self.config = ConfigParser.RawConfigParser(allow_no_value=True)     
+            self.config.readfp(io.BytesIO(dib_config))                          
+
+    def load_script(self, play_filename):
+        with open(play_filename, 'r') as script:
+            self.Tsensors = collections.OrderedDict(sorted(eval(
+                                                  script.read()).items(),
+                                                  key=lambda t: t[0])
+                                                  )
+        logging.info('Tsensors=%s', self.Tsensors)
+        self.Tsteps = self.Tsensors['boiler']
+        self.Tsteps_condenser = self.Tsensors['condenser']
+        self.set_Tsteps()
+        # TODO check methods existance and so on
+
+
+    def set_Tsteps(self):
+        self.Tkeys = self.Tsteps.keys()
+        logging.debug('Tkeys=%s', self.Tkeys)
+
+        self.Tstage = self.Tkeys.pop(0)
+        self.Tcmd = self.Tsteps.pop(self.Tstage)
+        logging.debug('Tsteps=%s', self.Tsteps)
 
     def start_process(self):
-        print "start_process"
+        self.call_log()
 
     def start_watch_heads(self):
-        print "start_watch_heads"
+        self.call_log()
 
     def stop_body(self):
-        print "stop_body"
-
-    def heat_on_pause(self):
-        print "heat_on_pause"
-
-    def start_watch_temperature(self):
-        print "start_watch_temperature"
+        self.call_log()
 
     def finish(self):
-        print "finish"
-
-    def do_nothing(self):
-        print "do_nothing"
-
-    def emergency_finish(self):
-        print "emergency_finish"
-
-    def send_msg(self, msg):
-        print "send_msg={0}".format(msg)
-
-    def set_power(self, power):
-        print "set_power={0}".format(power)
-
-mshinectl = Moonshine_controller(None)
-
-"""
-Tsteps = collections.OrderedDict()
-
-inf = open('myfile.txt','r')
-# dict_from_file = eval(inf.read())
-Tsteps = collections.OrderedDict(sorted(eval(inf.read()).items(), key=lambda t: t[0]))
-inf.close()
-"""
-mshinectl.load_config('dib-test.play2')
-
-print "=== conf_dict"
-print len(mshinectl.conf_dict)
-print mshinectl.conf_dict.keys()
-
-for key,val in mshinectl.conf_dict.iteritems():
-    print 'key={0}\n'.format(key)
-    val_ordered = collections.OrderedDict(sorted(val.iteritems(), key=lambda t: t[0]))
-    for k1, v1 in val_ordered.iteritems():
-        if 'tuple' == type(v1).__name__:
-            for k2, v2 in enumerate(v1):
-                print '      k1={0}, k2={1}, v2={2}\n'.format(k1, k2, v2.__name__)
-        else:
-            print '   k1={0}, v1={1}\n'.format(k1, v1.__name__)
-
-sys.exit(0)
-
-print "=== Tsteps"
-print mshinectl.Tsteps
-
-Tkeys = mshinectl.Tsteps.keys()
-print "=== Tkeys"
-print Tkeys
+        self.call_log()
 
 
-Talarm = Tkeys.pop(0)
-Tcmd = mshinectl.Tsteps.pop(Talarm)
+if __name__ == "__main__":
+    import argparse
+    import os
+    import sys
+    import signal
 
-import time
+    def dib_stop():
+        global dib
+        dib.stop_process()
+        logging.info('after stop_process')
+        dib.release()
+        logging.info('after dib.release')
 
+    def signal_handler(signal, frame):
+        logging.info('Catched signal {}'.format(signal))
+        dib_stop()
 
-while True:
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGHUP, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGUSR1, signal_handler)
 
-    Tcmd()
-    # self.function(*self.args, **self.kwargs)
-    try:
-        Talarm = Tkeys.pop(0)
-    except IndexError:
-        Talarm = 999.0
-        break
+    def segv_handler(signal, frame):
+        logging.info('Catched signal {}'.format(signal))
+        logging.info('frame.f_locals={}'.format(frame.f_locals))
+        logging.info('frame: filename={}, function={}, line_no={}'.format(
+                      frame.f_code.co_filename,
+                      frame.f_code.co_name, frame.f_lineno))
+        dib_stop()
 
-    Tcmd = mshinectl.Tsteps.pop(Talarm, mshinectl.do_nothing)
-    time.sleep(2)
+    signal.signal(signal.SIGSEGV, segv_handler)
+
+    (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
+    # conf_file = prg_name +".conf"
+
+    parser = argparse.ArgumentParser(description='Distibot module')
+    parser.add_argument('--conf', type=str, default="distibot.conf",
+                        help='conf file')
+    parser.add_argument('--play', type=str, default="dib-debug.play",
+                        help='play file')
+    parser.add_argument('--log_to_file', type=bool, default=False,
+                        help='log destination')
+    parser.add_argument('--log_level', type=str, default="DEBUG",
+                        help='log level')
+    args = parser.parse_args()
+
+    numeric_level = getattr(logging, args.log_level, None)
+    if not isinstance(numeric_level, int):
+        raise ValueError('Invalid log level: {0}'.format(numeric_level))
+
+    log_format = '[%(filename)-22s:%(lineno)4s - %(funcName)20s()] \
+            %(levelname)-7s | %(asctime)-15s | %(message)s'
+    # log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
+
+    if args.log_to_file:
+        log_dir = ''
+        log_file = log_dir + prg_name + ".log"
+        logging.basicConfig(filename=log_file, format=log_format,
+                            level=numeric_level)
+    else:
+        logging.basicConfig(stream=sys.stdout, format=log_format,
+                            level=numeric_level)
+
+    # end of prolog
+    logging.info('Started')
+
+    dib = Distibot(conf_filename=args.conf)
+    dib.load_script(args.play)
+
+    logging.info('Exit')
