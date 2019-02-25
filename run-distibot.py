@@ -172,7 +172,7 @@ def plot():
                             margin=margin
                             )
         scatter = [pgo.Scatter(x=app.dib.coord_time,
-                               y=app.dib.coord_temp
+                               y=app.dib.coord_temp,
                                name='Куб'),
                    pgo.Scatter(x=app.dib.coord_time,
                                y=app.dib.coord_temp_condenser,
