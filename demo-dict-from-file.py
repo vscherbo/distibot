@@ -1,8 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import time
 import collections
 import ConfigParser
 import io
@@ -10,11 +9,15 @@ import logging
 
 import inspect
 
+
 class Distibot(object):
+    """
+    A stub distibot class
+    """
 
     def __init__(self, conf_filename='distibot.conf'):
         logging.getLogger(__name__).addHandler(logging.NullHandler())
-        self.parse_conf(conf_filename)                                          
+        self.parse_conf(conf_filename)
         self.outdir = 'output'  # TODO config
 
         self.loop_flag = True
@@ -25,33 +28,35 @@ class Distibot(object):
         the_method = stack[1][0].f_code.co_name
         logging.info("called %s.%s", the_class, the_method)
 
-    def parse_conf(self, conf_filename):                                        
-        # Load and parse the conf file                                          
-        with open(conf_filename) as f:                                          
-            dib_config = f.read()                                               
-            self.config = ConfigParser.RawConfigParser(allow_no_value=True)     
-            self.config.readfp(io.BytesIO(dib_config))                          
+    def parse_conf(self, conf_filename):
+        # Load and parse the conf file
+        with open(conf_filename) as f:
+            dib_config = f.read()
+            self.config = ConfigParser.RawConfigParser(allow_no_value=True)
+            self.config.readfp(io.BytesIO(dib_config))
 
     def load_script(self, play_filename):
         with open(play_filename, 'r') as script:
             self.Tsensors = collections.OrderedDict(sorted(eval(
-                                                  script.read()).items(),
-                                                  key=lambda t: t[0])
+                                                    script.read()).items(),
+                                                    key=lambda t: t[0])
                                                   )
-        logging.info('Tsensors=%s', self.Tsensors)
+            logging.info('Tsensors=%s', self.Tsensors)
         self.Tsteps = self.Tsensors['boiler']
         self.Tsteps_condenser = self.Tsensors['condenser']
         self.set_Tsteps()
         # TODO check methods existance and so on
 
-
     def set_Tsteps(self):
         self.Tkeys = self.Tsteps.keys()
+        self.Tkeys_condenser = self.Tsteps_condenser.keys()
         logging.debug('Tkeys=%s', self.Tkeys)
+        logging.debug('Tkeys_condenser=%s', self.Tkeys_condenser)
 
         self.Tstage = self.Tkeys.pop(0)
         self.Tcmd = self.Tsteps.pop(self.Tstage)
         logging.debug('Tsteps=%s', self.Tsteps)
+        logging.debug('Tsteps_condenser=%s', self.Tsteps_condenser)
 
     def start_process(self):
         self.call_log()
