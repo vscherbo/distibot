@@ -1,7 +1,6 @@
 {
 0.0: self.start_process,
-82.0: self.heat_on_pause,
-83.0 : self.wait4body,
+73.0 : self.wait4body,
 94.5: self.stop_body,
 98.5: self.finish
 }
