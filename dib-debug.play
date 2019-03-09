@@ -1,6 +1,12 @@
+{'boiler':
 {
-0.0: self.start_process, # старт. Кэп, Вы с нами?!
-15.0: self.start_watch_heads, # включить датчик голов
-26.0: self.stop_body, # прекратить отбор тела, переключиться на отбор хвостов
-28.0: self.finish # финиш
+0.0: self.start_process,  # старт.
+94.5: self.stop_body,  # прекратить отбор тела, переключиться на отбор хвостов
+97.5: self.finish  # финиш
+},
+'condenser':
+{
+40.0: self.start_watch_heads,  # включить датчик голов и охлаждение
 }
+}
+
