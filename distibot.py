@@ -8,7 +8,6 @@ import ConfigParser
 import io
 import threading
 import logging
-# import jsontree
 
 from pushbullet import Pushbullet
 
@@ -177,25 +176,6 @@ class Distibot(object):
                                                   )
         self.set_Tsteps()
         # TODO check methods existance
-
-    """
-    def load_jscript(self, play_filename):
-        with open(play_filename, 'r') as script:
-            jt = jsontree.load(script)
-        self.Tsensors = jt['temperature_sensors']
-        self.Tplays = {}
-        self.Tsteps = {}
-        for p in jt['temperature_sensors']:
-            self.Tplays[p.id] = p.play
-            self.Tsteps[p.id] = [t for t in p.play]
-
-        script.close()
-        # self.set_Tsteps()
-        # TODO check methods existance and so on
-
-    def set_jsteps(self):
-        self.Tkeys = [t.temperature for t in dib.Tsteps['boiler']]
-    """
 
     def set_Tsteps(self):
         self.Tkeys = self.Tsteps.keys()
@@ -618,8 +598,6 @@ if __name__ == "__main__":
     logging.info('Started')
 
     dib = Distibot(conf_filename=args.conf)
-    # json dib.load_jscript(args.play)
-    # json b_play = dib.Tplays['boiler']
     dib.load_script(args.play)
     dib.temperature_loop()
 
