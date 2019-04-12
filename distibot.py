@@ -199,7 +199,7 @@ class Distibot(object):
 
     def release(self):
         save_coord = open('{}/{}.dat'.format(self.outdir, self.dt_string), 'w')
-        for i_time, i_temp in zip(self.coord_time, self.coord_temp):
+        for i_time, i_temp in zip(self.coord_time, self.coord_temp, self.coord_temp_condenser):
             save_str = '{}^{}\n'.format(i_time, i_temp)
             save_coord.write(save_str)
         save_coord.close()
@@ -314,7 +314,6 @@ class Distibot(object):
             except KeyError:
                 t2 = 0
             self.coord_temp_condenser.append(t2)
-            # self.coord_temp_condenser.append(self.tsensors.ts_data['condenser'])
 
             self.pause_monitor()
             self.decrease_monitor()
