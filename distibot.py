@@ -77,7 +77,7 @@ class Distibot(object):
         self.pause_limit = 180
         self.cooker_period = 3600
         self.cooker_timeout = 3
-        self.drop_period = 3000
+        self.drop_period = 4000
         self.drop_timeout = 15
         self.T_sleep = 1
         self.csv_delay = 0
@@ -396,8 +396,8 @@ class Distibot(object):
 
     def heat_for_heads(self):
         logging.debug('inside heat_for_heads')
-        # TODO 600 from config "power_for_heads"
-        self.cooker.set_power(600)
+        # TODO 800 from config "power_for_heads"
+        self.cooker.set_power(800)
         if 'heat' != self.stage:  # если и так фаза нагрева, выходим
             self.stage = 'heat'
             logging.debug('stage is "{}"'.format(self.stage))
@@ -445,7 +445,7 @@ class Distibot(object):
     def start_watch_heads(self):
         logging.debug('inside start_watch_heads')
         self.start_water()
-        self.cooker.set_power(300)
+        self.cooker.set_power(800)
         self.heads_sensor.watch_start(self.heads_started)
         self.valve3way.way_1()
 
