@@ -47,10 +47,10 @@ def signal_handler(signal, frame):
     global app
     logging.info('Catched signal {}'.format(signal))
     ### in main, finally section
-    # dib.stop_process()
-    # logging.info('after stop_process')
-    # dib.release()
-    # logging.info('after dib.release')
+    dib.stop_process()
+    logging.info('after stop_process')
+    dib.release()
+    logging.info('after dib.release')
     server.stop()
     logging.info('after server.stop')
     app.close()
@@ -196,10 +196,10 @@ except Exception:
     logging.exception('exception in app.run', exc_info=True)
 finally:
     logging.info("app.run finally")
-    dib.stop_process()
-    logging.info('finally after stop_process')
-    dib.release()
-    logging.info('finally after dib.release')
+    # dib.stop_process()
+    # logging.info('finally after stop_process')
+    # dib.release()
+    # logging.info('finally after dib.release')
 
 logging.info("Exiting!")
 sys.exit(0)
