@@ -1,6 +1,6 @@
 {
 0.0: self.start_process,
-70.0: self.start_watch_heads,
-94.5: self.stop_body,
-98.5: self.finish
+75.0: self.start_watch_heads,
+94.2: self.stop_body,
+98.2: self.finish
 }
