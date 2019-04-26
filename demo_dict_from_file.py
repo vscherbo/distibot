@@ -1,5 +1,9 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+"""
+    demo parse play script for 2 tempersture sensors
+"""   
+
 
 from __future__ import print_function
 import collections
@@ -37,26 +41,24 @@ class Distibot(object):
 
     def load_script(self, play_filename):
         with open(play_filename, 'r') as script:
-            self.Tsensors = collections.OrderedDict(sorted(eval(
-                                                    script.read()).items(),
-                                                    key=lambda t: t[0])
+            self.Tsteps = collections.OrderedDict(sorted(eval(
+                                                  script.read()).items(),
+                                                  key=lambda t: t[0])
                                                   )
-            logging.info('Tsensors=%s', self.Tsensors)
-        self.Tsteps = self.Tsensors['boiler']
-        self.Tsteps_condenser = self.Tsensors['condenser']
+        logging.debug('Tsteps=%s', self.Tsteps)
         self.set_Tsteps()
-        # TODO check methods existance and so on
 
     def set_Tsteps(self):
         self.Tkeys = self.Tsteps.keys()
-        self.Tkeys_condenser = self.Tsteps_condenser.keys()
         logging.debug('Tkeys=%s', self.Tkeys)
-        logging.debug('Tkeys_condenser=%s', self.Tkeys_condenser)
 
         self.Tstage = self.Tkeys.pop(0)
-        self.Tcmd = self.Tsteps.pop(self.Tstage)
-        logging.debug('Tsteps=%s', self.Tsteps)
-        logging.debug('Tsteps_condenser=%s', self.Tsteps_condenser)
+        logging.debug('Tstage[0]=%s', self.Tstage)
+        self.Tstep_current = self.Tsteps.pop(self.Tstage)
+        logging.debug('Tstep_current=%s', self.Tstep_current)
+        logging.debug('type(Tstep_current)=%s', type(self.Tstep_current))
+        #self.Tsensor, self.Tcmd = self.Tsteps[self.Tstage]
+        #logging.debug('Tsensor=%s, Tcmd=%s', self.Tsensor, self.Tcmd)
 
     def start_process(self):
         self.call_log()
