@@ -53,8 +53,8 @@ class Tsensors():
             time.sleep(0.5)
 
     def t_over(self, tlimit):
-        for ts_key, t in self.ts_data.iteritems():
-            if t > tlimit:
+        for ts_key, t_curr in self.ts_data.iteritems():
+            if t_curr > tlimit:
                 return True, ts_key
         return False, None
 
