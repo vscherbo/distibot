@@ -1,7 +1,7 @@
 {
 0.0: self.start_process,
-73.0 : self.wait4body,
+# hardcoded in distibot.py 78.0 : self.wait4body,
 85.0: self.set_stage_body, # только для иконки
-94.5: self.stop_body,
-98.5: self.finish
+94.0: self.stop_body,
+98.2: self.finish
 }

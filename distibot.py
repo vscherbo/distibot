@@ -187,22 +187,26 @@ class Distibot(object):
         logging.info("send_msg: subj={0}, msg='{1}'".format(
                                                      msg_subj, msg_body))
         msg_body = "{}: {}".format(time.strftime("%Y-%m-%d %H:%M"), msg_body)
-        for i in range(1, 3):
+        for i in range(1, 4):
             try:
                 self.pb_channel.push_note(msg_subj, msg_body)
             except Exception:
-                logging.exception('exception in send_msg[{0}]'.format(i),
-                                  exc_info=True)
+                logging.exception('exception in send_msg[{0}]'.format(i))
                 time.sleep(1)
             else:
                 break
 
-    def release(self):
+    def save_coord_file(self):
+        logging.debug('coordinates to save time=%s, boiler=%s, condenser=%s', 
+                      len(self.coord_time), len(self.coord_temp), len(self.coord_temp_condenser))
         save_coord = open('{}/{}.dat'.format(self.outdir, self.dt_string), 'w')
-        for i_time, i_temp in zip(self.coord_time, self.coord_temp, self.coord_temp_condenser):
-            save_str = '{}^{}\n'.format(i_time, i_temp)
+        for i_time, i_temp, i_temp_condenser in zip(self.coord_time, self.coord_temp, self.coord_temp_condenser):
+            save_str = '{}^{}^{}\n'.format(i_time, i_temp, i_temp_condenser)
             save_coord.write(save_str)
         save_coord.close()
+        logging.debug('coordinates saved')
+
+    def release(self):
         for t in self.timers:
             t.cancel()
         self.flow_sensor.release()
@@ -294,6 +298,10 @@ class Distibot(object):
                 self.send_msg("Сбой получения температуры",
                               "Требуется вмешательство")
 
+            # fast and dirty patch    
+            if self.valve3way.way != 2 and self.tsensors.ts_data['condenser'] > 40:
+                self.wait4body()
+
             if self.T_prev > 0:
                 if abs((self.tsensors.ts_data['boiler'] - self.T_prev)
                         / self.T_prev) > self.temperature_delta_limit:
@@ -341,7 +349,8 @@ class Distibot(object):
     def start_process(self):
         self.cooker_on()
         self.stage = 'heat'
-        self.drop_timer.start()
+        # moved to start_water()
+        # self.drop_timer.start()
         logging.debug('stage is "{}"'.format(self.stage))
 
     def stop_process(self):
@@ -350,6 +359,7 @@ class Distibot(object):
         self.stage = 'finish'  # before cooker_off!
         self.cooker_off()
         logging.debug('stage is "{}"'.format(self.stage))
+        self.save_coord_file()
 
     def cooker_off(self):
         self.cooker_timer.cancel()
@@ -454,7 +464,7 @@ class Distibot(object):
         self.cooker.set_power(1400)                                             
         self.start_water()
         self.valve3way.way_2()
-        self.stage = 'heat'
+        self.stage = 'body'
         logging.info('stage is "{}"'.format(self.stage))
 
     def set_stage_body(self):
@@ -468,6 +478,7 @@ class Distibot(object):
             self.timers.append(self.flow_timer)
             self.flow_timer.start()
             self.flow_sensor.watch_flow(self.flow_detected)
+            self.drop_timer.start()
             logging.info('water_on={}, flow_timer.is_alive={}'.format(
                           self.water_on, self.flow_timer.is_alive()))
 
@@ -526,6 +537,7 @@ class Distibot(object):
         # self.release()
 
     def finish(self):
+        logging.info('========== distibot.finish')
         self.stop_process()
         self.release()
 

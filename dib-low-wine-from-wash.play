@@ -1,6 +1,5 @@
 {
 0.0: self.start_process,
-81.0: self.heat_on_pause,
-82.5: self.start_process,
+65.0: self.start_water,
 98.5: self.finish
 }
