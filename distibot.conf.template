@@ -7,8 +7,7 @@ gpio_cooker_up=22
 gpio_cooker_down=27
 gpio_cooker_special=15
 init_special=True
-heads_power1=1000
-heads_power2=300
+power_for_heads=1000
 
 [tsensors]
 gpio_ts=4

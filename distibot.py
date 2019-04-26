@@ -118,6 +118,8 @@ class Distibot(object):
                              do_init_special=self.config.getboolean(
                                             'cooker', 'init_special')
                              )
+        self.power_for_heads = self.config.getint('cooker', 'power_for_heads')
+
         # self.cooker_current_power = self.cooker.current_power()
         self.cooker_current_power = None
 
@@ -406,8 +408,7 @@ class Distibot(object):
 
     def heat_for_heads(self):
         logging.debug('inside heat_for_heads')
-        # TODO 800 from config "power_for_heads"
-        self.cooker.set_power(800)
+        self.cooker.set_power(self.power_for_heads)
         if 'heat' != self.stage:  # если и так фаза нагрева, выходим
             self.stage = 'heat'
             logging.debug('stage is "{}"'.format(self.stage))
@@ -455,7 +456,7 @@ class Distibot(object):
     def start_watch_heads(self):
         logging.debug('inside start_watch_heads')
         self.start_water()
-        self.cooker.set_power(800)
+        self.cooker.set_power(self.power_for_heads)
         self.heads_sensor.watch_start(self.heads_started)
         self.valve3way.way_1()
 
