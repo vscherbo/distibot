@@ -1,5 +1,6 @@
 {
 0.0: self.start_process,
-65.0: self.start_water,
+# hardcoded in distibot.py
+# 65.0: self.start_water,
 98.5: self.finish
 }
