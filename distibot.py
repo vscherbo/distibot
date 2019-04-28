@@ -300,9 +300,13 @@ class Distibot(object):
                 self.send_msg("Сбой получения температуры",
                               "Требуется вмешательство")
 
-            # fast and dirty patch    
-            if self.valve3way.way != 2 and self.tsensors.ts_data['condenser'] > 40:
-                self.wait4body()
+            # fast and dirty patch for body_from_tails
+            #if self.valve3way.way != 2 and self.tsensors.ts_data['condenser'] > 40:
+            #    self.wait4body()
+            # fast and dirty patch for low_wine_from_wash
+            #if self.tsensors.ts_data['condenser'] > 40:
+            #    self.start_water()
+            #    ??? self.cooker.set_power(1400)
 
             if self.T_prev > 0:
                 if abs((self.tsensors.ts_data['boiler'] - self.T_prev)
