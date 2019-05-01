@@ -10,7 +10,6 @@ class Valve(GPIO_DEV):
     def __init__(self, valve_gpio):
         super(Valve, self).__init__()
         self.valve_gpio = valve_gpio
-        self.gpio_list.append(valve_gpio)
         self.setup(self.valve_gpio, GPIO.OUT, initial=GPIO.LOW)
 
     def release(self):
