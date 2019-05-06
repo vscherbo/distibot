@@ -157,6 +157,7 @@ class Distibot(object):
 
         self.pb = pb_wrap(self.config.get('pushbullet', 'api_key'))
         self.pb_channel = self.pb.get_channel()
+        self.coord = []
         self.coord_time = []
         self.coord_temp = []
         self.coord_temp_condenser = []
@@ -178,6 +179,27 @@ class Distibot(object):
                                                   )
         self.set_Tsteps()
         # TODO check methods existance
+
+    def load_play(self, play_filename):                                       
+        with open(play_filename, 'r') as script:                                
+            self.Tsteps = collections.OrderedDict(sorted(eval(                  
+                                                  script.read()).items(),       
+                                                  key=lambda t: t[0])           
+                                                  )                             
+        logging.debug('Tsteps=%s', self.Tsteps)                                 
+        self.parse_play()                                                       
+
+    def parse_play(self):                                                       
+        self.Tkeys = self.Tsteps.keys()                                         
+        logging.debug('Tkeys=%s', self.Tkeys)                                   
+                                                                                
+        self.Tstage = self.Tkeys.pop(0)                                         
+        logging.debug('Tstage[0]=%s', self.Tstage)                              
+        self.Tstep_current = self.Tsteps.pop(self.Tstage)                       
+        logging.debug('Tstep_current=%s', self.Tstep_current)                   
+        logging.debug('type(Tstep_current)=%s', type(self.Tstep_current))       
+        #self.Tsensor, self.Tcmd = self.Tsteps[self.Tstage]                     
+        #logging.debug('Tsensor=%s, Tcmd=%s', self.Tsensor, self.Tcmd)          
 
     def set_Tsteps(self):
         self.Tkeys = self.Tsteps.keys()
@@ -217,15 +239,6 @@ class Distibot(object):
         self.valve_water.release()
         self.valve_drop.release()
         self.heads_sensor.release()
-
-    def pause_monitor(self):
-        """ слежение за длительностью паузы
-        """
-        if 'pause' == self.stage:
-            if time.time()-self.pause_start_ts > self.pause_limit:
-                self.send_msg("Пауза превысила {}".format(
-                               self.pause_limit), "Включаю нагрев")
-                self.heat_for_heads()
 
     def decrease_monitor(self):
         """ слежение за снижением температуры
@@ -287,18 +300,14 @@ class Distibot(object):
         over_cnt = 0
         t_failed_cnt = 0
         while self.loop_flag:
-            try:
-                self.tsensors.get_t()
-                t_failed_cnt = 0
-            except BaseException:
-                t_failed_cnt += 1
-            else:
-                self.T_prev = self.tsensors.ts_data['boiler']
-
-            if t_failed_cnt > self.temperature_error_limit:
-                t_failed_cnt = 0
-                self.send_msg("Сбой получения температуры",
-                              "Требуется вмешательство")
+            if not self.tsensors.get_t():
+                self.send_msg("Аварийное отключение",
+                              "Сбой получения температуры, \
+t_failed_cnt={0}".format(self.tsensors.t_failed_cnt))
+                self.loop_flag = False
+                self.stop_process()
+                self.release()
+                continue
 
             # fast and dirty patch for body_from_tails
             #if self.valve3way.way != 2 and self.tsensors.ts_data['condenser'] > 40:
@@ -308,28 +317,11 @@ class Distibot(object):
             #    self.start_water()
             #    ??? self.cooker.set_power(1400)
 
-            if self.T_prev > 0:
-                if abs((self.tsensors.ts_data['boiler'] - self.T_prev)
-                        / self.T_prev) > self.temperature_delta_limit:
-                    # ignore, use prev value
-                    self.tsensors.ts_data['boiler'] = self.T_prev
-                    logging.warning('Over {:.0%} difference T_prev={},\
-                                     t_in_Cels={}'.
-                                    format(self.temperature_delta_limit,
-                                           self.T_prev,
-                                           self.tsensors.ts_data['boiler'])
-                                    )
-
             self.current_ts = time.localtime()
             self.coord_time.append(time.strftime("%H:%M:%S", self.current_ts))
             self.coord_temp.append(self.tsensors.ts_data['boiler'])
-            try:
-                t2 = self.tsensors.ts_data['condenser']
-            except KeyError:
-                t2 = 0
-            self.coord_temp_condenser.append(t2)
+            self.coord_temp_condenser.append(self.tsensors.ts_data['condenser'])
 
-            self.pause_monitor()
             self.decrease_monitor()
 
             if self.tsensors.ts_data['boiler'] > self.Tstage:
@@ -372,8 +364,10 @@ class Distibot(object):
         if self.cooker_timer in self.timers:
             self.timers.remove(self.cooker_timer)
 
-        self.cooker_current_power = self.cooker.current_power()
-        self.cooker.switch_off()
+        # TODO simplify
+        if self.cooker.power_index:
+            self.cooker_current_power = self.cooker.current_power()
+            self.cooker.switch_off()
 
         if self.stage == 'finish':
             loc_str = "Финиш"

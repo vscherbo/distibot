@@ -20,7 +20,9 @@ class Tsensor(object):
     def __init__(self, sensor_type=None, sensor_id=None):
         logging.getLogger(__name__).addHandler(logging.NullHandler())
         self.sensor_id = sensor_id
-        self.curr_T = 20
+        self.initial_T = 4
+        self.curr_T = 4
+        self.failed_cnt = 0
         if emu_mode:
             logging.warning('tsensor emulation mode')
         try:
@@ -31,26 +33,58 @@ class Tsensor(object):
             logging.error('w1thermsensor.core.KernelModuleLoadError', exc_info=True)
 
     def get_temperature(self, unit=w1thermsensor.W1ThermSensor.DEGREES_C):
-        loc_T = round(self.sensor.get_temperature(unit), 1)
-        # logging.debug('get_temperature loc_T={}'.format(loc_T))
+        try:
+            loc_T = round(self.sensor.get_temperature(unit), 1)
+        except BaseException:
+            self.failed_cnt += 1
+            # use current value
+            loc_T = self.curr_T
+        else:
+            self.failed_cnt = 0
+            if self.delta_over_limit(loc_T):
+                # ignore, use current value
+                loc_T = self.curr_T
+                logging.warning('Over {:.0%} difference curr_T={}, t_in_Cels={}'.format(delta_limit, self.curr_T, check_t))
+            else:
+                # save current T
+                self.curr_T = loc_T
         return loc_T
+
+    def delta_over_limit(self, check_t, delta_limit=0.3):
+        if self.curr_T == self.initial_T:
+            return False
+        else:
+            return abs((check_t - self.curr_T) / self.curr_T) > delta_limit
 
 
 class Tsensors():
+    temperature_error_limit = 3
     def __init__(self, config):
         # if config.has_section('tsensors'):
         ts_list = config.options('tsensors')
         self.ts_dict = {}
         self.ts_data = {}
+        self.ts_ids = []
         for ts in ts_list:
             res = re.match('^ts_(.*)_id$', ts)
             if res:
-                self.ts_dict[res.group(1)] = Tsensor(sensor_id=config.get('tsensors', ts))
+                # ID of T sensor, i.e. "boiler"
+                sensor_id = res.group(1)
+                self.ts_ids.append(sensor_id)
+                self.ts_dict[sensor_id] = Tsensor(sensor_id=config.get('tsensors', ts))
 
     def get_t(self):
-        for k in self.ts_dict.keys():
+        got_temp = True
+        # for k in self.ts_dict.keys():
+        for k in self.ts_ids:
             self.ts_data[k] = self.ts_dict[k].get_temperature()
-            time.sleep(0.5)
+            if self.ts_dict[k].failed_cnt > self.temperature_error_limit:
+                got_temp = False
+            time.sleep(0.1)
+        return got_temp
+
+    def current_t(self):
+        return [self.ts_data[k] for k in self.ts_ids]
 
     def t_over(self, tlimit):
         for ts_key, t_curr in self.ts_data.iteritems():
@@ -106,6 +140,7 @@ if __name__ == '__main__':
     config.readfp(io.BytesIO(dib_config))
     tsensors = Tsensors(config)
     tsensors.get_t()
+    logging.info('ts_ids=%s', tsensors.ts_ids)
 
     # TODO read from conf file
     Talarms = [31.0, 49.5, 65.9, 98.5, 999.9]  # debug
@@ -120,6 +155,7 @@ if __name__ == '__main__':
     loop_flag = True
     while loop_flag:
         tsensors.get_t()
+        logging.info('current_t=%s', tsensors.current_t())
         for ts_id, t in tsensors.ts_data.iteritems():
             logging.info('ts_id={0}, t={1}'.format(ts_id, t))
         (is_over, ts_id) = tsensors.t_over(Talarm)
