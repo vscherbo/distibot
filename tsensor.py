@@ -43,8 +43,11 @@ class Tsensor(object):
             self.failed_cnt = 0
             if self.delta_over_limit(loc_T):
                 # ignore, use current value
+                logging.warning('Over 30% difference curr_T={}, \
+                        new loc_T={}'.format(self.curr_T, loc_T))
+                # logging.warning('Over {:.0%} difference curr_T={}, \
+                #        new loc_T={}'.format(delta_limit, self.curr_T, loc_t))
                 loc_T = self.curr_T
-                logging.warning('Over {:.0%} difference curr_T={}, t_in_Cels={}'.format(delta_limit, self.curr_T, check_t))
             else:
                 # save current T
                 self.curr_T = loc_T
@@ -79,6 +82,7 @@ class Tsensors():
         for k in self.ts_ids:
             self.ts_data[k] = self.ts_dict[k].get_temperature()
             if self.ts_dict[k].failed_cnt > self.temperature_error_limit:
+                self.ts_dict[k].failed_cnt = 0
                 got_temp = False
             time.sleep(0.1)
         return got_temp
@@ -86,11 +90,14 @@ class Tsensors():
     def current_t(self):
         return [self.ts_data[k] for k in self.ts_ids]
 
-    def t_over(self, tlimit):
-        for ts_key, t_curr in self.ts_data.iteritems():
-            if t_curr > tlimit:
-                return True, ts_key
-        return False, None
+    def t_over(self, tsensor_id, tlimit):
+        # logging.debug('ts_data=%s', self.ts_data)
+        t_curr = self.ts_data[tsensor_id]
+        # logging.debug('tsensor_id=%s, t_curr=%s', tsensor_id, t_curr)
+        if t_curr >= tlimit:
+            logging.info('t_over: tsensor_id=%s, t_curr=%s >= tlimit=%s', tsensor_id, t_curr, tlimit)
+            return True
+        return False
 
 
 if __name__ == '__main__':
