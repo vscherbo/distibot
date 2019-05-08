@@ -192,8 +192,15 @@ class Distibot(object):
         for i in range(1, 4):
             try:
                 self.pb_channel.push_note(msg_subj, msg_body)
+            except OSError, e:
+                err_code, err_text = e
+                if err_code == 104:
+                    logging.warning('Connection reset by peer in send_msg[%d]', i)
+                else:
+                    logging.exception('exception in send_msg[%d]', i)
+                time.sleep(1)
             except Exception:
-                logging.exception('exception in send_msg[{0}]'.format(i))
+                logging.exception('exception in send_msg[%d]', i)
                 time.sleep(1)
             else:
                 break
@@ -286,6 +293,7 @@ class Distibot(object):
     def temperature_loop(self):
         over_cnt = 0
         t_failed_cnt = 0
+        patched = False
         while self.loop_flag:
             try:
                 self.tsensors.get_t()
@@ -300,13 +308,17 @@ class Distibot(object):
                 self.send_msg("Сбой получения температуры",
                               "Требуется вмешательство")
 
-            # fast and dirty patch for body_from_tails
+            ### fast and dirty patch for body_from_tails
             #if self.valve3way.way != 2 and self.tsensors.ts_data['condenser'] > 40:
             #    self.wait4body()
-            # fast and dirty patch for low_wine_from_wash
-            #if self.tsensors.ts_data['condenser'] > 40:
+            ### fast and dirty patch for low_wine_from_wash
+            # if self.tsensors.ts_data['condenser'] > 40:
             #    self.start_water()
             #    ??? self.cooker.set_power(1400)
+            ### fast and dirty patch for body_from_low_wine
+            if not patched and self.tsensors.ts_data['condenser'] > 40:
+                patched = True
+                self.start_watch_heads()
 
             if self.T_prev > 0:
                 if abs((self.tsensors.ts_data['boiler'] - self.T_prev)
