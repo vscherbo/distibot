@@ -30,7 +30,7 @@ class GPIO_DEV(object):
         logging.getLogger(__name__).addHandler(logging.NullHandler())
 
         GPIO.setmode(GPIO.BCM)
-        logging.info('gpio_class initialized')
+        logging.info('gpio_dev initialized')
 
     def setup(self, channel, mode, initial=None, pull_up_down=GPIO.PUD_OFF):
         GPIO.setup(channel, mode, initial=initial, pull_up_down=pull_up_down)
@@ -53,11 +53,12 @@ class GPIO_DEV(object):
         logging.info("called %s.%s", the_class, the_method)
 
     def release(self):
-        if self.gpio_list is not None:
+        if len(self.gpio_list) > 0:
             GPIO.cleanup(self.gpio_list)
             s = "cleaned gpio_list=[" + ', '.join(['{}']*len(self.gpio_list)) + "]"
             logging.info(s.format(*self.gpio_list))
-            logging.info('gpio_class released')
+            self.gpio_list = []
+            logging.info('gpio_dev released')
 
 
 if __name__ == "__main__":
