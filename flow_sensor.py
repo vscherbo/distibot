@@ -37,8 +37,8 @@ class FlowSensor(GPIO_DEV):
         self.this_pour = 0.0  # in Liters
         self.inst_pour = 0.0  # current flow
         self.gpio_fs = gpio_fs
-        self.gpio_list.append(gpio_fs)
-        logging.info('init flow-sensor GPIO_flow=%d', self.gpio_fs)
+        # self.gpio_list.append(gpio_fs)
+        #logging.info('init flow-sensor GPIO_flow=%d', self.gpio_fs)
 
     def release(self):
         GPIO.remove_event_detect(self.gpio_fs)
@@ -51,7 +51,7 @@ class FlowSensor(GPIO_DEV):
             flow_callback (function): callback for event
 
         """
-        GPIO.setup(self.gpio_fs, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        self.setup(self.gpio_fs, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.add_event_detect(self.gpio_fs, GPIO.FALLING)
         GPIO.add_event_callback(self.gpio_fs, callback=flow_callback)
 
