@@ -208,8 +208,15 @@ class Distibot(object):
         for i in range(1, 4):
             try:
                 self.pb_channel.push_note(msg_subj, msg_body)
+            except OSError as e:
+                err_code, err_text = e.args
+                if err_code == 104:
+                    logging.warning('Connection reset by peer in send_msg[%d]', i)
+                else:
+                    logging.exception('exception in send_msg[%d]', i)
+                time.sleep(1)
             except Exception:
-                logging.exception('exception in send_msg[{0}]'.format(i))
+                logging.exception('exception in send_msg[%d]', i)
                 time.sleep(1)
             else:
                 break
@@ -225,6 +232,9 @@ class Distibot(object):
         logging.debug('coordinates saved')
 
     def release(self):
+        """
+        call from self.finish()
+        """
         for t in self.timers:
             t.cancel()
         self.flow_sensor.release()
@@ -297,27 +307,60 @@ class Distibot(object):
     def temperature_loop(self):
         over_cnt = 0
         t_failed_cnt = 0
+        patched = False
         while self.loop_flag:
-            if not self.tsensors.get_t():
-                self.send_msg("Аварийное отключение",
-                              "Сбой получения температуры, \
-tsensors={0}".format(self.tsensors))
-                self.stop_process()
-                self.release()
-                continue
-            # для графика на сайте и протокола
+            try:
+                self.tsensors.get_t()
+                t_failed_cnt = 0
+            except BaseException:
+                t_failed_cnt += 1
+            else:
+                self.T_prev = self.tsensors.ts_data['boiler']
+
+            if t_failed_cnt > self.temperature_error_limit:
+                t_failed_cnt = 0
+                self.send_msg("Сбой получения температуры",
+                              "Требуется вмешательство")
+
+            ### fast and dirty patch for body_from_tails
+            #if self.valve3way.way != 2 and self.tsensors.ts_data['condenser'] > 40:
+            #    self.wait4body()
+            ### fast and dirty patch for low_wine_from_wash
+            # if self.tsensors.ts_data['condenser'] > 40:
+            #    self.start_water()
+            #    ??? self.cooker.set_power(1400)
+            ### fast and dirty patch for body_from_low_wine
+            if not patched and self.tsensors.ts_data['condenser'] > 40:
+                patched = True
+                self.start_watch_heads()
+
+            if self.T_prev > 0:
+                if abs((self.tsensors.ts_data['boiler'] - self.T_prev)
+                       / self.T_prev) > self.temperature_delta_limit:
+                    # ignore, use prev value
+                    self.tsensors.ts_data['boiler'] = self.T_prev
+                    logging.warning('Over {:.0%} difference T_prev={},\
+                                     t_in_Cels={}'.
+                                    format(self.temperature_delta_limit,
+                                           self.T_prev,
+                                           self.tsensors.ts_data['boiler'])
+                                    )
             self.current_ts = time.localtime()
             self.coord_time.append(time.strftime("%H:%M:%S", self.current_ts))
             self.coord_temp.append(self.tsensors.ts_data['boiler'])
-            self.coord_temp_condenser.append(self.tsensors.ts_data['condenser'])
+            try:
+                t2 = self.tsensors.ts_data['condenser']
+            except KeyError:
+                t2 = 0
+            self.coord_temp_condenser.append(t2)
 
-            if self.tsensors.t_over(self.Tstep_current.keys()[0], self.Tstage):
+            if self.tsensors.ts_data['boiler'] > self.Tstage:
                 over_cnt += 1
 
             if over_cnt > self.temperature_over_limit or \
                self.Tstage == 0.0:
                 over_cnt = 0
-                self.run_cmd()
+                self.do_cmd()
 
             self.csv_write()
             time.sleep(self.T_sleep)
@@ -339,15 +382,15 @@ tsensors={0}".format(self.tsensors))
         logging.debug('stage is "{}"'.format(self.stage))
 
     def stop_process(self):
-        if self.stage == 'finish':
-            logging.info('already in finsh stage')
-        else:
-            self.loop_flag = False
-            time.sleep(self.T_sleep+0.5)
-            self.stage = 'finish'  # before cooker_off!
-            self.cooker_off()
-            logging.debug('stage is "{}"'.format(self.stage))
-            self.save_coord_file()
+        """
+        call from self.finish()
+        """
+        self.loop_flag = False
+        time.sleep(self.T_sleep+0.5)
+        self.stage = 'finish'  # before cooker_off!
+        self.cooker_off()
+        logging.debug('stage is "{}"'.format(self.stage))
+        self.save_coord_file()
 
     def cooker_off(self):
         self.cooker_timer.cancel()
@@ -526,9 +569,12 @@ tsensors={0}".format(self.tsensors))
         # self.release()
 
     def finish(self):
-        logging.info('========== distibot.finish')
-        self.stop_process()
-        self.release()
+        if self.stage != 'finish':
+            logging.info('========== distibot.finish()')
+            self.stop_process()
+            logging.info('after stop_process()')
+            self.release()
+            logging.info('after release()')
 
 
 if __name__ == "__main__":

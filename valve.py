@@ -95,6 +95,10 @@ class DoubleValve(GPIO_DEV):
         """
         swithes v1 OFF
         """
+        if not self.gpio_v1 in self.gpio_list:
+            logging.info("DblValve v1 is already cleaned up")
+            return
+
         if self.v1_on:
             super(DoubleValve, self).output(self.gpio_v1, GPIO.LOW)
             logging.info("DblValve v1_turn_off")
@@ -111,6 +115,10 @@ class DoubleValve(GPIO_DEV):
         """
         swithes v2 OFF
         """
+        if not self.gpio_v2 in self.gpio_list:
+            logging.info("DblValve v2 is already cleaned up")
+            return
+
         if self.v2_on:
             super(DoubleValve, self).output(self.gpio_v2, GPIO.LOW)
             logging.info("DblValve v2_turn_off")

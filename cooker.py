@@ -4,7 +4,6 @@
 from gpio_dev import GPIO_DEV, GPIO
 import time
 import logging
-import ConfigParser
 import io
 
 
@@ -156,6 +155,7 @@ if __name__ == '__main__':
     import argparse
     import os
     import sys
+    import ConfigParser
 
     class Cooker_tester(object):
         def __init__(self, conf_filename='distibot.conf'):
