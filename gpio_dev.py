@@ -32,8 +32,11 @@ class GPIO_DEV(object):
         GPIO.setmode(GPIO.BCM)
         logging.info('gpio_dev initialized')
 
-    def setup(self, channel, mode, initial=None, pull_up_down=GPIO.PUD_OFF):
-        GPIO.setup(channel, mode, initial=initial, pull_up_down=pull_up_down)
+    def setup(self, channel, mode, pull_up_down=GPIO.PUD_OFF, initial=None):
+        if initial:
+            GPIO.setup(channel, mode, pull_up_down=pull_up_down, initial=initial)
+        else:
+            GPIO.setup(channel, mode, pull_up_down=pull_up_down)
         logging.info('BEFORE append gpio_list=%s, channel=%s',
                      self.gpio_list, channel)
         if isinstance(channel, list):
