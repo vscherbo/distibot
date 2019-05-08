@@ -192,8 +192,8 @@ class Distibot(object):
         for i in range(1, 4):
             try:
                 self.pb_channel.push_note(msg_subj, msg_body)
-            except OSError, e:
-                err_code, err_text = e
+            except OSError as e:
+                err_code, err_text = e.args
                 if err_code == 104:
                     logging.warning('Connection reset by peer in send_msg[%d]', i)
                 else:
@@ -216,6 +216,9 @@ class Distibot(object):
         logging.debug('coordinates saved')
 
     def release(self):
+        """
+        call from self.finish()
+        """
         for t in self.timers:
             t.cancel()
         self.flow_sensor.release()
@@ -372,6 +375,9 @@ class Distibot(object):
         logging.debug('stage is "{}"'.format(self.stage))
 
     def stop_process(self):
+        """
+        call from self.finish()
+        """
         self.loop_flag = False
         time.sleep(self.T_sleep+0.5)
         self.stage = 'finish'  # before cooker_off!
@@ -554,9 +560,12 @@ class Distibot(object):
         # self.release()
 
     def finish(self):
-        logging.info('========== distibot.finish')
-        self.stop_process()
-        self.release()
+        if self.stage != 'finish':
+            logging.info('========== distibot.finish()')
+            self.stop_process()
+            logging.info('after stop_process()')
+            self.release()
+            logging.info('after release()')
 
 
 if __name__ == "__main__":
