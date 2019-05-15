@@ -10,7 +10,7 @@ class W1ThermSensor(object):
     """
     stub for W1ThermSensor
     """
-    Tlist = range(20, 70, 2)
+    Tlist = list(range(20, 70, 2))
     Tlist = Tlist + np.arange(70, 88, 0.1).tolist()
     Tlist = Tlist + np.arange(88, 100, 0.3).tolist()
     #: Holds information about supported w1therm sensors

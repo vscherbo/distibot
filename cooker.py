@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from gpio_dev import GPIO_DEV, GPIO
 import time
 import logging
-import io
+# import io
+from gpio_dev import GPIO_DEV, GPIO
 
 
 class Cooker(GPIO_DEV):
@@ -155,14 +155,12 @@ if __name__ == '__main__':
     import argparse
     import os
     import sys
-    import ConfigParser
+    from configparser import ConfigParser
 
     class Cooker_tester(object):
         def __init__(self, conf_filename='distibot.conf'):
-            with open(conf_filename) as f:
-                dib_config = f.read()
-                self.config = ConfigParser.RawConfigParser(allow_no_value=True)
-                self.config.readfp(io.BytesIO(dib_config))
+            self.config = ConfigParser()
+            self.config.read(conf_filename)
 
             self.cooker = Cooker(gpio_on_off=self.config.getint('cooker', 'gpio_cooker_on_off'),
                                  gpio_up=self.config.getint('cooker', 'gpio_cooker_up'),
