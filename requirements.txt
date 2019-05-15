@@ -1,1 +1,4 @@
+pip install configparser
+pip install numpy
 pip install git+https://github.com/sn4k3/FakeRPi
+pip install pushbullet.py
