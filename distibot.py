@@ -163,15 +163,6 @@ class Distibot(object):
         self.config = ConfigParser()
         self.config.read(conf_filename)
 
-    def load_script(self, play_filename):
-        with open(play_filename, 'r') as script:
-            self.Tsteps = collections.OrderedDict(sorted(eval(
-                                                  script.read()).items(),
-                                                  key=lambda t: t[0])
-                                                  )
-        self.set_Tsteps()
-        # TODO check methods existance
-
     def load_play(self, play_filename):
         with open(play_filename, 'r') as script:
             self.Tsteps = collections.OrderedDict(sorted(eval(
@@ -185,18 +176,13 @@ class Distibot(object):
         self.Tkeys = self.Tsteps.keys()
         logging.debug('type=%s, Tkeys=%s', type(self.Tkeys), self.Tkeys)
 
-        self.Tstage = self.Tkeys.pop(0)
+        self.Tstage = list(self.Tkeys).pop(0)
         logging.debug('type=%s, Tstage[0]=%s', type(self.Tstage), self.Tstage)
+        # Tstep_current is dict like {'boiler':    self.start_process}
         self.Tstep_current = self.Tsteps.pop(self.Tstage)
         logging.debug('type=%s, Tstep_current=%s', type(self.Tstep_current), self.Tstep_current)
         #self.Tsensor, self.Tcmd = self.Tsteps[self.Tstage]
         #logging.debug('Tsensor=%s, Tcmd=%s', self.Tsensor, self.Tcmd)
-
-    def set_Tsteps(self):
-        self.Tkeys = list(self.Tsteps.keys())
-        self.Tstage = self.Tkeys.pop(0)
-        self.Tcmd = self.Tsteps.pop(self.Tstage)
-        # print(self.Tsteps)
 
     def send_msg(self, msg_subj, msg_body):
         logging.info("send_msg: subj={0}, msg='{1}'".format(
@@ -264,21 +250,6 @@ class Distibot(object):
         self.print_str = []
         self.csv_delay += self.T_sleep
 
-    def do_cmd(self):
-        self.Tcmd_last = self.Tcmd.__name__
-        self.Tcmd()
-        # TODO добавить t холодильника, если есть датчик
-        self.send_msg("Превысили {0}".format(self.Tstage),
-                      "t в кубе={0}, команда={1}".format(
-                        self.tsensors.ts_data['boiler'], self.Tcmd.__name__))
-
-        try:
-            self.Tstage = self.Tkeys.pop(0)
-        except IndexError:
-            self.Tstage = 999.0
-            self.Tcmd = self.do_nothing
-        else:
-            self.Tcmd = self.Tsteps.pop(self.Tstage)
 
     #def run_cmd(self, tsensor_id):
         #if tsensor_id not in self.Tstep_current.keys():
@@ -288,12 +259,12 @@ class Distibot(object):
         self.Tcmd_last = self.Tmethod.__name__
         self.Tmethod()
         # TODO добавить t холодильника, если есть датчик
-        self.send_msg("Превысили {0}".format(self.Tstage),
-                      "ts_data={0}, команда={1}".format(
-                        self.tsensors.ts_data, self.Tcmd_last))
+        self.send_msg("Превысили {}".format(self.Tstage),
+                      "ts_data={}, tsensor_id={} команда={}".format(
+                        self.tsensors.ts_data, tsensor_id, self.Tcmd_last))
 
         try:
-            self.Tstage = self.Tkeys.pop(0)
+            self.Tstage = list(self.Tkeys).pop(0)
         except IndexError:
             self.Tstage = 999.0
             self.Tstep_current['boiler'] = self.do_nothing  # dirty patch
@@ -327,9 +298,9 @@ class Distibot(object):
             #    self.start_water()
             #    ??? self.cooker.set_power(1400)
             ### fast and dirty patch for body_from_low_wine
-            if not patched and self.tsensors.ts_data['condenser'] > 40:
-                patched = True
-                self.start_watch_heads()
+            #if not patched and self.tsensors.ts_data['condenser'] > 40:
+            #    patched = True
+            #    self.start_watch_heads()
 
             if self.T_prev > 0:
                 if abs((self.tsensors.ts_data['boiler'] - self.T_prev)
@@ -357,7 +328,7 @@ class Distibot(object):
             if over_cnt > self.temperature_over_limit or \
                self.Tstage == 0.0:
                 over_cnt = 0
-                self.do_cmd()
+                self.run_cmd()
 
             self.csv_write()
             time.sleep(self.T_sleep)
@@ -612,7 +583,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Distibot module')
     parser.add_argument('--conf', type=str, default="distibot.conf",
                         help='conf file')
-    parser.add_argument('--play', type=str, default="dib-debug.play",
+    parser.add_argument('--play', type=str, default="dib-debug-condenser.play",
                         help='play file')
     parser.add_argument('--log_to_file', type=bool, default=True,
                         help='log destination')
@@ -645,7 +616,7 @@ if __name__ == "__main__":
     dib.load_play(args.play)
     logging.debug('dib.Tkeys=%s type=%s', dib.Tkeys, type(dib.Tkeys))
     logging.debug('dib.Tstage=%s type=%s', dib.Tstage, type(dib.Tstage))
-    logging.debug('dib.Tcmd[0]=%s type=%s', dib.Tcmd, type(dib.Tcmd))
+    logging.debug('dib.Tcmd[0]=%s type=%s', dib.Tstep_current, type(dib.Tstep_current))
     dib.temperature_loop()
 
     logging.info('Exit')
