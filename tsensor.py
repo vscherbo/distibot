@@ -12,7 +12,6 @@ except ImportError:
     import stub_w1thermsensor as w1thermsensor
     emu_mode = True
 import re
-import ConfigParser
 import time
 
 
@@ -106,7 +105,7 @@ if __name__ == '__main__':
     import os
     import sys
     import signal
-    import io
+    from configparser import ConfigParser
 
     def signal_handler(signal, frame):
         global loop_flag
@@ -139,12 +138,9 @@ if __name__ == '__main__':
 
     logging.info('Started')
 
-    with open(args.conf) as f:
-        dib_config = f.read()
-        f.close()
+    config = ConfigParser()
+    config.read(args.conf)
 
-    config = ConfigParser.RawConfigParser(allow_no_value=True)
-    config.readfp(io.BytesIO(dib_config))
     tsensors = Tsensors(config)
     tsensors.get_t()
     logging.info('ts_ids=%s', tsensors.ts_ids)

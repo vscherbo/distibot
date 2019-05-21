@@ -7,8 +7,7 @@
 from __future__ import print_function
 import time
 import collections
-import ConfigParser
-import io
+from configparser import ConfigParser
 import threading
 import logging
 
@@ -144,11 +143,11 @@ class Distibot(object):
                                           'gpio_hs_finish'),
                                       timeout=1000)
 
-        # self.flow_period = 10
-        self.flow_sensor = flow_sensor.FlowSensor(gpio_fs=self.config.getint(
-            'flow_sensor',
-            'gpio_fs'))
-        self.flow_period = self.config.getint('flow_sensor', 'flow_period')
+        self.flow_sensor = flow_sensor.FlowSensor(gpio_fs=self.config.getint('flow_sensor', 'gpio_fs'))
+        if tsensor.emu_mode:
+            self.flow_period = 86400
+        else:
+            self.flow_period = self.config.getint('flow_sensor', 'flow_period')
 
         self.pb = PBWrap(self.config.get('pushbullet', 'api_key'))
         self.pb_channel = self.pb.get_channel()
@@ -156,15 +155,13 @@ class Distibot(object):
         self.coord_time = []
         self.coord_temp = []
         self.coord_temp_condenser = []
-        self.log = open('{}/sensor-{}.csv'.format(self.outdir, self.dt_string),
-                        'w', 0)  # 0 - unbuffered write
+        self.log = open('{}/sensor-{}.csv'.format(self.outdir, self.dt_string), 'w')
+                        # 'w', 0)  # 0 - unbuffered write
 
     def parse_conf(self, conf_filename):
         # Load and parse the conf file
-        with open(conf_filename) as f:
-            dib_config = f.read()
-            self.config = ConfigParser.RawConfigParser(allow_no_value=True)
-            self.config.readfp(io.BytesIO(dib_config))
+        self.config = ConfigParser()
+        self.config.read(conf_filename)
 
     def load_script(self, play_filename):
         with open(play_filename, 'r') as script:
@@ -196,7 +193,7 @@ class Distibot(object):
         #logging.debug('Tsensor=%s, Tcmd=%s', self.Tsensor, self.Tcmd)
 
     def set_Tsteps(self):
-        self.Tkeys = self.Tsteps.keys()
+        self.Tkeys = list(self.Tsteps.keys())
         self.Tstage = self.Tkeys.pop(0)
         self.Tcmd = self.Tsteps.pop(self.Tstage)
         # print(self.Tsteps)
@@ -646,6 +643,9 @@ if __name__ == "__main__":
     dib = Distibot(conf_filename=args.conf)
     # prev dib.load_script(args.play)
     dib.load_play(args.play)
+    logging.debug('dib.Tkeys=%s type=%s', dib.Tkeys, type(dib.Tkeys))
+    logging.debug('dib.Tstage=%s type=%s', dib.Tstage, type(dib.Tstage))
+    logging.debug('dib.Tcmd[0]=%s type=%s', dib.Tcmd, type(dib.Tcmd))
     dib.temperature_loop()
 
     logging.info('Exit')

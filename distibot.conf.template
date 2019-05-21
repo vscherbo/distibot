@@ -1,5 +1,5 @@
 [cooker]
-cooker_powers=(120, 300, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000)
+cooker_powers=120, 300, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000
 cooker_init_power=1400
 cooker_special_power=2000
 gpio_cooker_on_off=17
@@ -38,4 +38,3 @@ flow_period=10
 
 [pushbullet]
 api_key=xxx
-
