@@ -52,7 +52,7 @@ class Tsensors():
             time.sleep(0.5)
 
     def t_over(self, tlimit):
-        for ts_key, t_curr in self.ts_data.iteritems():
+        for ts_key, t_curr in self.ts_data.items():
             if t_curr > tlimit:
                 return True, ts_key
         return False, None
@@ -109,14 +109,14 @@ if __name__ == '__main__':
     # Talarms = [94.5, 98.7, 999.9]  # tails
     alarm_limit = 3
 
-    csv = open('{0}-{1}.csv'.format(prg_name, strftime("%Y-%m-%d-%H-%M")), 'w', 0)  # 0 - unbuffered write
+    csv = open('{0}-{1}.csv'.format(prg_name, strftime("%Y-%m-%d-%H-%M")), 'w')
     Talarm = Talarms.pop(0)
     alarm_cnt = 0
     finish_cnt = 0
     loop_flag = True
     while loop_flag:
         tsensors.get_t()
-        for ts_id, t in tsensors.ts_data.iteritems():
+        for ts_id, t in tsensors.ts_data.items():
             logging.info('ts_id={0}, t={1}'.format(ts_id, t))
         (is_over, ts_id) = tsensors.t_over(Talarm)
         if is_over:
