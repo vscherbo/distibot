@@ -16,12 +16,13 @@ import time
 
 
 class Tsensor(object):
-    def __init__(self, sensor_type=None, sensor_id=None):
+    def __init__(self, sensor_type=None, sensor_id=None, delta_threshold=0.3):
         logging.getLogger(__name__).addHandler(logging.NullHandler())
         self.sensor_id = sensor_id
         self.initial_T = 4
         self.curr_T = 4
         self.failed_cnt = 0
+        self.delta_threshold = delta_threshold
         if emu_mode:
             logging.warning('tsensor emulation mode')
         try:
@@ -40,23 +41,21 @@ class Tsensor(object):
             loc_T = self.curr_T
         else:
             self.failed_cnt = 0
-            if self.delta_over_limit(loc_T):
+            if self.delta_over(loc_T, self.delta_threshold):
                 # ignore, use current value
-                logging.warning('Over 30% difference curr_T={}, \
-                        new loc_T={}'.format(self.curr_T, loc_T))
-                # logging.warning('Over {:.0%} difference curr_T={}, \
-                #        new loc_T={}'.format(delta_limit, self.curr_T, loc_t))
+                logging.warning('Over {:.0%} difference curr_T={}, \
+                        new loc_T={}'.format(self.delta_threshold, self.curr_T, loc_T))
                 loc_T = self.curr_T
             else:
                 # save current T
                 self.curr_T = loc_T
         return loc_T
 
-    def delta_over_limit(self, check_t, delta_limit=0.3):
+    def delta_over(self, check_t, delta_threshold):
         if self.curr_T == self.initial_T:
             return False
         else:
-            return abs((check_t - self.curr_T) / self.curr_T) > delta_limit
+            return abs((check_t - self.curr_T) / self.curr_T) > delta_threshold
 
 
 class Tsensors():
@@ -86,15 +85,15 @@ class Tsensors():
             time.sleep(0.1)
         return got_temp
 
+    @property
     def current_t(self):
         return [self.ts_data[k] for k in self.ts_ids]
 
     def t_over(self, tsensor_id, tlimit):
-        # logging.debug('ts_data=%s', self.ts_data)
+        logging.debug('ts_data=%s', self.ts_data)
         t_curr = self.ts_data[tsensor_id]
-        # logging.debug('tsensor_id=%s, t_curr=%s', tsensor_id, t_curr)
-        if t_curr >= tlimit:
-            logging.info('t_over: tsensor_id=%s, t_curr=%s >= tlimit=%s', tsensor_id, t_curr, tlimit)
+        logging.debug('tsensor_id=%s, t_curr=%s', tsensor_id, t_curr)
+        if t_curr > tlimit:
             return True
         return False
 
@@ -146,22 +145,20 @@ if __name__ == '__main__':
     logging.info('ts_ids=%s', tsensors.ts_ids)
 
     # TODO read from conf file
-    Talarms = [31.0, 49.5, 65.9, 98.5, 999.9]  # debug
-    # Talarms = [77.0, 79.0, 85.0, 88.0, 94.5, 98.5, 999.9]  # 1st production
+    Talarms = [77.0, 79.0, 85.0, 88.0, 94.5, 98.5, 999.9]  # 1st production
     # Talarms = [94.5, 98.7, 999.9]  # tails
     alarm_limit = 3
 
-    csv = open('{0}-{1}.csv'.format(prg_name, strftime("%Y-%m-%d-%H-%M")), 'w', 0)  # 0 - unbuffered write
+    csv = open('{0}-{1}.csv'.format(prg_name, strftime("%Y-%m-%d-%H-%M")), 'w')
     Talarm = Talarms.pop(0)
     alarm_cnt = 0
     finish_cnt = 0
     loop_flag = True
     while loop_flag:
         tsensors.get_t()
-        logging.info('current_t=%s', tsensors.current_t())
-        for ts_id, t in tsensors.ts_data.iteritems():
+        for ts_id, t in tsensors.ts_data.items():
             logging.info('ts_id={0}, t={1}'.format(ts_id, t))
-        (is_over, ts_id) = tsensors.t_over(Talarm)
+        is_over = tsensors.t_over('boiler', Talarm)
         if is_over:
             logging.info("Превысили {0}, ts_id={1}, T={2}".format(Talarm, ts_id, tsensors.ts_data[ts_id]))
             # TODO alarm_cnt for the each sensor
