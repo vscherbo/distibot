@@ -165,7 +165,6 @@ class Distibot(object):
         self.valve_water.release()
         self.valve_drop.release()
         self.heads_sensor.release()
-                        # 'w', 0)  # 0 - unbuffered write
 
     def parse_conf(self, conf_filename):
         # Load and parse the conf file
@@ -328,19 +327,6 @@ class Distibot(object):
         self.cooker_timer.start()
         self.send_msg("Нагрев включён",
                       "Установлен таймер на {}".format(self.cooker_period))
-
-    def heat_on_pause(self):
-        self.cooker_off()
-        self.pause_start_ts = time.time()
-        self.stage = 'pause'
-        logging.debug('stage is "%s"', self.stage)
-
-    def heat_for_heads(self):
-        logging.debug('inside heat_for_heads')
-        self.cooker.set_power(self.power_for_heads)
-        if 'heat' != self.stage:  # если и так фаза нагрева, выходим
-            self.stage = 'heat'
-            logging.debug('stage is "%s"', self.stage)
 
     def heads_started(self, gpio_id=-1):
         logging.debug('inside heads_started')
