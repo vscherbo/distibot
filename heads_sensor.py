@@ -26,10 +26,10 @@ class Heads_sensor(GPIO_DEV):
         self.flag_ignore_finish = True
         #
         self.gpio_heads_start = gpio_heads_start
-        self.gpio_list.append(gpio_heads_start)
+        # self.gpio_list.append(gpio_heads_start)
         #
         self.gpio_heads_finish = gpio_heads_finish
-        self.gpio_list.append(gpio_heads_finish)
+        # self.gpio_list.append(gpio_heads_finish)
         #
         hs_args = {'hs_type': hs_type,
                    'gpio_start': gpio_heads_start,
@@ -65,12 +65,12 @@ class Heads_sensor(GPIO_DEV):
     # TODO merge watch_start & watch_finish in a single method
     def watch_start(self, start_callback):
         self.flag_ignore_start = False
-        GPIO.setup(self.gpio_heads_start, GPIO.IN, pull_up_down=self.PUD)
+        self.setup(self.gpio_heads_start, GPIO.IN, pull_up_down=self.PUD)
         GPIO.add_event_detect(self.gpio_heads_start, self.edge, bouncetime=self.timeout)
         GPIO.add_event_callback(self.gpio_heads_start, start_callback)
 
     def watch_finish(self, finish_callback):
-        GPIO.setup(self.gpio_heads_finish, GPIO.IN, pull_up_down=self.PUD)
+        self.setup(self.gpio_heads_finish, GPIO.IN, pull_up_down=self.PUD)
         self.ignore_start()
         self.flag_ignore_finish = False
         GPIO.add_event_detect(self.gpio_heads_finish, self.edge, bouncetime=self.timeout)
