@@ -9,6 +9,8 @@ import time
 from configparser import ConfigParser
 import threading
 import logging
+import socket
+import requests
 
 from pushbullet import Pushbullet
 
@@ -17,6 +19,25 @@ import valve
 import heads_sensor
 import tsensor
 import flow_sensor
+
+def wait_for_internet():
+    """
+    Loop until an internet connection to pushbullet.com port 80 is
+    available.
+    """
+
+    while True:
+        try:
+            logging.info("Trying connection to Pushbullet API.")
+            socket.create_connection(('api.pushbullet.com', '80'), timeout=30)
+            logging.info("Connection successful.")
+            break
+
+        except (socket.gaierror, socket.timeout,
+                ConnectionRefusedError, requests.exceptions.ConnectionError):
+            logging.warning("Connection failed. Retrying in 10 seconds")
+            time.sleep(10)
+
 
 
 class PBWrap(Pushbullet):
@@ -43,7 +64,6 @@ class PBWrap(Pushbullet):
             pb_channel = [x for x in self.channels if x.name == channel_tag][0]
         return pb_channel
 
-
 class PBChannelEmu(object):
 
     def push_note(self, subject, msg):
@@ -52,11 +72,15 @@ class PBChannelEmu(object):
 
 class Distibot(object):
 
-    def __init__(self, conf_filename='distibot.conf'):
+    def __init__(self, conf_filename='distibot.conf', play_script='distibot.play'):
         logging.getLogger(__name__).addHandler(logging.NullHandler())
-        self.parse_conf(conf_filename)
-        self.outdir = 'output'  # TODO config
+        self.ts_play_set = set()
         self.t_stages = []
+        self.coord = []
+        self.coord_csv = []
+        self.coord_list = []
+
+        self.outdir = 'output'  # TODO config
         self.cmd_prev = 'before start'
         self.cmd_last = 'before start'
         self.curr_t = 0.0
@@ -66,7 +90,6 @@ class Distibot(object):
         self.temperature_over_limit = 3
         self.temperature_delta_limit = 0.3  # 30%
         self.stage = 'start'
-        self.timestamp = time.localtime()
         self.pause_start_ts = 0
         self.pause_limit = 180
         self.cooker_period = 3600
@@ -76,10 +99,17 @@ class Distibot(object):
         self.t_sleep = 1
         self.csv_delay = 0
         self.water_on = False
-        self.coord = []
-        self.coord_csv = []
-        self.coord_list = []
+
+        self.timestamp = time.localtime()
         self.dt_string = time.strftime("%Y-%m-%d-%H-%M")
+
+        if self.load_script(play_script):
+            self.config = ConfigParser()
+            self.config.read(conf_filename)
+            (self.curr_t, self.curr_ts, self.curr_method) = self.t_stages.pop(0)
+        else:
+            logging.error('Ошибка при разборе сценария: %s', play_script)
+
         self.timers = []
         self.drop_timer = threading.Timer(self.drop_period,
                                           self.drop_container)
@@ -92,8 +122,12 @@ class Distibot(object):
             # TODO switch gpio to INPUT
             self.tsensors = tsensor.Tsensors(self.config)
             self.tsensors.get_t()
-
-        self.loop_flag = True
+        if self.ts_play_set <= set(self.tsensors.ts_ids):
+            # OK. Every ts in ts_play_set is described in conf
+            self.loop_flag = True
+        else:
+            self.loop_flag = False
+            # temperature_loop is impossible
 
         powers_list = self.config.get('cooker', 'cooker_powers').replace(' ', '').split(',')
         self.cooker = Cooker(gpio_on_off=self.config.getint(
@@ -113,7 +147,6 @@ class Distibot(object):
                                  'cooker', 'init_special')
                              )
         self.power_for_heads = self.config.getint('cooker', 'power_for_heads')
-
         # self.cooker_current_power = self.cooker.current_power()
         self.cooker_current_power = None
 
@@ -167,22 +200,24 @@ class Distibot(object):
         self.heads_sensor.release()
                         # 'w', 0)  # 0 - unbuffered write
 
-    def parse_conf(self, conf_filename):
-        # Load and parse the conf file
-        self.config = ConfigParser()
-        self.config.read(conf_filename)
-
     def load_script(self, play_filename):
         """
         read script file and set t_stages
         """
-        Tsteps = [line.partition('#')[0].rstrip().split(', ')
-                  for line in open(play_filename, 'r')]
-        logging.debug('Tsteps=%s', Tsteps)
-        for (loc_t, loc_ts, loc_method) in Tsteps:
-            self.t_stages.append([float(loc_t), loc_ts.strip(), eval(loc_method.strip())])
-        logging.debug('t_stages=%s', self.t_stages)
-        (self.curr_t, self.curr_ts, self.curr_method) = dib.t_stages.pop(0)
+        try:
+            t_steps = [line.partition('#')[0].rstrip().split(', ')
+                       for line in open(play_filename, 'r')]
+            logging.debug('t_steps=%s', t_steps)
+            for (loc_t, loc_ts, loc_method) in t_steps:
+                self.t_stages.append([float(loc_t), loc_ts.strip(), eval(loc_method.strip())])
+                self.ts_play_set.add(loc_ts)
+            logging.debug('t_stages=%s', self.t_stages)
+        except BaseException:
+            res = False
+            logging.exception('load_script exception')
+        else:
+            res = True
+        return res
 
     def send_msg(self, msg_subj, msg_body):
         logging.info("send_msg: subj=%s, msg='%s'", msg_subj, msg_body)
@@ -243,8 +278,7 @@ class Distibot(object):
             if self.tsensors.get_t():
                 self.timestamp = time.localtime()
                 coord.append(time.strftime("%H:%M:%S", self.timestamp))
-                for t in self.tsensors.current_t:
-                    coord.append(t)
+                coord.extend(self.tsensors.current_t)
                 coord.append(self.flow_sensor.clicks)
                 coord.append(self.flow_sensor.hertz)
                 self.coord_csv.append(coord)
@@ -541,9 +575,7 @@ if __name__ == "__main__":
     # end of prolog
     logging.info('Started')
 
-    dib = Distibot(conf_filename=args.conf)
-    # prev dib.load_script(args.play)
-    dib.load_script(args.play)
+    dib = Distibot(conf_filename=args.conf, play_script=args.play)
     dib.temperature_loop()
 
     logging.info('Exit')

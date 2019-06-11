@@ -59,8 +59,7 @@ signal.signal(signal.SIGHUP, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
 signal.signal(signal.SIGUSR1, signal_handler)
 
-dib = Distibot(args.conf)
-dib.load_script(args.play)
+dib = Distibot(args.conf, args.play)
 logging.debug('loaded script {0}.'.format(args.play))
 
 try:
