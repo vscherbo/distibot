@@ -36,6 +36,7 @@ class Tsensor(object):
         try:
             loc_T = round(self.sensor.get_temperature(unit), 1)
         except BaseException:
+            logging.exception('get_temperature');
             self.failed_cnt += 1
             # use current value
             loc_T = self.curr_T
@@ -82,7 +83,7 @@ class Tsensors():
             if self.ts_dict[k].failed_cnt > self.temperature_error_limit:
                 self.ts_dict[k].failed_cnt = 0
                 got_temp = False
-            time.sleep(0.1)
+            time.sleep(0.5)
         return got_temp
 
     @property
