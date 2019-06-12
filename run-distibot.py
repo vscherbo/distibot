@@ -27,7 +27,7 @@ import webapp.distibot_httpd as distibot_httpd
 
 webapp_path = 'webapp'
 
-parser = argparse.ArgumentParser(description='Distillation robot .')
+parser = argparse.ArgumentParser(description='Distiller robot')
 parser.add_argument('--play', type=str, required=True, help='config file')
 parser.add_argument('--conf', type=str, default='distibot.conf',
                     help='config file')
@@ -60,7 +60,6 @@ signal.signal(signal.SIGTERM, signal_handler)
 signal.signal(signal.SIGUSR1, signal_handler)
 
 dib = Distibot(args.conf, args.play)
-logging.debug('loaded script {0}.'.format(args.play))
 
 try:
     t_dib = threading.Thread(target=dib.temperature_loop)
@@ -72,7 +71,6 @@ except Exception:
 # ################################
 app = Bottle()
 app.dib = dib
-
 
 @app.get('/<filename:re:.*\.css>')
 def stylesheets(filename):
@@ -162,16 +160,20 @@ def ask_stage():
 def plot():
     if app.dib.loop_flag:
         # prepare plot params
-        margin = pgo.Margin(b=100, l=35, pad=0, r=5, t=10)
+        # plotly.graph_objs.Margin is deprecated.
+        # Please replace it with one of the following more specific types
+        #  - plotly.graph_objs.layout.Margin
+
+        margin = pgo.layout.Margin(b=100, l=35, pad=0, r=5, t=10)
         layout = pgo.Layout(autosize=True,
                             width=900, height=600,
                             margin=margin
                             )
-        scatter = [pgo.Scatter(x=app.dib.coord_list[0],  # time
-                               y=app.dib.coord_list[1],  # T bolier
+        scatter = [pgo.Scatter(x=app.dib.coord_time,
+                               y=app.dib.coord_t_boiler,
                                name='Куб'),
-                   pgo.Scatter(x=app.dib.coord_list[0],  # time
-                               y=app.dib.coord_list[2],  # T condesnser
+                   pgo.Scatter(x=app.dib.coord_time,
+                               y=app.dib.coord_t_condenser,
                                name='Хол')]
         div_plot = plotly.offline.plot({"data": scatter, "layout": layout},
                                        show_link=False, output_type='div')

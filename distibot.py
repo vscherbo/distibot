@@ -79,6 +79,10 @@ class Distibot(object):
         self.coord = []
         self.coord_csv = []
         self.coord_list = []
+        self.coord_time = []
+        self.coord_t_boiler = []
+        self.coord_t_condenser = []
+
 
         self.outdir = 'output'  # TODO config
         self.cmd_prev = 'before start'
@@ -123,13 +127,16 @@ class Distibot(object):
             self.tsensors = tsensor.Tsensors(self.config)
             self.tsensors.get_t()
         if self.ts_play_set <= set(self.tsensors.ts_ids):
-            # OK. Every ts in ts_play_set is described in conf
             self.loop_flag = True
+            logging.info('OK. Every ts in ts_play_set is described in conf, loop_flag=%s', self.loop_flag)
         else:
             self.loop_flag = False
-            # temperature_loop is impossible
+            logging.info('self.ts_play_set=%s', self.ts_play_set)
+            logging.info('set(self.tsensors.ts_ids)%s', set(self.tsensors.ts_ids))
+            logging.info('ERROR, temperature_loop is impossible, loop_flag=%s', self.loop_flag)
 
         powers_list = self.config.get('cooker', 'cooker_powers').replace(' ', '').split(',')
+        logging.debug('Cooker config: %d', int(self.config['cooker']['gpio_cooker_on_off']))
         self.cooker = Cooker(gpio_on_off=self.config.getint(
             'cooker', 'gpio_cooker_on_off'),
                              gpio_up=self.config.getint(
@@ -209,7 +216,7 @@ class Distibot(object):
             logging.debug('t_steps=%s', t_steps)
             for (loc_t, loc_ts, loc_method) in t_steps:
                 self.t_stages.append([float(loc_t), loc_ts.strip(), eval(loc_method.strip())])
-                self.ts_play_set.add(loc_ts)
+                self.ts_play_set.add(loc_ts.strip())
             logging.debug('t_stages=%s', self.t_stages)
         except BaseException:
             res = False
@@ -224,6 +231,13 @@ class Distibot(object):
         for i in range(1, 4):
             try:
                 self.pb_channel.push_note(msg_subj, msg_body)
+            except BaseException:
+                logging.exception('exception in send_msg[%d]', i)
+                time.sleep(1)
+            else:
+                break
+
+            """
             except OSError as e:
                 err_code, err_text = e.args
                 if err_code == 104:
@@ -231,11 +245,7 @@ class Distibot(object):
                 else:
                     logging.exception('exception in send_msg[%d]', i)
                 time.sleep(1)
-            except Exception:
-                logging.exception('exception in send_msg[%d]', i)
-                time.sleep(1)
-            else:
-                break
+            """
 
     def save_coord_file(self):
         outf_name = '{}/{}.dat'.format(self.outdir, self.dt_string)
@@ -280,8 +290,12 @@ class Distibot(object):
                 coord.extend(self.tsensors.current_t)
                 coord.append(self.flow_sensor.clicks)
                 coord.append(self.flow_sensor.hertz)
+                logging.info('current coord=%s', coord)
                 self.coord_csv.append(coord)
                 self.coord_list.append(coord)
+                self.coord_time.append(coord[0])
+                self.coord_t_boiler.append(coord[1])
+                self.coord_t_condenser.append(coord[2])
 
                 if self.tsensors.ts_data[self.curr_ts] > self.curr_t:
                     over_cnt += 1
