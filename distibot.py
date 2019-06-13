@@ -277,8 +277,10 @@ class Distibot(object):
         try:
             (self.curr_t, self.curr_ts, self.curr_method) = self.t_stages.pop(0)
         except IndexError:
+            # dirty patch
             self.curr_t = 999.0
-            self.curr_method = self.do_nothing  # dirty patch
+            self.curr_ts = 'boiler'
+            self.curr_method = self.do_nothing
 
     def temperature_loop(self):
         over_cnt = 0
