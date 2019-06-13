@@ -211,12 +211,15 @@ class Distibot(object):
         read script file and set t_stages
         """
         try:
-            t_steps = [line.partition('#')[0].rstrip().split(', ')
+            t_steps = [line.partition('#')[0].strip().split(',')
                        for line in open(play_filename, 'r')]
             logging.debug('t_steps=%s', t_steps)
             for (loc_t, loc_ts, loc_method) in t_steps:
-                self.t_stages.append([float(loc_t), loc_ts.strip(), eval(loc_method.strip())])
-                self.ts_play_set.add(loc_ts.strip())
+                loc_t = float(loc_t)
+                loc_ts = loc_ts.strip()
+                loc_method = eval(loc_method.strip())
+                self.t_stages.append([loc_t, loc_ts, loc_method])
+                self.ts_play_set.add(loc_ts)
             logging.debug('t_stages=%s', self.t_stages)
         except BaseException:
             res = False
