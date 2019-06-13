@@ -36,7 +36,7 @@ class Tsensor(object):
         try:
             loc_T = round(self.sensor.get_temperature(unit), 1)
         except BaseException:
-            logging.exception('get_temperature');
+            logging.exception('get_temperature')
             self.failed_cnt += 1
             # use current value
             loc_T = self.curr_T
