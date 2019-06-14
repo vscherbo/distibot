@@ -103,16 +103,20 @@ class Distibot(object):
         self.t_sleep = 1
         self.csv_delay = 0
         self.water_on = False
+        self.loop_flag = None
 
         self.timestamp = time.localtime()
         self.dt_string = time.strftime("%Y-%m-%d-%H-%M")
 
         if self.load_script(play_script):
-            self.config = ConfigParser()
-            self.config.read(conf_filename)
+            self.set_loop_flag(True)
             (self.curr_t, self.curr_ts, self.curr_method) = self.t_stages.pop(0)
         else:
+            self.set_loop_flag(False)
             logging.error('Ошибка при разборе сценария: %s', play_script)
+
+        self.config = ConfigParser()
+        self.config.read(conf_filename)
 
         self.timers = []
         self.drop_timer = threading.Timer(self.drop_period,
@@ -127,10 +131,11 @@ class Distibot(object):
             self.tsensors = tsensor.Tsensors(self.config)
             self.tsensors.get_t()
         if self.ts_play_set <= set(self.tsensors.ts_ids):
-            self.loop_flag = True
-            logging.info('OK. Every ts in ts_play_set is described in conf, loop_flag=%s', self.loop_flag)
+            self.set_loop_flag(True)
+            logging.info('OK. Every ts in ts_play_set is described in conf, loop_flag=%s',
+                         self.loop_flag)
         else:
-            self.loop_flag = False
+            self.set_loop_flag(False)
             logging.info('self.ts_play_set=%s', self.ts_play_set)
             logging.info('set(self.tsensors.ts_ids)%s', set(self.tsensors.ts_ids))
             logging.info('ERROR, temperature_loop is impossible, loop_flag=%s', self.loop_flag)
@@ -193,6 +198,17 @@ class Distibot(object):
         self.pb_channel = self.pb.get_channel()
         self.log = open('{}/sensor-{}.csv'.format(self.outdir, self.dt_string), 'w')
 
+    def set_loop_flag(self, cond):
+        """
+        check if we can opearate
+        """
+        flag_before = self.loop_flag
+        if self.loop_flag is None:
+            self.loop_flag = cond
+        else:
+            self.loop_flag = cond and self.loop_flag
+        logging.debug('flag_before=%s, cond=%s, loop_flag=%s', flag_before, cond, self.loop_flag)
+
     def release(self):
         """
         call from self.finish()
@@ -214,6 +230,8 @@ class Distibot(object):
             t_steps = [line.partition('#')[0].strip().split(',')
                        for line in open(play_filename, 'r')]
             logging.debug('t_steps=%s', t_steps)
+            _methods = [_attr for _attr in dir(self) if callable(getattr(self, _attr)) and not _attr.startswith('_')]
+            logging.debug('_methods=%s', _methods)
             for (loc_t, loc_ts, loc_method) in t_steps:
                 loc_t = float(loc_t)
                 loc_ts = loc_ts.strip()
