@@ -96,8 +96,6 @@ class Distibot(object):
         self.stage = 'start'
         self.pause_start_ts = 0
         self.pause_limit = 180
-        self.cooker_period = 3600
-        self.cooker_timeout = 3
         self.drop_period = 4000
         self.drop_timeout = 15
         self.t_sleep = 1
@@ -122,9 +120,6 @@ class Distibot(object):
         self.drop_timer = threading.Timer(self.drop_period,
                                           self.drop_container)
         self.timers.append(self.drop_timer)
-        self.cooker_timer = threading.Timer(self.cooker_period,
-                                            self.cooker_off)
-        self.timers.append(self.cooker_timer)
 
         if self.config.has_option('tsensors', 'gpio_ts'):
             # TODO switch gpio to INPUT
@@ -140,27 +135,7 @@ class Distibot(object):
             logging.info('set(self.tsensors.ts_ids)%s', set(self.tsensors.ts_ids))
             logging.info('ERROR, temperature_loop is impossible, loop_flag=%s', self.loop_flag)
 
-        powers_list = self.config.get('cooker', 'cooker_powers').replace(' ', '').split(',')
-        logging.debug('Cooker config: %d', int(self.config['cooker']['gpio_cooker_on_off']))
-        self.cooker = Cooker(gpio_on_off=self.config.getint(
-            'cooker', 'gpio_cooker_on_off'),
-                             gpio_up=self.config.getint(
-                                 'cooker', 'gpio_cooker_up'),
-                             gpio_down=self.config.getint(
-                                 'cooker', 'gpio_cooker_down'),
-                             gpio_special=self.config.getint(
-                                 'cooker', 'gpio_cooker_special'),
-                             powers=tuple(map(int, powers_list)),
-                             init_power=self.config.getint(
-                                 'cooker', 'cooker_init_power'),
-                             special_power=self.config.getint(
-                                 'cooker', 'cooker_special_power'),
-                             do_init_special=self.config.getboolean(
-                                 'cooker', 'init_special')
-                             )
-        self.power_for_heads = self.config.getint('cooker', 'power_for_heads')
-        # self.cooker_current_power = self.cooker.current_power()
-        self.cooker_current_power = None
+        self.__cooker_init(self.config['cooker'])
 
         self.valve_water = valve.Valve(valve_gpio=self.config.getint(
             'valve_water',
@@ -197,6 +172,31 @@ class Distibot(object):
         self.pb = PBWrap(self.config.get('pushbullet', 'api_key'))
         self.pb_channel = self.pb.get_channel()
         self.log = open('{}/sensor-{}.csv'.format(self.outdir, self.dt_string), 'w')
+
+    def __cooker_init(self, arg_config):
+        """
+        initialize Cooker with values of a config section
+        """
+        powers_list = arg_config['cooker_powers'].replace(' ', '').split(',')
+        self.cooker = Cooker(gpio_on_off=arg_config.getint('gpio_cooker_on_off'),
+                             gpio_up=arg_config.getint('gpio_cooker_up'),
+                             gpio_down=arg_config.getint('gpio_cooker_down'),
+                             gpio_special=arg_config.getint('gpio_cooker_special'),
+                             powers=tuple(map(int, powers_list)),
+                             init_power=arg_config.getint('cooker_init_power'),
+                             special_power=arg_config.getint('cooker_special_power'),
+                             do_init_special=arg_config.getboolean('init_special')
+                             )
+        self.power_for_heads = arg_config.getint('power_for_heads')
+        logging.debug('powers_list=%s', tuple(map(int, powers_list)))
+        logging.debug('self.power_for_heads=%d', self.power_for_heads)
+        self.cooker_current_power = None
+        # TODO read from config
+        self.cooker_period = 3600
+        self.cooker_timeout = 3
+        self.cooker_timer = threading.Timer(self.cooker_period,
+                                            self.cooker_off)
+        self.timers.append(self.cooker_timer)
 
     def set_loop_flag(self, cond):
         """
