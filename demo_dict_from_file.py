@@ -111,7 +111,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Distibot module')
     parser.add_argument('--conf', type=str, default="distibot.conf",
                         help='conf file')
-    parser.add_argument('--play', type=str, default="dib-debug.play",
+    parser.add_argument('--play', type=str, default="dib-debug-condenser.play",
                         help='play file')
     parser.add_argument('--log_to_file', type=bool, default=False,
                         help='log destination')

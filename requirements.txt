@@ -1,4 +1,6 @@
-pip install configparser
-pip install pushbullet.py
-pip install RPi.GPIO
-pip install w1thermsensor
+configparser
+pushbullet.py
+RPi.GPIO
+w1thermsensor
+bottle
+plotly

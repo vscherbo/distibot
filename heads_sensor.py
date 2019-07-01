@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from gpio_dev import GPIO_DEV, GPIO
 import logging
+from gpio_dev import GPIO_DEV, GPIO
 
 
 class Heads_sensor(GPIO_DEV):
@@ -10,12 +10,12 @@ class Heads_sensor(GPIO_DEV):
     def __init__(self, hs_type, gpio_heads_start, gpio_heads_finish, timeout=1000):
         super(Heads_sensor, self).__init__()
 
-        if 'OPT' == hs_type:
+        if hs_type == 'OPT':
             self.edge = GPIO.RISING
             self.PUD = GPIO.PUD_DOWN
             # self.edge = GPIO.FALLING
             # self.PUD = GPIO.PUD_UP
-        elif 'RES' == hs_type:
+        elif hs_type == 'RES':
             self.edge = GPIO.RISING
             self.PUD = GPIO.PUD_DOWN
         else:
@@ -26,15 +26,18 @@ class Heads_sensor(GPIO_DEV):
         self.flag_ignore_finish = True
         #
         self.gpio_heads_start = gpio_heads_start
-        self.gpio_list.append(gpio_heads_start)
-        #
         self.gpio_heads_finish = gpio_heads_finish
-        self.gpio_list.append(gpio_heads_finish)
-        #
+        logging.info('init %s heads-sensor GPIO_start=%s, GPIO_finish=%s',
+                     hs_type,
+                     gpio_heads_start,
+                     gpio_heads_finish)
+        """
         hs_args = {'hs_type': hs_type,
                    'gpio_start': gpio_heads_start,
                    'gpio_finish': gpio_heads_finish}
-        logging.info('init {hs_type} heads-sensor GPIO_start={gpio_start}, GPIO_finish={gpio_finish}'.format(**hs_args))
+        logging.info('init {hs_type} heads-sensor GPIO_start={gpio_start},
+                     GPIO_finish={gpio_finish}'.format(**hs_args))
+        """
 
     def release(self):
         self.ignore_start()
@@ -65,12 +68,12 @@ class Heads_sensor(GPIO_DEV):
     # TODO merge watch_start & watch_finish in a single method
     def watch_start(self, start_callback):
         self.flag_ignore_start = False
-        GPIO.setup(self.gpio_heads_start, GPIO.IN, pull_up_down=self.PUD)
+        self.setup(self.gpio_heads_start, GPIO.IN, pull_up_down=self.PUD)
         GPIO.add_event_detect(self.gpio_heads_start, self.edge, bouncetime=self.timeout)
         GPIO.add_event_callback(self.gpio_heads_start, start_callback)
 
     def watch_finish(self, finish_callback):
-        GPIO.setup(self.gpio_heads_finish, GPIO.IN, pull_up_down=self.PUD)
+        self.setup(self.gpio_heads_finish, GPIO.IN, pull_up_down=self.PUD)
         self.ignore_start()
         self.flag_ignore_finish = False
         GPIO.add_event_detect(self.gpio_heads_finish, self.edge, bouncetime=self.timeout)
@@ -85,14 +88,15 @@ if __name__ == "__main__":
 #    import ConfigParser
 #    import io
 
-    def segv_handler(signal, frame):
-        logging.info('Catched signal {}'.format(signal))
-        logging.info('frame.f_locals={}'.format(frame.f_locals))
-        logging.info('frame: filename={}, function={}, line_no={}'.format(frame.f_code.co_filename, frame.f_code.co_name, frame.f_lineno))
+    def segv_handler(arg_signal, frame):
+        logging.info('Catched signal %s', arg_signal)
+        logging.info('frame.f_locals=%s', frame.f_locals)
+        logging.info('frame: filename=%s, function=%s, line_no=%d',
+                     frame.f_code.co_filename, frame.f_code.co_name, frame.f_lineno)
 
-    def signal_handler(signal, frame):
+    def signal_handler(arg_signal, frame):
         global loop_flag
-        logging.info('Catched signal {}'.format(signal))
+        logging.info('Catched signal %s', arg_signal)
         hs.release()
         loop_flag = False
 

@@ -1,5 +1,7 @@
-pip install configparser
-pip install pushbullet.py
+configparser
+pushbullet.py
 # non Raspberry
-pip install numpy
-pip install git+https://github.com/sn4k3/FakeRPi
+numpy
+git+https://github.com/sn4k3/FakeRPi
+bottle
+plotly

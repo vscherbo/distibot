@@ -1,6 +1,10 @@
 #!/bin/bash
 rm -f nohup.out
-nohup sudo PYTHONPATH=./webapp python $* 2>&1 &
-#sudo PYTHONPATH=/home/pi/mshine:/home/pi/mshine/webapp python $* 2>&1
+#nohup sudo PYTHONPATH=./webapp python $* 2>&1 &
+sudo -i bash -vx <<EOS
+cd /home/pi/distibot
+PYTHONPATH=./webapp 
+nohup python $* 2>&1 &
 echo "exitcode="$? 
+EOS
 sudo chown pi.pi *
