@@ -230,12 +230,13 @@ class Distibot(object):
             t_steps = [line.partition('#')[0].strip().split(',')
                        for line in open(play_filename, 'r')]
             logging.debug('t_steps=%s', t_steps)
-            _methods = [_attr for _attr in dir(self) if callable(getattr(self, _attr)) and not _attr.startswith('_')]
+            _methods = [_attr for _attr in dir(self)
+                        if callable(getattr(self, _attr)) and not _attr.startswith('_')]
             logging.debug('_methods=%s', _methods)
             for (loc_t, loc_ts, loc_method) in t_steps:
                 loc_t = float(loc_t)
                 loc_ts = loc_ts.strip()
-                loc_method = eval(loc_method.strip())
+                loc_method = loc_method.strip()
                 self.t_stages.append([loc_t, loc_ts, loc_method])
                 self.ts_play_set.add(loc_ts)
             logging.debug('t_stages=%s', self.t_stages)
@@ -289,8 +290,9 @@ class Distibot(object):
             print(','.join([str(c1) for c1 in crd]), file=self.log)
 
     def run_cmd(self):
-        self.cmd_last = self.curr_method.__name__
-        self.curr_method()
+        method_to_call = getattr(self, self.curr_method)
+        self.cmd_last = self.curr_method  # method_to_call.__name__
+        method_to_call()
         self.send_msg("Превысили {}".format(self.curr_t),
                       "current_t={}, tsensor={} команда={}".format(
                           self.tsensors.current_t, self.curr_ts, self.cmd_last))
