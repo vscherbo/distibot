@@ -1,7 +1,5 @@
-{
-0.0: self.start_process,
-# hardcoded in distibot.py 78.0 : self.wait4body,
-85.0: self.set_stage_body, # только для иконки
-94.0: self.stop_body,
-98.2: self.finish
-}
+00.0, boiler,    start_process      # старт
+78.0, condenser, wait4body          # включить охлаждение
+85.0, condenser, set_stage_body     # только для иконки
+94.0, condenser, stop_body          # прекратить отбор тела, переключиться на отбор хвостов
+98.5, condenser, finish             # финиш

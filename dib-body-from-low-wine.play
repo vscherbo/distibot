@@ -1,6 +1,4 @@
-{
-0.0: self.start_process,
-75.0: self.start_watch_heads,
-94.2: self.stop_body,
-98.2: self.finish
-}
+00.0, boiler,    start_process      # старт
+65.0, condenser, start_watch_heads  # включить датчик голов и охлаждение
+94.2, condenser, stop_body          # прекратить отбор тела, переключиться на отбор хвостов
+98.5, condenser, finish             # финиш
