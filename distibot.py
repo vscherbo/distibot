@@ -102,6 +102,7 @@ class Distibot(object):
         self.csv_delay = 0
         self.water_on = False
         self.loop_flag = None
+        self.flow_timer = None
 
         self.timestamp = time.localtime()
         self.dt_string = time.strftime("%Y-%m-%d-%H-%M")
@@ -118,7 +119,7 @@ class Distibot(object):
 
         self.timers = []
         self.drop_timer = threading.Timer(self.drop_period,
-                                          self.drop_container)
+                                          self.__drop_container)
         self.timers.append(self.drop_timer)
 
         if self.config.has_option('tsensors', 'gpio_ts'):
@@ -195,7 +196,7 @@ class Distibot(object):
         self.cooker_period = 3600
         self.cooker_timeout = 3
         self.cooker_timer = threading.Timer(self.cooker_period,
-                                            self.cooker_off)
+                                            self.__cooker_off)
         self.timers.append(self.cooker_timer)
 
     def set_loop_flag(self, cond):
@@ -276,7 +277,7 @@ class Distibot(object):
                 save_coord.write('^'.join([str(c1) for c1 in crd]) + '\n')
         logging.info('coordinates saved to file')
 
-    def csv_write(self):
+    def __csv_write(self):
         self.csv_delay += self.t_sleep
         if self.csv_delay >= self.csv_write_period:
             self.csv_delay = 0
@@ -329,7 +330,7 @@ class Distibot(object):
                     over_cnt = 0
                     self.run_cmd()
 
-                self.csv_write()
+                self.__csv_write()
             else:
                 self.send_msg("Сбой получения температуры", "Требуется вмешательство")
                 # ? self.stop_process() ?
@@ -345,7 +346,7 @@ class Distibot(object):
               + ", value=" + str(value), file=self.log)
 
     def start_process(self):
-        self.cooker_on()
+        self.__cooker_on()
         self.stage = 'heat'
         # moved to start_water()
         # self.drop_timer.start()
@@ -358,11 +359,11 @@ class Distibot(object):
         self.loop_flag = False
         time.sleep(self.t_sleep+0.5)
         self.stage = 'finish'  # before cooker_off!
-        self.cooker_off()
+        self.__cooker_off()
         logging.debug('stage is "%s"', self.stage)
         self.save_coord_file()
 
-    def cooker_off(self):
+    def __cooker_off(self):
         self.cooker_timer.cancel()
         if self.cooker_timer in self.timers:
             self.timers.remove(self.cooker_timer)
@@ -376,14 +377,14 @@ class Distibot(object):
             loc_str = "Финиш"
         else:
             self.cooker_timer = threading.Timer(self.cooker_timeout,
-                                                self.cooker_on)
+                                                self.__cooker_on)
             self.timers.append(self.cooker_timer)
             self.cooker_timer.start()
             loc_str = "Установлен таймер на {}".format(self.cooker_timeout)
 
         self.send_msg("Нагрев отключён", loc_str)
 
-    def cooker_on(self):
+    def __cooker_on(self):
         self.cooker_timer.cancel()
         self.timers.remove(self.cooker_timer)
 
@@ -395,7 +396,7 @@ class Distibot(object):
             self.cooker.switch_on()
 
         self.cooker_timer = threading.Timer(self.cooker_period,
-                                            self.cooker_off)
+                                            self.__cooker_off)
         self.timers.append(self.cooker_timer)
         self.cooker_timer.start()
         self.send_msg("Нагрев включён",
@@ -406,7 +407,7 @@ class Distibot(object):
         if self.heads_sensor.flag_ignore_start:
             logging.info('flag_ignore_start detected!')
         else:
-            if 'heads' == self.stage:
+            if self.stage == 'heads':
                 # ? Never will occured
                 logging.debug('stage is already heads. Skipping')
             else:
@@ -449,7 +450,7 @@ class Distibot(object):
         self.valve3way.way_1()
 
     def wait4body(self):
-        # self.cooker_on()
+        # self.__cooker_on()
         self.cooker.set_power(1400)
         self.start_water()
         self.valve3way.way_2()
@@ -463,7 +464,7 @@ class Distibot(object):
         if not self.water_on:
             self.valve_water.power_on_way()
             self.water_on = True
-            self.flow_timer = threading.Timer(self.flow_period, self.no_flow)
+            self.flow_timer = threading.Timer(self.flow_period, self.__no_flow)
             self.timers.append(self.flow_timer)
             self.flow_timer.start()
             self.flow_sensor.watch_flow(self.flow_detected)
@@ -471,7 +472,7 @@ class Distibot(object):
             logging.info('water_on={}, flow_timer.is_alive={}'.format(
                           self.water_on, self.flow_timer.is_alive()))
 
-    def drop_container(self):
+    def __drop_container(self):
         self.drop_timer.cancel()
         self.timers.remove(self.drop_timer)
 
@@ -480,11 +481,11 @@ class Distibot(object):
         self.send_msg("Сброс сухопарника", "Клапан сброса включён")
 
         self.drop_timer = threading.Timer(self.drop_timeout,
-                                          self.close_container)
+                                          self.__close_container)
         self.timers.append(self.drop_timer)
         self.drop_timer.start()
 
-    def close_container(self):
+    def __close_container(self):
         self.drop_timer.cancel()
         self.timers.remove(self.drop_timer)
 
@@ -493,7 +494,7 @@ class Distibot(object):
         self.send_msg("Сухопарник закрыт", "Клапан сброса отключён")
 
         self.drop_timer = threading.Timer(self.drop_period,
-                                          self.drop_container)
+                                          self.__drop_container)
         self.timers.append(self.drop_timer)
         self.drop_timer.start()
 
@@ -511,13 +512,13 @@ class Distibot(object):
         self.flow_timer.cancel()
         self.timers.remove(self.flow_timer)
 
-        self.flow_timer = threading.Timer(self.flow_period, self.no_flow)
+        self.flow_timer = threading.Timer(self.flow_period, self.__no_flow)
         self.timers.append(self.flow_timer)
         self.flow_timer.start()
 
         self.flow_sensor.handle_click()
 
-    def no_flow(self):
+    def __no_flow(self):
         logging.warning("Нет потока охлаждения \
         за flow_period={}, Аварийное отключение".format(self.flow_period))
         self.send_msg("Аварийное отключение", "Нет потока охлаждения")
