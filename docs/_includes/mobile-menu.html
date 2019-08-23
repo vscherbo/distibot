@@ -1,5 +1,5 @@
 <style>
-#mobile-menu {overflow: hidden;}
+/ *#mobile-menu {overflow: hidden;} */
 #mobile-menu ul {font-size: 0;}
 #mobile-menu li {font-size: 13px; display: inline-block; float: none; vertical-align: top;}
 
@@ -47,12 +47,21 @@ transform-origin: 50% 50%;
 
 .navbar-header {float: left!important;}
 
+/*
 @media screen and (max-width: {{ include.width }}px) {
         #mobile-menu-toggler {display: block;}
         #mobile-menu ul {clear: left; display: none;}
         #mobile-menu.open ul {display: block;}
         #mobile-menu li {display: block;}
 }
+*/
+@media screen and (max-width: 757px) {
+        #mobile-menu-toggler {display: block;}
+        #mobile-menu ul {clear: left; display: none;}
+        #mobile-menu .open ul {display: block;}
+        #mobile-menu li {display: none;}
+.open li {display: block !important;}
+li.active {margin-right: 20px;}
 </style>
 
 <script>
@@ -65,6 +74,7 @@ transform-origin: 50% 50%;
             //show toggler if not exists
             if(!($("#mobile-menu-toggler").length>0)) {
                 var mobilemenuheight = $('#mobile-menu').height();
+                var mobilemenuheight = ( mobilemenuheight === 0 ) ? 50 : mobilemenuheight;
                 var toggler = "<a id='mobile-menu-toggler' onclick='mobilemenutoggle();' style='height: "+mobilemenuheight+"px; line-height: "+(mobilemenuheight-1)+"px;'><span class='mobile-menu-text open'></span><span class='mobile-menu-text'>MENU</span><span class='mobile-menu-icon'></span></a>";
                 $( "#mobile-menu" ).prepend( toggler );
             }
