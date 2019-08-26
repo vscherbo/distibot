@@ -4,4 +4,4 @@ pushbullet.py
 numpy
 git+https://github.com/sn4k3/FakeRPi
 bottle
-plotly
+plotly == 3.9.0
