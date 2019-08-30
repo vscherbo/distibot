@@ -54,7 +54,7 @@ def signal_handler(signal, frame):
     logging.info('after app.close')
 
 
-signal.signal(signal.SIGINT, signal_handler)
+# bottle! signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGHUP, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
 signal.signal(signal.SIGUSR1, signal_handler)
@@ -194,10 +194,10 @@ except Exception:
     logging.exception('exception in app.run', exc_info=True)
 finally:
     logging.info("app.run finally")
-    # dib.stop_process()
-    # logging.info('finally after stop_process')
-    # dib.release()
-    # logging.info('finally after dib.release')
+    dib.finish()
+    logging.info('finally after stop_process')
+    dib.release()
+    logging.info('finally after dib.release')
 
 logging.info("Exiting!")
 sys.exit(0)
