@@ -154,7 +154,7 @@ if __name__ == "__main__":
     step_counter = 0
     while loop_flag:
         step_counter += 1
-        logging.info("step={step:>4}".format(step=step_counter))
+        # logging.info("step={step:>4}".format(step=step_counter))
         time.sleep(2)
 
     if loop_flag:  # not unset inside signal_handler
