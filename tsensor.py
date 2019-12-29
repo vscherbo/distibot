@@ -83,7 +83,7 @@ class Tsensors():
             if self.ts_dict[k].failed_cnt > self.temperature_error_limit:
                 self.ts_dict[k].failed_cnt = 0
                 got_temp = False
-            time.sleep(0.5)
+            time.sleep(0.75)
         return got_temp
 
     @property
@@ -98,6 +98,10 @@ class Tsensors():
             return True
         return False
 
+    def get_precision(self):
+        for k in self.ts_ids:
+            #self.ts_prec[k] = self.ts_dict[k].sensor.get_precision()
+            logging.info('id=%s, precision=%s', k, self.ts_dict[k].sensor.get_precision())
 
 if __name__ == '__main__':
     from time import sleep, strftime
@@ -142,6 +146,7 @@ if __name__ == '__main__':
     config.read(args.conf)
 
     tsensors = Tsensors(config)
+    tsensors.get_precision()
     tsensors.get_t()
     logging.info('ts_ids=%s', tsensors.ts_ids)
 
