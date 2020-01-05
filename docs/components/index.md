@@ -9,6 +9,7 @@ keywords: датчик температуры,датчик уровня,датч
 * [датчик температуры]({{ site.baseurl }}/gallery/temperature-sensor-ts1513020375.jpg "DS18B20") паров в кубе
 * [клапаны разделения фракций]({{ site.baseurl }}/gallery/distibot-3way-valve-20160613-173816-ts1512672060.jpg "блок разделения фракций"){:target="-blank"}
 * [резистивный датчик голов]({{ site.baseurl }}/gallery/distibot-heads-sensor-20170218-180512-ts1512672060.jpg "резистивный датчик голов")
+* [компаратор резистивного датчика голов]({{ site.baseurl }}/gallery/comparator.jpg "компаратор резистивного датчика голов")
 * блок управления индукционной плиткой
 
 Во [второй версии]({{ site.baseurl }}/gallery/distibot-ver-2-ts1513008896.jpg "дистибот-2") были добавлены:
