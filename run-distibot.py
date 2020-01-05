@@ -121,6 +121,20 @@ def t_show():
         output = template('webapp/temperature_show')
         return output
 
+# monolithic
+@app.route('/distibot')
+def dib_show():
+    if app.dib.loop_flag:
+        output = template('webapp/distibot')
+        return output
+
+
+@app.route('/ask_mono')
+def ask_mono():
+    if app.dib.loop_flag:
+        return "{0} об.  {1} Hz".format(app.dib.flow_sensor.clicks,
+                                        app.dib.flow_sensor.hertz)
+# end of monolithic
 
 @app.route('/ask_flow')
 def ask_flow():

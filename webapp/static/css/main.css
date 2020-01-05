@@ -1,3 +1,10 @@
+#div_mono {
+    display: flex;
+    width: 770px;
+    height: 790px;
+    font-size: 55px;
+}
+
 #div_t {
     display: flex;
     width: 770px;
