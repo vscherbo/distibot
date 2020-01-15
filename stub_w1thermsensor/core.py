@@ -63,3 +63,6 @@ class W1ThermSensor(object):
         except IndexError:
             T = 100
         return T
+
+    def get_precision(self):
+        return 12
