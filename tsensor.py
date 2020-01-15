@@ -16,7 +16,7 @@ import time
 
 
 class Tsensor(object):
-    def __init__(self, sensor_type=None, sensor_id=None, delta_threshold=0.3):
+    def __init__(self, sensor_type=None, sensor_id=None, delta_threshold=0.4):
         logging.getLogger(__name__).addHandler(logging.NullHandler())
         self.sensor_id = sensor_id
         self.initial_T = 4
@@ -83,7 +83,7 @@ class Tsensors():
             if self.ts_dict[k].failed_cnt > self.temperature_error_limit:
                 self.ts_dict[k].failed_cnt = 0
                 got_temp = False
-            time.sleep(0.5)
+            time.sleep(0.75)
         return got_temp
 
     @property
@@ -98,6 +98,10 @@ class Tsensors():
             return True
         return False
 
+    def get_precision(self):
+        for k in self.ts_ids:
+            #self.ts_prec[k] = self.ts_dict[k].sensor.get_precision()
+            logging.info('id=%s, precision=%s', k, self.ts_dict[k].sensor.get_precision())
 
 if __name__ == '__main__':
     from time import sleep, strftime
@@ -142,6 +146,7 @@ if __name__ == '__main__':
     config.read(args.conf)
 
     tsensors = Tsensors(config)
+    tsensors.get_precision()
     tsensors.get_t()
     logging.info('ts_ids=%s', tsensors.ts_ids)
 
@@ -159,7 +164,8 @@ if __name__ == '__main__':
         tsensors.get_t()
         for ts_id, t in tsensors.ts_data.items():
             logging.info('ts_id={0}, t={1}'.format(ts_id, t))
-        is_over = tsensors.t_over('boiler', Talarm)
+        #is_over = tsensors.t_over('boiler', Talarm)
+        is_over = False
         if is_over:
             logging.info("Превысили {0}, ts_id={1}, T={2}".format(Talarm, ts_id, tsensors.ts_data[ts_id]))
             # TODO alarm_cnt for the each sensor
