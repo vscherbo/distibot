@@ -522,9 +522,9 @@ class Distibot(object):
         logging.warning("Нет потока охлаждения \
         за flow_period={}, Аварийное отключение".format(self.flow_period))
         self.send_msg("Аварийное отключение", "Нет потока охлаждения")
-        # temporary do not STOP
-        # self.stop_process()
-        # self.release()
+        # temporary DO STOP
+        self.stop_process()
+        self.release()
 
     def finish(self):
         if self.stage != 'finish':
