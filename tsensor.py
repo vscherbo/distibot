@@ -16,7 +16,7 @@ import time
 
 
 class Tsensor(object):
-    def __init__(self, sensor_type=None, sensor_id=None, delta_threshold=0.4):
+    def __init__(self, sensor_type=None, sensor_id=None, delta_threshold=0.9):
         logging.getLogger(__name__).addHandler(logging.NullHandler())
         self.sensor_id = sensor_id
         self.initial_T = 4
