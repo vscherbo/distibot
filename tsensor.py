@@ -60,7 +60,7 @@ class Tsensor(object):
 
 
 class Tsensors():
-    temperature_error_limit = 3
+    temperature_error_limit = 5
     def __init__(self, config):
         # if config.has_section('tsensors'):
         ts_list = config.options('tsensors')
