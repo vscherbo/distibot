@@ -18,7 +18,7 @@ from cooker import Cooker
 import valve
 import heads_sensor
 import tsensor
-import flow_sensor
+from flow_sensor import FlowSensor
 
 def wait_for_internet():
     """
@@ -39,38 +39,8 @@ def wait_for_internet():
             time.sleep(10)
 
 
-
-class PBWrap(Pushbullet):
-    """
-        Pushbullet api calls wrapper
-    """
-    def __init__(self, api_key, emu_mode=False):
-        if str(api_key).lower() == 'xxx':
-            self.emu_mode = True
-            logging.info('api_key=%s, set emu_mode True', api_key)
-        else:
-            self.emu_mode = emu_mode
-            logging.info('set emu_mode=%s', emu_mode)
-
-        if self.emu_mode:
-            self.channels = []
-        else:
-            super(PBWrap, self).__init__(api_key)
-
-    def get_channel(self, channel_tag=u"Billy's moonshine"):
-        if self.emu_mode:
-            pb_channel = PBChannelEmu()
-        else:
-            pb_channel = [x for x in self.channels if x.name == channel_tag][0]
-        return pb_channel
-
-class PBChannelEmu(object):
-
-    def push_note(self, subject, msg):
-        logging.info("subj=%s/msg=%s", subject, msg)
-
-
-class Distibot(object):
+class Distibot:
+    """ A main class of Distibot """
 
     def __init__(self, conf_filename='distibot.conf', play_script='distibot.play'):
         logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -84,7 +54,7 @@ class Distibot(object):
         self.coord_t_condenser = []
 
 
-        self.outdir = 'output'  # TODO config
+        self.outdir = 'output'
         self.cmd_prev = 'before start'
         self.cmd_last = 'before start'
         self.curr_t = 0.0
@@ -103,6 +73,9 @@ class Distibot(object):
         self.water_on = False
         self.loop_flag = None
         self.flow_timer = None
+        self.cooker_init_power = None
+        self.cooker_timer = None
+        self.cooker_current_power = None
 
         self.timestamp = time.localtime()
         self.dt_string = time.strftime("%Y-%m-%d-%H-%M")
@@ -123,7 +96,6 @@ class Distibot(object):
         self.timers.append(self.drop_timer)
 
         if self.config.has_option('tsensors', 'gpio_ts'):
-            # TODO switch gpio to INPUT
             self.tsensors = tsensor.Tsensors(self.config)
             self.tsensors.get_t()
         if self.ts_play_set <= set(self.tsensors.ts_ids):
@@ -164,14 +136,14 @@ class Distibot(object):
                                           'gpio_hs_finish'),
                                       timeout=1000)
 
-        self.flow_sensor = flow_sensor.FlowSensor(gpio_fs=self.config.getint('flow_sensor', 'gpio_fs'))
+        self.flow_sensor = FlowSensor(gpio_fs=self.config.getint('flow_sensor', 'gpio_fs'))
         if tsensor.emu_mode:
             self.flow_period = 86400
         else:
             self.flow_period = self.config.getint('flow_sensor', 'flow_period')
 
-        self.pb = PBWrap(self.config.get('pushbullet', 'api_key'))
-        self.pb_channel = self.pb.get_channel()
+        self.push_bullet = PBWrap(self.config.get('pushbullet', 'api_key'))
+        self.pb_channel = self.push_bullet.get_channel()
         self.log = open('{}/sensor-{}.csv'.format(self.outdir, self.dt_string), 'w')
 
     def __cooker_init(self, arg_config):
@@ -179,12 +151,13 @@ class Distibot(object):
         initialize Cooker with values of a config section
         """
         powers_list = arg_config['cooker_powers'].replace(' ', '').split(',')
+        self.cooker_init_power = arg_config.getint('cooker_init_power')
         self.cooker = Cooker(gpio_on_off=arg_config.getint('gpio_cooker_on_off'),
                              gpio_up=arg_config.getint('gpio_cooker_up'),
                              gpio_down=arg_config.getint('gpio_cooker_down'),
                              gpio_special=arg_config.getint('gpio_cooker_special'),
                              powers=tuple(map(int, powers_list)),
-                             init_power=arg_config.getint('cooker_init_power'),
+                             init_power=self.cooker_init_power,
                              special_power=arg_config.getint('cooker_special_power'),
                              do_init_special=arg_config.getboolean('init_special')
                              )
@@ -192,8 +165,7 @@ class Distibot(object):
         logging.debug('powers_list=%s', tuple(map(int, powers_list)))
         logging.debug('self.power_for_heads=%d', self.power_for_heads)
         self.cooker_current_power = None
-        # TODO read from config
-        self.cooker_period = 3600
+        self.cooker_period = arg_config.getint('cooker_period')
         self.cooker_timeout = 3
         self.cooker_timer = threading.Timer(self.cooker_period,
                                             self.__cooker_off)
@@ -214,8 +186,8 @@ class Distibot(object):
         """
         call from self.finish()
         """
-        for t in self.timers:
-            t.cancel()
+        for timer_i in self.timers:
+            timer_i.cancel()
         self.flow_sensor.release()
         self.cooker.release()
         self.valve3way.release()
@@ -249,6 +221,7 @@ class Distibot(object):
         return res
 
     def send_msg(self, msg_subj, msg_body):
+        """ sending a mesasge to some messenger """
         logging.info("send_msg: subj=%s, msg='%s'", msg_subj, msg_body)
         msg_body = "{}: {}".format(time.strftime("%Y-%m-%d %H:%M"), msg_body)
         for i in range(1, 4):
@@ -271,26 +244,34 @@ class Distibot(object):
             """
 
     def save_coord_file(self):
+        """ Save collected data to file """
         outf_name = '{}/{}.dat'.format(self.outdir, self.dt_string)
-        with open(outf_name, 'w') as save_coord :
+        with open(outf_name, 'w') as save_coord:
             for crd in self.coord_list:
                 save_coord.write('^'.join([str(c1) for c1 in crd]) + '\n')
         logging.info('coordinates saved to file')
 
     def __csv_write(self):
+        if self.cmd_last != self.cmd_prev:
+            self.cmd_prev = self.cmd_last
+            crd_last = self.coord_csv.pop(-1)
+            crd_last.append(self.cmd_last)
+        else:
+            crd_last = None
+
         self.csv_delay += self.t_sleep
         if self.csv_delay >= self.csv_write_period:
             self.csv_delay = 0
             for crd in self.coord_csv:
                 print(','.join([str(c1) for c1 in crd]), file=self.log)
+            self.coord_csv.clear()
 
-        if self.cmd_last != self.cmd_prev:
-            self.cmd_prev = self.cmd_last
-            crd = self.coord_csv.pop(-1)
-            crd.append(self.cmd_last)
-            print(','.join([str(c1) for c1 in crd]), file=self.log)
+        if crd_last:
+            print(','.join([str(c1) for c1 in crd_last]), file=self.log)
+
 
     def run_cmd(self):
+        """ Run current command from play file """
         method_to_call = getattr(self, self.curr_method)
         self.cmd_last = self.curr_method  # method_to_call.__name__
         method_to_call()
@@ -307,6 +288,7 @@ class Distibot(object):
             self.curr_method = self.do_nothing
 
     def temperature_loop(self):
+        """ A main loop of getting temperature value """
         over_cnt = 0
         while self.loop_flag:
             coord = []
@@ -340,12 +322,14 @@ class Distibot(object):
         logging.info('temperature_loop exiting')
 
     def do_nothing(self, gpio_id=-1, value="-1"):
+        """ Stub method """
         print("do_nothing "
               + time.strftime("%H:%M:%S")
               + ", gpio_id=" + str(gpio_id)
               + ", value=" + str(value), file=self.log)
 
     def start_process(self):
+        """ Do everything to start a proccess """
         self.__cooker_on()
         self.stage = 'heat'
         # moved to start_water()
@@ -368,7 +352,6 @@ class Distibot(object):
         if self.cooker_timer in self.timers:
             self.timers.remove(self.cooker_timer)
 
-        # TODO simplify
         if self.cooker.power_index:
             self.cooker_current_power = self.cooker.current_power()
             self.cooker.switch_off()
@@ -388,9 +371,7 @@ class Distibot(object):
         self.cooker_timer.cancel()
         self.timers.remove(self.cooker_timer)
 
-        # TODO simplify
-        if self.cooker_current_power is not None and \
-           self.cooker_current_power > 0:
+        if self.cooker_current_power and self.cooker_current_power > 0:
             self.cooker.switch_on(self.cooker_current_power)
         else:
             self.cooker.switch_on()
@@ -403,6 +384,7 @@ class Distibot(object):
                       "Установлен таймер на {}".format(self.cooker_period))
 
     def heads_started(self, gpio_id=-1):
+        """ Run after a signal heads_started catched """
         logging.debug('inside heads_started')
         if self.heads_sensor.flag_ignore_start:
             logging.info('flag_ignore_start detected!')
@@ -412,7 +394,7 @@ class Distibot(object):
                 logging.debug('stage is already heads. Skipping')
             else:
                 self.stage = 'heads'
-                logging.debug('stage set to "{}"'.format(self.stage))
+                logging.info('stage set to "%s"', self.stage)
                 self.cmd_last = 'heads_started'
                 if gpio_id > 0:
                     self.send_msg("Стартовали головы",
@@ -422,27 +404,27 @@ class Distibot(object):
                 logging.debug('after watch_finish')
 
     def heads_finished(self, gpio_id=-1):
+        """ Run after a signal heads_finished catched """
         logging.debug('inside heads_finished')
         if self.heads_sensor.flag_ignore_finish:
             logging.info('flag_ignore_finish detected!')
         else:
-            if 'heads' != self.stage:
-                logging.debug('NOT heads, stage="{}". Skipping'.
-                              format(self.stage))
-                pass
+            if self.stage != 'heads':
+                logging.debug('NOT heads, stage="%s". Skipping', self.stage)
             else:
                 self.stage = 'body'
-                logging.debug('stage set to "{}"'.format(self.stage))
+                logging.info('stage set to "%s"', self.stage)
                 self.cmd_last = 'heads_finished'
                 if gpio_id > 0:
                     self.send_msg("Закончились головы",
                                   "gpio_id={}".format(gpio_id))
                     self.heads_sensor.ignore_finish()
                 self.valve3way.way_2()  # way for body
-                self.cooker.set_power(1400)  # TODO from config?
+                self.cooker.set_power(self.cooker_init_power)
                 self.start_water()
 
     def start_watch_heads(self):
+        """ This method starts a watching of heads """
         logging.debug('inside start_watch_heads')
         self.start_water()
         self.cooker.set_power(self.power_for_heads)
@@ -450,17 +432,20 @@ class Distibot(object):
         self.valve3way.way_1()
 
     def wait4body(self):
+        """ This method starts a watching of body """
         # self.__cooker_on()
-        self.cooker.set_power(1400)
+        self.cooker.set_power(self.cooker_init_power)
         self.start_water()
         self.valve3way.way_2()
         self.stage = 'body'
         logging.debug('stage is "%s"', self.stage)
 
     def set_stage_body(self):
+        """ Just for changing stage. Used for change icon in web """
         self.stage = 'body'
 
     def start_water(self):
+        """ Open a water tap """
         if not self.water_on:
             self.valve_water.power_on_way()
             self.water_on = True
@@ -469,8 +454,8 @@ class Distibot(object):
             self.flow_timer.start()
             self.flow_sensor.watch_flow(self.flow_detected)
             self.drop_timer.start()
-            logging.info('water_on={}, flow_timer.is_alive={}'.format(
-                          self.water_on, self.flow_timer.is_alive()))
+            logging.info('water_on=%s, flow_timer.is_alive=%s', self.water_on, \
+            self.flow_timer.is_alive())
 
     def __drop_container(self):
         self.drop_timer.cancel()
@@ -502,13 +487,15 @@ class Distibot(object):
 #        self.stop_body()
 
     def stop_body(self):
+        """ Stop collecting body, move to 'tails' stage """
         self.stage = 'tail'
         self.start_water()
-        logging.info('stage is "{}"'.format(self.stage))
+        logging.info('stage is "%s"', self.stage)
         self.valve3way.way_3()
         self.send_msg("Закончилось тело", "Клапан выключен")
 
     def flow_detected(self, gpio_id):
+        """ Rerun a flow's timer """
         self.flow_timer.cancel()
         self.timers.remove(self.flow_timer)
 
@@ -527,12 +514,45 @@ class Distibot(object):
         self.release()
 
     def finish(self):
+        """ Stop everything """
         if self.stage != 'finish':
             logging.info('========== distibot.finish()')
             self.stop_process()
             logging.info('after stop_process()')
             self.release()
             logging.info('after release()')
+
+
+class PBWrap(Pushbullet):
+    """
+        Pushbullet api calls wrapper
+    """
+    def __init__(self, api_key, emu_mode=False):
+        if str(api_key).lower() == 'xxx':
+            self.emu_mode = True
+            logging.info('api_key=%s, set emu_mode True', api_key)
+        else:
+            self.emu_mode = emu_mode
+            logging.info('set emu_mode=%s', emu_mode)
+
+        if self.emu_mode:
+            self.channels = []
+        else:
+            super(PBWrap, self).__init__(api_key)
+
+    def get_channel(self, channel_tag=u"Billy's moonshine"):
+        if self.emu_mode:
+            pb_channel = PBChannelEmu()
+        else:
+            pb_channel = [x for x in self.channels if x.name == channel_tag][0]
+        return pb_channel
+
+class PBChannelEmu:
+    """ Pushbullet channel emulator """
+
+    def push_note(self, subject, msg):
+        """ Just logging instead of pushing a note """
+        logging.info("subj=%s/msg=%s", subject, msg)
 
 
 if __name__ == "__main__":
@@ -542,14 +562,18 @@ if __name__ == "__main__":
     import signal
 
     def dib_stop():
+        """ Stop a Distibot instance """
         global dib
         dib.stop_process()
         logging.info('after stop_process')
         dib.release()
         logging.info('after dib.release')
 
-    def signal_handler(signal, frame):
-        logging.info('Catched signal {}'.format(signal))
+    def signal_handler(arg_signal, frame):
+        """ logging cathed signal """
+        logging.info('Catched signal %s', arg_signal)
+        logging.info('frame: filename=%s, function=%s, line_no=%s', frame.f_code.co_filename,\
+                      frame.f_code.co_name, frame.f_lineno)
         dib_stop()
 
     signal.signal(signal.SIGINT, signal_handler)
@@ -557,12 +581,12 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGUSR1, signal_handler)
 
-    def segv_handler(signal, frame):
-        logging.info('Catched signal {}'.format(signal))
-        logging.info('frame.f_locals={}'.format(frame.f_locals))
-        logging.info('frame: filename={}, function={}, line_no={}'.format(
-                      frame.f_code.co_filename,
-                      frame.f_code.co_name, frame.f_lineno))
+    def segv_handler(arg_signal, frame):
+        """ logging cathed SEGV signal """
+        logging.info('Catched signal %s', arg_signal)
+        logging.info('frame.f_locals=%s', frame.f_locals)
+        logging.info('frame: filename=%s, function=%s, line_no=%s', frame.f_code.co_filename,\
+                      frame.f_code.co_name, frame.f_lineno)
         dib_stop()
 
     signal.signal(signal.SIGSEGV, segv_handler)
@@ -605,3 +629,9 @@ if __name__ == "__main__":
     dib.temperature_loop()
 
     logging.info('Exit')
+
+""" TODO
+outdir read from config file
+tsensor ?switch gpio to INPUT
+"""
+
