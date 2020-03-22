@@ -180,7 +180,7 @@ def plot():
 
         margin = pgo.layout.Margin(b=100, l=35, pad=0, r=5, t=10)
         layout = pgo.Layout(autosize=True,
-                            width=900, height=600,
+                            # width=900, height=600,
                             margin=margin
                             )
         scatter = [pgo.Scatter(x=app.dib.coord_time,
@@ -190,7 +190,8 @@ def plot():
                                y=app.dib.coord_t_condenser,
                                name='Хол')]
         div_plot = plotly.offline.plot({"data": scatter, "layout": layout},
-                                       show_link=False, output_type='div')
+                                       show_link=False, output_type='div',
+                                       config={'responsive': True, 'scrollZoom': True})
         return div_plot
 
 
