@@ -1,7 +1,9 @@
 [cooker]
+#cooker_powers=(120, 300, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000)
 cooker_powers=120, 300, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000
 cooker_init_power=1400
 cooker_special_power=2000
+cooker_period=3600
 gpio_cooker_on_off=17
 gpio_cooker_up=22
 gpio_cooker_down=27
