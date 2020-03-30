@@ -9,7 +9,7 @@ gpio_cooker_up=22
 gpio_cooker_down=27
 gpio_cooker_special=15
 init_special=True
-power_for_heads=1000
+power_for_heads=800
 
 [tsensors]
 gpio_ts=4
@@ -21,10 +21,10 @@ gpio_dbl_valve_1=24
 gpio_dbl_valve_2=23
 
 [valve_water]
-gpio_valve_water=9
+gpio_valve_water=10
 
 [valve_drop]
-gpio_valve_drop=10
+gpio_valve_drop=9
 
 [heads_sensor]
 # valid values are:
@@ -36,7 +36,7 @@ gpio_hs_finish=25
 
 [flow_sensor]
 gpio_fs=11
-flow_period=10
+flow_period=15
 
 [pushbullet]
 api_key=xxx
