@@ -1,5 +1,5 @@
-00.0, boiler,    start_process      # старт
-78.0, condenser, wait4body          # включить охлаждение
-85.0, condenser, set_stage_body     # только для иконки
+00.0, condenser, start_process      # старт
+60.0, condenser, wait4body          # включить охлаждение
+78.0, condenser, set_stage_body     # только для иконки
 94.0, condenser, stop_body          # прекратить отбор тела, переключиться на отбор хвостов
 98.5, condenser, finish             # финиш
