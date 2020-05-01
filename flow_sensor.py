@@ -78,7 +78,7 @@ if __name__ == "__main__":
     logging.basicConfig(stream=sys.stdout, format=LOG_FORMAT,
                         level=logging.DEBUG)
 
-    class FSTester(object):
+    class FSTester():
         """ flow sensor tester class """
 
         def __init__(self, gpio_fs, flow_period):
