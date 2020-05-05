@@ -33,9 +33,6 @@ class HallSensor(GPIO_DEV):
         self.last_click = int(time.time() * MS_IN_A_SECOND)
         self.click_delta = 0
         self.hertz = 0.0
-        self.hall = 0.0  # in Liters per second
-        self.this_pour = 0.0  # in Liters
-        self.inst_pour = 0.0  # current hall
         self.gpio_hs = gpio_hs
         # self.gpio_list.append(gpio_hs)
         #logging.info('init hall-sensor GPIO_hall=%d', self.gpio_hs)
@@ -45,7 +42,7 @@ class HallSensor(GPIO_DEV):
         super(HallSensor, self).release()
         logging.info("hall_sensor released")
 
-    def watch_hall(self, hall_callback):
+    def watch_magnet(self, hall_callback):
         """ Start watch an events on gpio_hs
         Args:
             hall_callback (function): callback for event
@@ -61,7 +58,7 @@ class HallSensor(GPIO_DEV):
         self.clicks += 1
         # get the time delta
         self.click_delta = max((current_time - self.last_click), 1)
-        # calculate the instantaneous speed
+        # calculate a freq
         self.hertz = round(MS_IN_A_SECOND / self.click_delta)
         # Update the last click
         self.last_click = current_time
@@ -96,7 +93,7 @@ if __name__ == "__main__":
 
         def no_hall(self):
             """ called if timer is out """
-            logging.warning('no hall detected after hall_period=%d, exiting',
+            logging.warning('no magnet detected after hall_period=%d, exiting',
                             self.hall_period)
             self.release()
 
@@ -121,7 +118,7 @@ if __name__ == "__main__":
 
     GPIO_HS = 12
     HST = HSTester(GPIO_HS, 5)
-    HST.hall_sensor.watch_hall(HST.hall_detected)
+    HST.hall_sensor.watch_magnet(HST.hall_detected)
     HST.hall_timer.start()
     HST.do_flag = True
     while HST.do_flag:
