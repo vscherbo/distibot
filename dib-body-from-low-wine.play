@@ -1,4 +1,4 @@
 00.0, condenser, start_process      # старт
-55.0, condenser, start_watch_heads  # включить датчик голов и охлаждение
+40.0, condenser, start_watch_heads  # включить датчик голов и охлаждение
 94.5, condenser, stop_body          # прекратить отбор тела, переключиться на отбор хвостов
 97.7, condenser, finish             # финиш

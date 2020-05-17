@@ -1,8 +1,0 @@
-{
-0.0: self.start_process,
-77.0: self.heat_on_pause,
-78.5: self.heat_for_heads,
-83.0: self.start_watch_heads,
-94.5: self.stop_body,
-98.5: self.finish
-}
