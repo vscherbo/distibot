@@ -574,7 +574,9 @@ if __name__ == "__main__":
         logging.info('Catched signal %s', arg_signal)
         logging.info('frame: filename=%s, function=%s, line_no=%s', frame.f_code.co_filename,\
                       frame.f_code.co_name, frame.f_lineno)
-        dib_stop()
+        # ignore HUP, just log it
+        if arg_signal != 1:
+            dib_stop()
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGHUP, signal_handler)
