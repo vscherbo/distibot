@@ -98,10 +98,10 @@ class Tsensors():
             return True
         return False
 
-    def get_precision(self):
+    def get_resolution(self):
         for k in self.ts_ids:
-            #self.ts_prec[k] = self.ts_dict[k].sensor.get_precision()
-            logging.info('id=%s, precision=%s', k, self.ts_dict[k].sensor.get_precision())
+            #self.ts_prec[k] = self.ts_dict[k].sensor.get_resolution()
+            logging.info('id=%s, resolution=%s', k, self.ts_dict[k].sensor.get_resolution())
 
 if __name__ == '__main__':
     from time import sleep, strftime
@@ -146,7 +146,7 @@ if __name__ == '__main__':
     config.read(args.conf)
 
     tsensors = Tsensors(config)
-    tsensors.get_precision()
+    tsensors.get_resolution()
     tsensors.get_t()
     logging.info('ts_ids=%s', tsensors.ts_ids)
 
