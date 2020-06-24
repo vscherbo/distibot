@@ -24,7 +24,7 @@ class HallSensor(GPIO_DEV):
 
         Attributes:
             clicks (int): number of registered clicks
-            hertz (numeric): frequence of rotation
+            hertz (numeric): frequence of changes magnetic field
 
 
         """
@@ -116,8 +116,8 @@ if __name__ == "__main__":
             self.hall_sensor.handle_click()
             logging.debug("hall_count=%d FREQ=%d", self.hall_sensor.clicks, self.hall_sensor.hertz)
 
-    GPIO_HS = 12
-    HST = HSTester(GPIO_HS, 5)
+    GPIO_HS = 18
+    HST = HSTester(GPIO_HS, 995)
     HST.hall_sensor.watch_magnet(HST.hall_detected)
     HST.hall_timer.start()
     HST.do_flag = True

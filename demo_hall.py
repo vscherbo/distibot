@@ -28,4 +28,4 @@ while True:
         #print("magnetic field not detected")
     #time.sleep(1)
 
-    print('F={}, N={}'.format(found, not_found))
+    print('{}^{}^{}'.format(time.strftime('%s'), found, not_found))
