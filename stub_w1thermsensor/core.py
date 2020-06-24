@@ -64,5 +64,5 @@ class W1ThermSensor(object):
             T = 100
         return T
 
-    def get_precision(self):
+    def get_resolution(self):
         return 12
