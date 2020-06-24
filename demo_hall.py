@@ -27,4 +27,5 @@ while True:
         #gpio.output(ledpin, False)
         #print("magnetic field not detected")
     #time.sleep(1)
+
     print('F={}, N={}'.format(found, not_found))
