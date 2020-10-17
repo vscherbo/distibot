@@ -9,7 +9,13 @@ gpio_cooker_up=22
 gpio_cooker_down=27
 gpio_cooker_special=15
 init_special=True
-power_for_heads=800
+power_for_heads=1000
+
+[tanalog]
+gpio_CS=5
+gpio_DOUT=6
+gpio_CLK=13
+Vref=3.3
 
 [tsensors]
 gpio_ts=4
