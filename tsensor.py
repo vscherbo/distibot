@@ -8,10 +8,12 @@ try:
     imp.find_module('w1thermsensor')
     import w1thermsensor
     from w1thermsensor.errors import ResetValueError
+    from w1thermsensor.errors import SensorNotReadyError
     EMU_MODE = False
 except ImportError:
     import stub_w1thermsensor as w1thermsensor
     from stub_w1thermsensor.errors import ResetValueError
+    from stub_w1thermsensor.errors import SensorNotReadyError
     EMU_MODE = True
 import re
 
@@ -42,12 +44,12 @@ class Tsensor():
             loc_t = round(self.sensor.get_temperature(unit), 1)
         except ResetValueError:
             if self.curr_t > 84.0:
-                pass
+                logging.info('ResetValueError curr_t={}'.format(self.curr_t))
+        except SensorNotReadyError:
+            logging.exception('SensorNotReadyError')
         except Exception:
             logging.exception('get_temperature')
             self.failed_cnt += 1
-            # use current value
-            loc_t = self.curr_t
             raise
         else:
             self.failed_cnt = 0
@@ -59,7 +61,7 @@ class Tsensor():
             else:
                 # save current T
                 self.curr_t = loc_t
-        return loc_t
+        return loc_t or self.curr_t
 
     def delta_over(self, check_t):
         """ Returns True if delta between values is over self.delta_threshold
