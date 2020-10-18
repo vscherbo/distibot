@@ -2,4 +2,4 @@
 60.0, condenser, wait4body          # включить охлаждение
 78.0, condenser, set_stage_body     # только для иконки
 94.0, condenser, stop_body          # прекратить отбор тела, переключиться на отбор хвостов
-98.5, condenser, finish             # финиш
+97.5, condenser, finish             # финиш
