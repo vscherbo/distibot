@@ -137,7 +137,7 @@ class Distibot:
                                       timeout=1000)
 
         self.flow_sensor = FlowSensor(gpio_fs=self.config.getint('flow_sensor', 'gpio_fs'))
-        if tsensor.emu_mode:
+        if tsensor.EMU_MODE:
             self.flow_period = 86400
         else:
             self.flow_period = self.config.getint('flow_sensor', 'flow_period')
