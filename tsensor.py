@@ -40,6 +40,7 @@ class Tsensor():
     def get_temperature(self, unit=w1thermsensor.W1ThermSensor.DEGREES_C):
         """ Get measured temperature
         """
+        loc_t = None
         try:
             loc_t = round(self.sensor.get_temperature(unit), 1)
         except ResetValueError:
