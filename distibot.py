@@ -38,6 +38,8 @@ def wait_for_internet():
             logging.warning("Connection failed. Retrying in 10 seconds")
             time.sleep(10)
 
+TEMPERATURE_OVER_LIMIT = 3
+
 
 class Distibot:
     """ A main class of Distibot """
@@ -61,11 +63,11 @@ class Distibot:
         self.curr_ts = ''
         self.curr_method = ''
         self.csv_write_period = 3
-        self.temperature_over_limit = 3
+        # self.temperature_over_limit = 3
         self.temperature_delta_limit = 0.3  # 30%
         self.stage = 'start'
         self.pause_start_ts = 0
-        self.pause_limit = 180
+        #self.pause_limit = 180
         self.drop_period = 4000
         self.drop_timeout = 15
         self.t_sleep = 1
@@ -308,7 +310,7 @@ class Distibot:
                 if self.tsensors.ts_data[self.curr_ts] > self.curr_t:
                     over_cnt += 1
 
-                if over_cnt > self.temperature_over_limit or self.curr_t == 0.0:
+                if over_cnt > TEMPERATURE_OVER_LIMIT or self.curr_t == 0.0:
                     over_cnt = 0
                     self.run_cmd()
 
@@ -340,6 +342,7 @@ class Distibot:
         """
         call from self.finish()
         """
+        self.__drop_container()
         self.loop_flag = False
         time.sleep(self.t_sleep+0.5)
         self.stage = 'finish'  # before cooker_off!
