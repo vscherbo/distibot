@@ -63,13 +63,12 @@ class Distibot:
         self.curr_ts = ''
         self.curr_method = ''
         self.csv_write_period = 3
-        # self.temperature_over_limit = 3
         self.temperature_delta_limit = 0.3  # 30%
         self.stage = 'start'
         self.pause_start_ts = 0
-        #self.pause_limit = 180
-        self.drop_period = 4000
-        self.drop_timeout = 15
+        #self.drop_period = 4000
+        #self.drop_timeout = 15
+        self.drop = {'period': 4000, 'timeout': 15}
         self.t_sleep = 1
         self.csv_delay = 0
         self.water_on = False
@@ -93,7 +92,7 @@ class Distibot:
         self.config.read(conf_filename)
 
         self.timers = []
-        self.drop_timer = threading.Timer(self.drop_period,
+        self.drop_timer = threading.Timer(self.drop['period'],
                                           self.__drop_container)
         self.timers.append(self.drop_timer)
 
@@ -468,7 +467,7 @@ class Distibot:
         logging.debug('drop is on')
         self.send_msg("Сброс сухопарника", "Клапан сброса включён")
 
-        self.drop_timer = threading.Timer(self.drop_timeout,
+        self.drop_timer = threading.Timer(self.drop['timeout'],
                                           self.__close_container)
         self.timers.append(self.drop_timer)
         self.drop_timer.start()
@@ -481,7 +480,7 @@ class Distibot:
         logging.debug('drop is off')
         self.send_msg("Сухопарник закрыт", "Клапан сброса отключён")
 
-        self.drop_timer = threading.Timer(self.drop_period,
+        self.drop_timer = threading.Timer(self.drop['period'],
                                           self.__drop_container)
         self.timers.append(self.drop_timer)
         self.drop_timer.start()
@@ -566,10 +565,10 @@ if __name__ == "__main__":
 
     def dib_stop():
         """ Stop a Distibot instance """
-        global dib
-        dib.stop_process()
+        global DIB
+        DIB.stop_process()
         logging.info('after stop_process')
-        dib.release()
+        DIB.release()
         logging.info('after dib.release')
 
     def signal_handler(arg_signal, frame):
@@ -614,24 +613,24 @@ if __name__ == "__main__":
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: {0}'.format(numeric_level))
 
-    log_format = '[%(filename)-22s:%(lineno)4s - %(funcName)20s()] \
+    LOG_FORMAT = '[%(filename)-22s:%(lineno)4s - %(funcName)20s()] \
             %(levelname)-7s | %(asctime)-15s | %(message)s'
-    # log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
+    # LOG_FORMAT = '%(asctime)-15s | %(levelname)-7s | %(message)s'
 
     if args.log_to_file:
-        log_dir = ''
-        log_file = log_dir + prg_name + ".log"
-        logging.basicConfig(filename=log_file, format=log_format,
+        LOG_DIR = ''
+        log_file = LOG_DIR + prg_name + ".log"
+        logging.basicConfig(filename=log_file, format=LOG_FORMAT,
                             level=numeric_level)
     else:
-        logging.basicConfig(stream=sys.stdout, format=log_format,
+        logging.basicConfig(stream=sys.stdout, format=LOG_FORMAT,
                             level=numeric_level)
 
     # end of prolog
     logging.info('Started')
 
-    dib = Distibot(conf_filename=args.conf, play_script=args.play)
-    dib.temperature_loop()
+    DIB = Distibot(conf_filename=args.conf, play_script=args.play)
+    DIB.temperature_loop()
 
     logging.info('Exit')
 
@@ -639,4 +638,3 @@ if __name__ == "__main__":
 outdir read from config file
 tsensor ?switch gpio to INPUT
 """
-
