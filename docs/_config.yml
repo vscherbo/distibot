@@ -10,5 +10,6 @@ google_analytics: UA-110946042-1
 comments: true
 disqus:
     shortname: distibot_disqus
+url: "https://distibot.ru"
 plugins:
   - jekyll-sitemap        
