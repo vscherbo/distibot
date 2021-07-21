@@ -214,9 +214,10 @@ class Distibot:
                 self.t_stages.append([loc_t, loc_ts, loc_method])
                 self.ts_play_set.add(loc_ts)
             logging.debug('t_stages=%s', self.t_stages)
-        except BaseException:
+        except:
             res = False
             logging.exception('load_script exception')
+            raise
         else:
             res = True
         return res
