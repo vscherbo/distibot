@@ -229,12 +229,9 @@ class Distibot:
         for i in range(1, 4):
             try:
                 self.pb_channel.push_note(msg_subj, msg_body)
-            except ConnectionResetError:
-                logging.info('ConnectionResetError in send_msg[%d]', i)
-                time.sleep(1)
-            except Exception:
+            except BaseException:
                 logging.exception('exception in send_msg[%d]', i)
-                raise
+                time.sleep(1)
             else:
                 break
 
