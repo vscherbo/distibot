@@ -9,10 +9,11 @@ import time
 from configparser import ConfigParser
 import threading
 import logging
-import socket
-import requests
+#import socket
+#import requests
 
-from pushbullet import Pushbullet
+#from pushbullet import Pushbullet
+import dib_notifier
 
 from cooker import Cooker
 import valve
@@ -20,23 +21,6 @@ import heads_sensor
 import tsensor
 from flow_sensor import FlowSensor
 
-def wait_for_internet():
-    """
-    Loop until an internet connection to pushbullet.com port 80 is
-    available.
-    """
-
-    while True:
-        try:
-            logging.info("Trying connection to Pushbullet API.")
-            socket.create_connection(('api.pushbullet.com', '80'), timeout=30)
-            logging.info("Connection successful.")
-            break
-
-        except (socket.gaierror, socket.timeout,
-                ConnectionRefusedError, requests.exceptions.ConnectionError):
-            logging.warning("Connection failed. Retrying in 10 seconds")
-            time.sleep(10)
 
 TEMPERATURE_OVER_LIMIT = 3
 
@@ -143,8 +127,7 @@ class Distibot:
         else:
             self.flow_period = self.config.getint('flow_sensor', 'flow_period')
 
-        self.push_bullet = PBWrap(self.config.get('pushbullet', 'api_key'))
-        self.pb_channel = self.push_bullet.get_channel()
+        self.notifier = dib_notifier.TGNotifier()
         self.log = open('{}/sensor-{}.csv'.format(self.outdir, self.dt_string), 'w')
 
     def __cooker_init(self, arg_config):
@@ -225,10 +208,10 @@ class Distibot:
     def send_msg(self, msg_subj, msg_body):
         """ sending a mesasge to some messenger """
         logging.info("send_msg: subj=%s, msg='%s'", msg_subj, msg_body)
-        msg_body = "{}: {}".format(time.strftime("%Y-%m-%d %H:%M"), msg_body)
+        msg_body = '{}: {}'.format(msg_subj, msg_body)
         for i in range(1, 4):
             try:
-                self.pb_channel.push_note(msg_subj, msg_body)
+                self.notifier.send_msg(msg_body)
             except BaseException:
                 logging.exception('exception in send_msg[%d]', i)
                 time.sleep(1)
@@ -524,38 +507,6 @@ class Distibot:
             logging.info('after stop_process()')
             self.release()
             logging.info('after release()')
-
-
-class PBWrap(Pushbullet):
-    """
-        Pushbullet api calls wrapper
-    """
-    def __init__(self, api_key, emu_mode=False):
-        if str(api_key).lower() == 'xxx':
-            self.emu_mode = True
-            logging.info('api_key=%s, set emu_mode True', api_key)
-        else:
-            self.emu_mode = emu_mode
-            logging.info('set emu_mode=%s', emu_mode)
-
-        if self.emu_mode:
-            self.channels = []
-        else:
-            super(PBWrap, self).__init__(api_key)
-
-    def get_channel(self, channel_tag=u"Billy's moonshine"):
-        if self.emu_mode:
-            pb_channel = PBChannelEmu()
-        else:
-            pb_channel = [x for x in self.channels if x.name == channel_tag][0]
-        return pb_channel
-
-class PBChannelEmu:
-    """ Pushbullet channel emulator """
-
-    def push_note(self, subject, msg):
-        """ Just logging instead of pushing a note """
-        logging.info("subj=%s/msg=%s", subject, msg)
 
 
 if __name__ == "__main__":

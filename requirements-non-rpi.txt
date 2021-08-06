@@ -1,5 +1,6 @@
 configparser
-pushbullet.py
+#pushbullet.py
+python-telegram-bot
 # non Raspberry
 numpy
 git+https://github.com/sn4k3/FakeRPi
