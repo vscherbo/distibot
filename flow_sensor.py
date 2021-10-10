@@ -63,7 +63,7 @@ class FlowSensor(GPIO_DEV):
         self.click_delta = max((current_time - self.last_click), 1)
         # calculate the instantaneous speed
         self.hertz = round(MS_IN_A_SECOND / self.click_delta)
-        self.flow = self.hertz / 700
+        self.flow = self.hertz * 1000 / 516  # 516Hz -> 1 Liter
         self.inst_pour = self.flow * (self.click_delta / MS_IN_A_SECOND)
         self.this_pour += self.inst_pour
         # Update the last click
