@@ -90,7 +90,7 @@ class TGNotifier(telegram.Bot):
             super().__init__(token)
 
     def send_msg(self, message):
-        """ Send am essage to the Telegram chat with CHAT_ID
+        """ Send a message to the Telegram chat with CHAT_ID
         """
         self.sendMessage(chat_id=CHAT_ID, text=message)
 
