@@ -37,12 +37,12 @@ class Tsensor():
         except w1thermsensor.core.KernelModuleLoadError:
             logging.error('w1thermsensor.core.KernelModuleLoadError', exc_info=True)
 
-    def get_temperature(self, unit=w1thermsensor.W1ThermSensor.DEGREES_C):
+    def get_temperature(self):
         """ Get measured temperature
         """
         loc_t = None
         try:
-            loc_t = round(self.sensor.get_temperature(unit), 1)
+            loc_t = round(self.sensor.get_temperature(), 1)
         except ResetValueError:
             if self.curr_t > 84.0:
                 logging.info('ResetValueError curr_t={}'.format(self.curr_t))
