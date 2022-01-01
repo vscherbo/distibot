@@ -76,6 +76,7 @@ if __name__ == "__main__":
         """ hall sensor tester class """
 
         def __init__(self, gpio_hs, hall_period):
+            """ hall_period in seconds """
             self.hall_sensor = HallSensor(gpio_hs=gpio_hs)
             self.hall_period = hall_period
             self.timers = []
