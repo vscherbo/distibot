@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 """ 
 An analog temperature sensor LM35 module connected via ADC MCP3201
+
+VREF и VDD -> 3.3V
+IN- и VSS -> GND
+CLK -> GPIO11 (SPI_CLK)
+DOUT -> GPIO9 (SPI_MISO)
+CS/SHDN -> GPIO8 (SPI_CE0)
 """
 
 import time
