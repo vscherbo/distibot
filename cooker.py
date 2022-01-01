@@ -177,12 +177,12 @@ if __name__ == '__main__':
             self.play = eval(script.read())
             script.close()
 
-        def play_script(self):
+        def play_script(self, arg_delay=3):
             for play_stage in self.play:
-                logging.debug('=== run play_stage={0}'.format(play_stage))
+                logging.debug('======================== run play_stage={0}'.format(play_stage))
                 self.cooker.set_power(play_stage)
                 logging.info('>>> current_power={}'.format(self.cooker.current_power()))
-                sleep(3)
+                sleep(arg_delay)
 
     (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
 
