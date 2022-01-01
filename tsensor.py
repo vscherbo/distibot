@@ -34,7 +34,7 @@ class Tsensor():
             # sensor = W1ThermSensor(W1ThermSensor.THERM_SENSOR_DS18B20, "0000066c6502")
             # ll /sys/bus/w1/devices/
             self.sensor = w1thermsensor.W1ThermSensor(sensor_type=sensor_type, sensor_id=sensor_id)
-        except w1thermsensor.core.KernelModuleLoadError:
+        except w1thermsensor.errors.KernelModuleLoadError:
             logging.error('w1thermsensor.core.KernelModuleLoadError', exc_info=True)
 
     def get_temperature(self):
