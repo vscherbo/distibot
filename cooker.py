@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+""" A cooker control module """
+
 import time
 import logging
 # import io
@@ -8,9 +10,11 @@ from gpio_dev import GPIO_DEV, GPIO
 
 
 class Cooker(GPIO_DEV):
+    """ A Cooker class """
 
-    def __init__(self, gpio_on_off, gpio_up, gpio_down, gpio_special, powers, init_power, special_power, do_init_special):
-        super(Cooker, self).__init__()
+    def __init__(self, gpio_on_off, gpio_up, gpio_down, gpio_special,\
+                 powers, init_power, special_power, do_init_special):
+        super().__init__()
         self.gpio_on_off = gpio_on_off
         self.setup(self.gpio_on_off, GPIO.OUT, initial=GPIO.LOW)
         #
@@ -46,9 +50,10 @@ class Cooker(GPIO_DEV):
         self.call_log()
         logging.info("cooker.release")
         self.switch_off()
-        super(Cooker, self).release()
+        super().release()
 
     def click_button(self, gpio_port_num):
+        """ to click a button of cooker """
         time.sleep(self.click_delay)  # для двух "нажатий" подряд
         self.output(gpio_port_num, GPIO.HIGH)
         time.sleep(self.click_delay)
@@ -56,6 +61,7 @@ class Cooker(GPIO_DEV):
         # logging.debug('clicked port={gpio}'.format(gpio=gpio_port_num))
 
     def switch_on(self, power_value=None):
+        """ switch a cooker on """
         self.call_log()
         if not self.state_on:
             self.click_button(self.gpio_on_off)
@@ -63,16 +69,17 @@ class Cooker(GPIO_DEV):
             self.state_on = True
             logging.info("switch_ON")
         if power_value is not None:
-            logging.debug("switch_on, arg power_value={}".format(power_value))
+            logging.debug("switch_on, arg power_value=%s", power_value)
             self.set_power(power_value)
             self.power_index = self.powers.index(power_value)
-            logging.debug("switched on, current_power={}".format(self.current_power()))
+            logging.debug("switched on, current_power=%s", self.current_power())
         elif self.do_init_special:  # power_value is a priority
             self.click_button(self.gpio_special)
             self.power_index = self.ini_special_index
             self.do_init_special = False
 
     def switch_off(self):
+        """ switch a cooker off """
         self.call_log()
         if self.state_on:
             logging.info("switch_OFF")
@@ -80,40 +87,47 @@ class Cooker(GPIO_DEV):
             self.state_on = False
 
     def power_up(self):
+        """ press <+> button of cooker to make power higher """
         if self.power_index < self.max_power_index:
             self.click_button(self.gpio_up)
             self.power_index += 1
-            logging.debug("power_up, new_index={}, new_power={}".format(self.power_index, self.current_power()))
-            return True
+            logging.debug("power_up, new_index=%s, new_power=%s",\
+                          self.power_index, self.current_power())
+            result = True
         else:
-            logging.debug("power_up, False index={}, power={}".format(self.power_index, self.current_power()))
-            return False
+            logging.debug("power_up, False index=%s, power=%s",\
+                          self.power_index, self.current_power())
+            result = False
+        return result
 
     def set_power_max(self):
+        """ set the highest power of cooker """
         while self.power_up():
-            pass
-            logging.debug("set_power_max loop, power={}".format(self.current_power()))
+            logging.debug("set_power_max loop, power=%s", self.current_power())
 
     def power_down(self):
+        """ press <-> button of cooker to make power lower """
         if self.power_index > 0:
             self.click_button(self.gpio_down)
             self.power_index -= 1
-            logging.debug("power_down, new_index={}, new_power={}".format(self.power_index, self.current_power()))
-            return True
+            logging.debug("power_down, new_index=%s, new_power=%s",\
+                          self.power_index, self.current_power())
+            result = True
         else:
-            logging.debug("power_down, False index={}, power={}".format(self.power_index, self.current_power()))
-            return False
+            logging.debug("power_down, False index=%s, power=%s",\
+                          self.power_index, self.current_power())
+            result = False
+        return result
 
     def set_power_min(self):
         while self.power_down():
-            pass
-            logging.debug("set_power_min loop, power={}".format(self.current_power()))
+            logging.debug("set_power_min loop, power=%s" ,self.current_power())
 
     def set_power_600(self):
         self.switch_on()
         while self.current_power() > 600:
             self.power_down()
-            logging.debug("power_600 loop, power={}".format(self.current_power()))
+            logging.debug("power_600 loop, power=%s" ,self.current_power())
 
     def set_power_300(self):
         self.set_power(300)
@@ -126,7 +140,7 @@ class Cooker(GPIO_DEV):
 
     def set_power(self, power):
         # TODO detect wrong power OR approximate
-        logging.debug("set_power arg_power={}".format(power))
+        logging.debug("set_power arg_power=%s" ,power)
         try:
             self.target_power_index = self.powers.index(power)
         # except LookupError:
@@ -150,39 +164,42 @@ class Cooker(GPIO_DEV):
     def current_power(self):
         return self.powers[self.power_index]
 
+
+class CookerTester():
+    """ tester running play script """
+    def __init__(self, conf_filename='distibot.conf'):
+        self.config = ConfigParser()
+        self.config.read(conf_filename)
+        self.play = None
+
+        self.cooker = Cooker(gpio_on_off=self.config.getint('cooker', 'gpio_cooker_on_off'),
+                             gpio_up=self.config.getint('cooker', 'gpio_cooker_up'),
+                             gpio_down=self.config.getint('cooker', 'gpio_cooker_down'),
+                             gpio_special=self.config.getint('cooker', 'gpio_cooker_special'),
+                             powers=eval(self.config.get('cooker', 'cooker_powers')),
+                             init_power=self.config.getint('cooker', 'cooker_init_power'),
+                             special_power=self.config.getint('cooker', 'cooker_special_power'),
+                             do_init_special=self.config.getboolean('cooker', 'init_special')
+                             )
+
+    def load_script(self, play_file_name):
+        script = open(play_file_name, 'r')
+        self.play = eval(script.read())
+        script.close()
+
+    def play_script(self, arg_delay=3):
+        for play_stage in self.play:
+            logging.debug('======================== run play_stage={0}'.format(play_stage))
+            self.cooker.set_power(play_stage)
+            logging.info('>>> current_power={}'.format(self.cooker.current_power()))
+            sleep(arg_delay)
+
 if __name__ == '__main__':
     from time import sleep
     import argparse
     import os
     import sys
     from configparser import ConfigParser
-
-    class Cooker_tester(object):
-        def __init__(self, conf_filename='distibot.conf'):
-            self.config = ConfigParser()
-            self.config.read(conf_filename)
-
-            self.cooker = Cooker(gpio_on_off=self.config.getint('cooker', 'gpio_cooker_on_off'),
-                                 gpio_up=self.config.getint('cooker', 'gpio_cooker_up'),
-                                 gpio_down=self.config.getint('cooker', 'gpio_cooker_down'),
-                                 gpio_special=self.config.getint('cooker', 'gpio_cooker_special'),
-                                 powers=eval(self.config.get('cooker', 'cooker_powers')),
-                                 init_power=self.config.getint('cooker', 'cooker_init_power'),
-                                 special_power=self.config.getint('cooker', 'cooker_special_power'),
-                                 do_init_special=self.config.getboolean('cooker', 'init_special')
-                                 )
-
-        def load_script(self, play_file_name):
-            script = open(play_file_name, 'r')
-            self.play = eval(script.read())
-            script.close()
-
-        def play_script(self, arg_delay=3):
-            for play_stage in self.play:
-                logging.debug('======================== run play_stage={0}'.format(play_stage))
-                self.cooker.set_power(play_stage)
-                logging.info('>>> current_power={}'.format(self.cooker.current_power()))
-                sleep(arg_delay)
 
     (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
 
@@ -197,18 +214,17 @@ if __name__ == '__main__':
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % numeric_level)
 
-    # log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] %(levelname)-7s | %(asctime)-15s | %(message)s'
-    log_format = '%(asctime)-15s | %(levelname)-7s | %(message)s'
+    LOG_FORMAT = '%(asctime)-15s | %(levelname)-7s | %(message)s'
 
     if args.log_to_file:
-        log_dir = ''
-        log_file = log_dir + prg_name + ".log"
-        logging.basicConfig(filename=log_file, format=log_format, level=numeric_level)
+        LOG_DIR = ''
+        log_file = LOG_DIR + prg_name + ".log"
+        logging.basicConfig(filename=log_file, format=LOG_FORMAT, level=numeric_level)
     else:
-        logging.basicConfig(stream=sys.stdout, format=log_format, level=numeric_level)
+        logging.basicConfig(stream=sys.stdout, format=LOG_FORMAT, level=numeric_level)
 
     logging.info('Started')
-    ckt = Cooker_tester(args.conf)
+    ckt = CookerTester(args.conf)
 
     ckt.cooker.switch_on()
     sleep(2)
