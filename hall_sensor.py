@@ -28,7 +28,7 @@ class HallSensor(GPIO_DEV):
 
 
         """
-        super(HallSensor, self).__init__()
+        super().__init__()
         self.clicks = 0
         self.last_click = int(time.time() * MS_IN_A_SECOND)
         self.click_delta = 0
@@ -39,7 +39,7 @@ class HallSensor(GPIO_DEV):
 
     def release(self):
         GPIO.remove_event_detect(self.gpio_hs)
-        super(HallSensor, self).release()
+        super().release()
         logging.info("hall_sensor released")
 
     def watch_magnet(self, hall_callback):
