@@ -28,7 +28,7 @@ class HallSensor(GPIO_DEV):
 
 
         """
-        super().__init__()
+        super(HallSensor, self).__init__()
         self.clicks = 0
         self.last_click = int(time.time() * MS_IN_A_SECOND)
         self.click_delta = 0
@@ -39,7 +39,7 @@ class HallSensor(GPIO_DEV):
 
     def release(self):
         GPIO.remove_event_detect(self.gpio_hs)
-        super().release()
+        super(HallSensor, self).release()
         logging.info("hall_sensor released")
 
     def watch_magnet(self, hall_callback):
@@ -48,8 +48,8 @@ class HallSensor(GPIO_DEV):
             hall_callback (function): callback for event
 
         """
-        self.setup(self.gpio_hs, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(self.gpio_hs, GPIO.RISING)
+        self.setup(self.gpio_hs, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.add_event_detect(self.gpio_hs, GPIO.FALLING)
         GPIO.add_event_callback(self.gpio_hs, callback=hall_callback)
 
     def handle_click(self):
@@ -70,8 +70,7 @@ if __name__ == "__main__":
 
     LOG_FORMAT = '%(asctime)-15s | %(levelname)-7s | %(message)s'
     logging.basicConfig(stream=sys.stdout, format=LOG_FORMAT,
-                        level=logging.INFO)
-                        #level=logging.DEBUG)
+                        level=logging.DEBUG)
 
     class HSTester():
         """ hall sensor tester class """
@@ -116,11 +115,10 @@ if __name__ == "__main__":
             self.hall_timer.start()
 
             self.hall_sensor.handle_click()
-            #logging.info("hall_count=%d FREQ=%d", self.hall_sensor.clicks, self.hall_sensor.hertz)
-            logging.info("hall_count=%d", self.hall_sensor.clicks)
+            logging.debug("hall_count=%d FREQ=%d", self.hall_sensor.clicks, self.hall_sensor.hertz)
 
     GPIO_HS = 18
-    HST = HSTester(GPIO_HS, 5)
+    HST = HSTester(GPIO_HS, 995)
     HST.hall_sensor.watch_magnet(HST.hall_detected)
     HST.hall_timer.start()
     HST.do_flag = True

@@ -49,6 +49,11 @@ class GPIO_DEV(object):
         GPIO.output(channel, value)
         logging.info('OUTPUT channel=%s, value=%s', channel, GPIO_LEVEL[value])
 
+    def input(self, channel):
+        val = GPIO.input(channel)
+        logging.info('INPUT channel=%s, val=%s', channel, GPIO_LEVEL[val])
+        return val
+
     def call_log(self):
         stack = inspect.stack()
         the_class = stack[1][0].f_locals["self"].__class__
