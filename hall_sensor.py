@@ -34,6 +34,9 @@ class HallSensor(GPIO_DEV):
         self.click_delta = 0
         self.hertz = 0.0
         self.gpio_hs = gpio_hs
+        self.setup(self.gpio_hs, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        # TODO getter
+        self.field = self.input(gpio_hs)
         # self.gpio_list.append(gpio_hs)
         #logging.info('init hall-sensor GPIO_hall=%d', self.gpio_hs)
 
@@ -48,12 +51,12 @@ class HallSensor(GPIO_DEV):
             hall_callback (function): callback for event
 
         """
-        self.setup(self.gpio_hs, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(self.gpio_hs, GPIO.FALLING)
+        GPIO.add_event_detect(self.gpio_hs, GPIO.BOTH)
         GPIO.add_event_callback(self.gpio_hs, callback=hall_callback)
 
-    def handle_click(self):
+    def handle_click(self, field):
         """ click handler calculates characterisitcs """
+        self.field = field
         current_time = int(time.time() * MS_IN_A_SECOND)
         self.clicks += 1
         # get the time delta
@@ -81,8 +84,12 @@ if __name__ == "__main__":
             self.hall_period = hall_period
             self.timers = []
             self.do_flag = False
-            self.hall_timer = threading.Timer(self.hall_period, self.no_hall)
-            self.timers.append(self.hall_timer)
+            if not self.hall_sensor.field:
+                self.hall_timer = threading.Timer(self.hall_period, self.no_hall)
+                self.timers.append(self.hall_timer)
+                self.hall_timer.start()
+            else:
+                self.hall_timer = None
 
         def release(self):
             """ relase resources """
@@ -106,26 +113,37 @@ if __name__ == "__main__":
             """
 
             # pylint: disable=unused-argument
-
-            self.hall_timer.cancel()
-            self.timers.remove(self.hall_timer)
+            field = self.hall_sensor.input(gpio_id)
+            logging.debug("field=%s", field)
+            # if field:
+            if self.hall_timer:
+                self.hall_timer.cancel()
+                self.timers.remove(self.hall_timer)
 
             self.hall_timer = threading.Timer(self.hall_period, self.no_hall)
             self.timers.append(self.hall_timer)
             self.hall_timer.start()
+            #logging.debug("hall_count=%d FREQ=%d", self.hall_sensor.clicks, self.hall_sensor.hertz)
+            logging.debug("hall_count=%d", self.hall_sensor.clicks)
 
-            self.hall_sensor.handle_click()
-            logging.debug("hall_count=%d FREQ=%d", self.hall_sensor.clicks, self.hall_sensor.hertz)
+            self.hall_sensor.handle_click(field)
+
+        def timer_status(self):
+            """ return a timer status """
+            if self.hall_timer:
+                res = self.hall_timer.is_alive()
+            else:
+                res = 'not set'
+            return res
 
     GPIO_HS = 18
-    HST = HSTester(GPIO_HS, 995)
+    HST = HSTester(GPIO_HS, 5)
     HST.hall_sensor.watch_magnet(HST.hall_detected)
-    HST.hall_timer.start()
     HST.do_flag = True
     while HST.do_flag:
         try:
             time.sleep(2)
-            logging.debug('timer.is_alive=%s', HST.hall_timer.is_alive())
+            logging.debug('timer.is_alive=%s', HST.timer_status())
         except KeyboardInterrupt:
             logging.info('\ncaught keyboard interrupt!, bye')
             HST.release()
