@@ -6,8 +6,8 @@ Handle <TODO sensor mark>
 """
 
 import time
-import logging
-from gpio_dev import GPIO_DEV, GPIO
+#import logging
+from gpio_dev import GPIO_DEV, GPIO, logging
 
 SECONDS_IN_A_MINUTE = 60
 MS_IN_A_SECOND = 1000.0
@@ -24,21 +24,26 @@ class HallSensor(GPIO_DEV):
 
         Attributes:
             clicks (int): number of registered clicks
-            hertz (numeric): frequence of changes magnetic field
+            last_click (time): time of last click
+            click_delta (int): ...
 
 
         """
         super(HallSensor, self).__init__()
         self.clicks = 0
-        self.last_click = int(time.time() * MS_IN_A_SECOND)
+        self.last_click = time.time()
         self.click_delta = 0
-        self.hertz = 0.0
         self.gpio_hs = gpio_hs
         self.setup(self.gpio_hs, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        # TODO getter
-        self.field = self.input(gpio_hs)
-        # self.gpio_list.append(gpio_hs)
-        #logging.info('init hall-sensor GPIO_hall=%d', self.gpio_hs)
+
+    def __repr__(self):
+        return 'field={}, last_change={}, delta={}'.format(self.field,\
+               time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_click)),\
+               self.click_delta) 
+
+    @property
+    def field(self):
+        return self.input(self.gpio_hs)
 
     def release(self):
         GPIO.remove_event_detect(self.gpio_hs)
@@ -52,17 +57,15 @@ class HallSensor(GPIO_DEV):
 
         """
         GPIO.add_event_detect(self.gpio_hs, GPIO.BOTH)
+        #GPIO.add_event_detect(self.gpio_hs, GPIO.BOTH, bouncetime=500)
         GPIO.add_event_callback(self.gpio_hs, callback=hall_callback)
 
-    def handle_click(self, field):
+    def handle_click(self):
         """ click handler calculates characterisitcs """
-        self.field = field
-        current_time = int(time.time() * MS_IN_A_SECOND)
+        current_time = time.time()
         self.clicks += 1
         # get the time delta
-        self.click_delta = max((current_time - self.last_click), 1)
-        # calculate a freq
-        self.hertz = round(MS_IN_A_SECOND / self.click_delta)
+        self.click_delta = int(current_time - self.last_click)
         # Update the last click
         self.last_click = current_time
 
@@ -73,7 +76,7 @@ if __name__ == "__main__":
 
     LOG_FORMAT = '%(asctime)-15s | %(levelname)-7s | %(message)s'
     logging.basicConfig(stream=sys.stdout, format=LOG_FORMAT,
-                        level=logging.DEBUG)
+                        level=logging.INFO)
 
     class HSTester():
         """ hall sensor tester class """
@@ -81,21 +84,25 @@ if __name__ == "__main__":
         def __init__(self, gpio_hs, hall_period):
             """ hall_period in seconds """
             self.hall_sensor = HallSensor(gpio_hs=gpio_hs)
+            logging.info("hall_sensor: %s", self.hall_sensor)
             self.hall_period = hall_period
             self.timers = []
             self.do_flag = False
-            if not self.hall_sensor.field:
+            if self.hall_sensor.field:
+                self.hall_timer = None
+            else:
                 self.hall_timer = threading.Timer(self.hall_period, self.no_hall)
                 self.timers.append(self.hall_timer)
                 self.hall_timer.start()
-            else:
-                self.hall_timer = None
 
         def release(self):
             """ relase resources """
             logging.debug('HSTester.release')
             for timer in self.timers:
                 timer.cancel()
+            #if self.hall_timer:
+            #    self.hall_timer.cancel()
+
             self.hall_sensor.release()
             self.do_flag = False
 
@@ -105,28 +112,28 @@ if __name__ == "__main__":
                             self.hall_period)
             self.release()
 
+        def watch_magnet(self, callback):
+            self.hall_sensor.watch_magnet(callback)
+
         def hall_detected(self, gpio_id):
             """ callback function for a hall sensor's event
             Args:
                 gpio_id (int): it will be passed by RPi.GPIO
 
             """
-
-            # pylint: disable=unused-argument
             field = self.hall_sensor.input(gpio_id)
             logging.debug("field=%s", field)
-            # if field:
-            if self.hall_timer:
+            if field:
                 self.hall_timer.cancel()
                 self.timers.remove(self.hall_timer)
+            else:
+                self.hall_timer = threading.Timer(self.hall_period, self.no_hall)
+                self.timers.append(self.hall_timer)
+                self.hall_timer.start()
+            #logging.debug("hall_count=%d", self.hall_sensor.clicks)
+            logging.info("hall_sensor: %s", self.hall_sensor)
 
-            self.hall_timer = threading.Timer(self.hall_period, self.no_hall)
-            self.timers.append(self.hall_timer)
-            self.hall_timer.start()
-            #logging.debug("hall_count=%d FREQ=%d", self.hall_sensor.clicks, self.hall_sensor.hertz)
-            logging.debug("hall_count=%d", self.hall_sensor.clicks)
-
-            self.hall_sensor.handle_click(field)
+            self.hall_sensor.handle_click()
 
         def timer_status(self):
             """ return a timer status """
@@ -138,7 +145,7 @@ if __name__ == "__main__":
 
     GPIO_HS = 18
     HST = HSTester(GPIO_HS, 5)
-    HST.hall_sensor.watch_magnet(HST.hall_detected)
+    HST.watch_magnet(HST.hall_detected)
     HST.do_flag = True
     while HST.do_flag:
         try:
