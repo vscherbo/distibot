@@ -5,6 +5,7 @@
 
 import time
 import logging
+from configparser import ConfigParser
 # import io
 from gpio_dev import GPIO_DEV, GPIO
 
@@ -192,14 +193,12 @@ class CookerTester():
             logging.debug('======================== run play_stage={0}'.format(play_stage))
             self.cooker.set_power(play_stage)
             logging.info('>>> current_power={}'.format(self.cooker.current_power()))
-            sleep(arg_delay)
+            time.sleep(arg_delay)
 
 if __name__ == '__main__':
-    from time import sleep
     import argparse
     import os
     import sys
-    from configparser import ConfigParser
 
     (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
 
@@ -227,7 +226,7 @@ if __name__ == '__main__':
     ckt = CookerTester(args.conf)
 
     ckt.cooker.switch_on()
-    sleep(2)
+    time.sleep(2)
 
     # cooker_play = (240, 150, 80, 150)
     ckt.load_script(args.play)
