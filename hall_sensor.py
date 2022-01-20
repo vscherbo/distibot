@@ -35,20 +35,12 @@ class HallSensor(GPIO_DEV):
         self.click_delta = 0.0
         self.gpio_hs = gpio_hs
         self.setup(self.gpio_hs, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        self.field = self.input(self.gpio_hs)
 
     def __repr__(self):
-        return 'last_change={}, delta={}'.format(\
-               time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_click)),\
-               self.click_delta) 
-        """
         return 'field={}, last_change={}, delta={}'.format(self.field,\
                time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_click)),\
                self.click_delta) 
-        """
-
-    @property
-    def field(self):
-        return self.input(self.gpio_hs)
 
     def release(self):
         GPIO.remove_event_detect(self.gpio_hs)
@@ -66,6 +58,7 @@ class HallSensor(GPIO_DEV):
 
     def handle_click(self):
         """ click handler calculates characterisitcs """
+        self.field = self.input(self.gpio_hs)
         current_time = time.time()
         self.clicks += 1
         # get the time delta
@@ -128,16 +121,15 @@ if __name__ == "__main__":
 
             """
             self.hall_sensor.handle_click()
+            logging.info("hall_sensor: %s", self.hall_sensor)
 
-            if self.hall_sensor.field:
+            if self.hall_sensor.field:  # important: after hall_sendor.handle_click
                 self.hall_timer.cancel()
                 self.timers.remove(self.hall_timer)
             else:
                 self.hall_timer = threading.Timer(self.hall_period, self.no_hall)
                 self.timers.append(self.hall_timer)
                 self.hall_timer.start()
-
-            logging.info("hall_sensor: %s", self.hall_sensor)
 
         def timer_status(self):
             """ return a timer status """
