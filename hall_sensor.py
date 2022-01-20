@@ -32,14 +32,19 @@ class HallSensor(GPIO_DEV):
         super(HallSensor, self).__init__()
         self.clicks = 0
         self.last_click = time.time()
-        self.click_delta = 0
+        self.click_delta = 0.0
         self.gpio_hs = gpio_hs
         self.setup(self.gpio_hs, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     def __repr__(self):
+        return 'last_change={}, delta={}'.format(\
+               time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_click)),\
+               self.click_delta) 
+        """
         return 'field={}, last_change={}, delta={}'.format(self.field,\
                time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.last_click)),\
                self.click_delta) 
+        """
 
     @property
     def field(self):
@@ -57,7 +62,6 @@ class HallSensor(GPIO_DEV):
 
         """
         GPIO.add_event_detect(self.gpio_hs, GPIO.BOTH)
-        #GPIO.add_event_detect(self.gpio_hs, GPIO.BOTH, bouncetime=500)
         GPIO.add_event_callback(self.gpio_hs, callback=hall_callback)
 
     def handle_click(self):
@@ -65,7 +69,7 @@ class HallSensor(GPIO_DEV):
         current_time = time.time()
         self.clicks += 1
         # get the time delta
-        self.click_delta = int(current_time - self.last_click)
+        self.click_delta = round(current_time - self.last_click, 2)
         # Update the last click
         self.last_click = current_time
 
@@ -74,7 +78,9 @@ if __name__ == "__main__":
     import sys
     import threading
 
-    LOG_FORMAT = '%(asctime)-15s | %(levelname)-7s | %(message)s'
+    LOG_FORMAT = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] \
+     %(levelname)-7s | %(asctime)-15s | %(message)s'
+    #LOG_FORMAT = '%(asctime)-15s | %(levelname)-7s | %(message)s'
     logging.basicConfig(stream=sys.stdout, format=LOG_FORMAT,
                         level=logging.INFO)
 
@@ -121,19 +127,17 @@ if __name__ == "__main__":
                 gpio_id (int): it will be passed by RPi.GPIO
 
             """
-            field = self.hall_sensor.input(gpio_id)
-            logging.debug("field=%s", field)
-            if field:
+            self.hall_sensor.handle_click()
+
+            if self.hall_sensor.field:
                 self.hall_timer.cancel()
                 self.timers.remove(self.hall_timer)
             else:
                 self.hall_timer = threading.Timer(self.hall_period, self.no_hall)
                 self.timers.append(self.hall_timer)
                 self.hall_timer.start()
-            #logging.debug("hall_count=%d", self.hall_sensor.clicks)
-            logging.info("hall_sensor: %s", self.hall_sensor)
 
-            self.hall_sensor.handle_click()
+            logging.info("hall_sensor: %s", self.hall_sensor)
 
         def timer_status(self):
             """ return a timer status """
