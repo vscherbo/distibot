@@ -6,6 +6,7 @@ Handle <TODO sensor mark>
 """
 
 import time
+import threading
 #import logging
 from gpio_dev import GPIO_DEV, GPIO, logging
 
@@ -66,79 +67,78 @@ class HallSensor(GPIO_DEV):
         # Update the last click
         self.last_click = current_time
 
+class HSTester():
+    """ hall sensor tester class """
+
+    def __init__(self, gpio_hs, hall_period):
+        """ hall_period in seconds """
+        self.hall_sensor = HallSensor(gpio_hs=gpio_hs)
+        logging.info("hall_sensor: %s", self.hall_sensor)
+        self.hall_period = hall_period
+        self.timers = []
+        self.do_flag = False
+        if self.hall_sensor.field:
+            self.hall_timer = None
+        else:
+            self.hall_timer = threading.Timer(self.hall_period, self.no_hall)
+            self.timers.append(self.hall_timer)
+            self.hall_timer.start()
+
+    def release(self):
+        """ relase resources """
+        logging.debug('HSTester.release')
+        for timer in self.timers:
+            timer.cancel()
+        #if self.hall_timer:
+        #    self.hall_timer.cancel()
+
+        self.hall_sensor.release()
+        self.do_flag = False
+
+    def no_hall(self):
+        """ called if timer is out """
+        logging.warning('no magnet detected after hall_period=%d, exiting',
+                        self.hall_period)
+        self.release()
+
+    def watch_magnet(self, callback):
+        self.hall_sensor.watch_magnet(callback)
+
+    def hall_detected(self, gpio_id):
+        """ callback function for a hall sensor's event
+        Args:
+            gpio_id (int): it will be passed by RPi.GPIO
+
+        """
+        self.hall_sensor.handle_click()
+        logging.info("hall_sensor: %s", self.hall_sensor)
+
+        if self.hall_sensor.field:  # important: after hall_sendor.handle_click
+            self.hall_timer.cancel()
+            self.timers.remove(self.hall_timer)
+        else:
+            self.hall_timer = threading.Timer(self.hall_period, self.no_hall)
+            self.timers.append(self.hall_timer)
+            self.hall_timer.start()
+
+    def timer_status(self):
+        """ return a timer status """
+        if self.hall_timer:
+            res = self.hall_timer.is_alive()
+        else:
+            res = 'not set'
+        return res
+
+
 
 if __name__ == "__main__":
     import sys
-    import threading
 
     LOG_FORMAT = '[%(filename)-20s:%(lineno)4s - %(funcName)20s()] \
      %(levelname)-7s | %(asctime)-15s | %(message)s'
     #LOG_FORMAT = '%(asctime)-15s | %(levelname)-7s | %(message)s'
     logging.basicConfig(stream=sys.stdout, format=LOG_FORMAT,
                         level=logging.INFO)
-
-    class HSTester():
-        """ hall sensor tester class """
-
-        def __init__(self, gpio_hs, hall_period):
-            """ hall_period in seconds """
-            self.hall_sensor = HallSensor(gpio_hs=gpio_hs)
-            logging.info("hall_sensor: %s", self.hall_sensor)
-            self.hall_period = hall_period
-            self.timers = []
-            self.do_flag = False
-            if self.hall_sensor.field:
-                self.hall_timer = None
-            else:
-                self.hall_timer = threading.Timer(self.hall_period, self.no_hall)
-                self.timers.append(self.hall_timer)
-                self.hall_timer.start()
-
-        def release(self):
-            """ relase resources """
-            logging.debug('HSTester.release')
-            for timer in self.timers:
-                timer.cancel()
-            #if self.hall_timer:
-            #    self.hall_timer.cancel()
-
-            self.hall_sensor.release()
-            self.do_flag = False
-
-        def no_hall(self):
-            """ called if timer is out """
-            logging.warning('no magnet detected after hall_period=%d, exiting',
-                            self.hall_period)
-            self.release()
-
-        def watch_magnet(self, callback):
-            self.hall_sensor.watch_magnet(callback)
-
-        def hall_detected(self, gpio_id):
-            """ callback function for a hall sensor's event
-            Args:
-                gpio_id (int): it will be passed by RPi.GPIO
-
-            """
-            self.hall_sensor.handle_click()
-            logging.info("hall_sensor: %s", self.hall_sensor)
-
-            if self.hall_sensor.field:  # important: after hall_sendor.handle_click
-                self.hall_timer.cancel()
-                self.timers.remove(self.hall_timer)
-            else:
-                self.hall_timer = threading.Timer(self.hall_period, self.no_hall)
-                self.timers.append(self.hall_timer)
-                self.hall_timer.start()
-
-        def timer_status(self):
-            """ return a timer status """
-            if self.hall_timer:
-                res = self.hall_timer.is_alive()
-            else:
-                res = 'not set'
-            return res
-
     GPIO_HS = 18
     HST = HSTester(GPIO_HS, 5)
     HST.watch_magnet(HST.hall_detected)
