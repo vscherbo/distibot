@@ -11,17 +11,17 @@ import logging
 import threading
 import RPi.GPIO as gpio
 import cooker
+import hall_sensor
+
+hallpin = 18
 
 def main():
     """ Just main """
     gpio.setmode(gpio.BCM)
     gpio.setwarnings(False)
 
-    hallpin = 18
 
     gpio.setup( hallpin, gpio.IN)
-    #gpio.setup(ledpin, gpio.OUT)
-    #gpio.output(ledpin, False)
 
     found = 0
     not_found = 0
@@ -61,20 +61,27 @@ if __name__ == '__main__':
         logging.basicConfig(stream=sys.stdout, format=LOG_FORMAT, level=numeric_level)
 
     logging.info('Started')
-    ckt = cooker.CookerTester(args.conf)
-
-    ckt.cooker.switch_on()
+    CKT = cooker.CookerTester(args.conf)
+    CKT.cooker.switch_on()
     sleep(2)
+    CKT.load_script(args.play)
 
-    ckt.load_script(args.play)
     try:
-        t_ckt = threading.Thread(target=ckt.play_script())
-        t_ckt.start()
+        T_CKT = threading.Thread(target=CKT.play_script())
+        T_CKT.start()
     except:
         logging.exception("Error: unable to start thread", exc_info=True)
     else:
-        main()
+        HST = hall_sensor.HSTester(hallpin, 5)
+        HST.watch_magnet(HST.hall_detected)
 
-    ckt.cooker.release()
-
-    logging.info('Finished')
+    HST.do_flag = True
+    while HST.do_flag:
+        try:
+            time.sleep(2)
+            logging.debug('timer.is_alive=%s', HST.timer_status())
+        except KeyboardInterrupt:
+            logging.info('\ncaught keyboard interrupt!, bye')
+            CKT.cooker.release()
+            HST.release()
+            sys.exit()
