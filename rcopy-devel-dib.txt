@@ -1,0 +1,1 @@
+rclone copy --include=*2022-04-10* output/ devel-dib:distibot/data/2022-04-10
