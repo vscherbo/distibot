@@ -236,9 +236,9 @@ if __name__ == '__main__':
     logging.debug('bck_power={}'.format(bck_power))
 
     ckt.cooker.switch_off()
-    sleep(2)
+    time.sleep(2)
     ckt.cooker.switch_on(bck_power)
-    sleep(2)
+    time.sleep(2)
 
     ckt.cooker.release()
 
