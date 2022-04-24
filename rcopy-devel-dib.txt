@@ -1,1 +1,3 @@
-rclone copy --include=*2022-04-10* output/ devel-dib:distibot/data/2022-04-10
+#rclone copy --include=*YYYY-MM-DD-HH-MI* output/ devel-dib:distibot/data/YYYY-MM-DD-HH-MI
+#rclone copy --include=*2022-04-10-11-44* output/ devel-dib:distibot/data/2022-04-10-11-44
+rclone copy --include=*$1* output/ devel-dib:distibot/data/$1
