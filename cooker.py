@@ -130,6 +130,7 @@ class Cooker(GPIO_DEV):
             self.power_down()
             logging.debug("power_600 loop, power=%s" ,self.current_power())
 
+    """ to delete
     def set_power_300(self):
         self.set_power(300)
 
@@ -138,6 +139,7 @@ class Cooker(GPIO_DEV):
 
     def set_power_1800(self):
         self.set_power(1800)
+    """
 
     def set_power(self, power):
         # TODO detect wrong power OR approximate
