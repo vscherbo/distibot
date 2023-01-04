@@ -47,7 +47,8 @@ class Tsensor():
             if self.curr_t > 84.0:
                 logging.info('ResetValueError curr_t=%s', self.curr_t)
         except SensorNotReadyError:
-            logging.exception('SensorNotReadyError')
+            logging.info('SensorNotReadyError curr_t=%s', self.curr_t)
+            #logging.exception('SensorNotReadyError')
         except Exception:
             logging.exception('get_temperature')
             self.failed_cnt += 1
