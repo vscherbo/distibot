@@ -69,15 +69,15 @@ class Cooker(GPIO_DEV):
             self.power_index = self.ini_power_index
             self.state_on = True
             logging.info("switch_ON")
+        if self.do_init_special:  # power_value is a priority
+            self.click_button(self.gpio_special)
+            self.power_index = self.ini_special_index
+            self.do_init_special = False
         if power_value is not None:
             logging.debug("switch_on, arg power_value=%s", power_value)
             self.set_power(power_value)
             self.power_index = self.powers.index(power_value)
             logging.debug("switched on, current_power=%s", self.current_power())
-        elif self.do_init_special:  # power_value is a priority
-            self.click_button(self.gpio_special)
-            self.power_index = self.ini_special_index
-            self.do_init_special = False
 
     def switch_off(self):
         """ switch a cooker off """
@@ -123,23 +123,6 @@ class Cooker(GPIO_DEV):
     def set_power_min(self):
         while self.power_down():
             logging.debug("set_power_min loop, power=%s" ,self.current_power())
-
-    def set_power_600(self):
-        self.switch_on()
-        while self.current_power() > 600:
-            self.power_down()
-            logging.debug("power_600 loop, power=%s" ,self.current_power())
-
-    """ to delete
-    def set_power_300(self):
-        self.set_power(300)
-
-    def set_power_1200(self):
-        self.set_power(1200)
-
-    def set_power_1800(self):
-        self.set_power(1800)
-    """
 
     def set_power(self, power):
         # TODO detect wrong power OR approximate
