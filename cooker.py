@@ -218,7 +218,7 @@ if __name__ == '__main__':
     ckt.play_script()
 
     bck_power = ckt.cooker.current_power()
-    logging.debug('bck_power={}'.format(bck_power))
+    logging.debug('bck_power=%s', bck_power)
 
     ckt.cooker.switch_off()
     time.sleep(2)
