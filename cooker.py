@@ -68,16 +68,16 @@ class Cooker(GPIO_DEV):
             self.click_button(self.gpio_on_off)
             self.power_index = self.ini_power_index
             self.state_on = True
-            logging.info("switch_ON")
+            logging.info("switched ON")
+        if self.do_init_special:  # power_value is a priority
+            self.click_button(self.gpio_special)
+            self.power_index = self.ini_special_index
+            #self.do_init_special = False
         if power_value is not None:
             logging.debug("switch_on, arg power_value=%s", power_value)
             self.set_power(power_value)
             self.power_index = self.powers.index(power_value)
             logging.debug("switched on, current_power=%s", self.current_power())
-        elif self.do_init_special:  # power_value is a priority
-            self.click_button(self.gpio_special)
-            self.power_index = self.ini_special_index
-            self.do_init_special = False
 
     def switch_off(self):
         """ switch a cooker off """
