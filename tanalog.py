@@ -49,7 +49,7 @@ class Tanalog():
 
         GPIO.output(self.CS, True)
         binData &= 0xFFF
-        loc_res = round(self.Vref * binData/4096.0/0.001, 2)  # 10mV per C
+        loc_res = round(self.Vref * binData/4096.0/0.01, 2)  # 10mV per C
         #print('Temperature = ' + str(res) + 'C')
         return loc_res
 
