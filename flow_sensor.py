@@ -28,7 +28,8 @@ class FlowSensor(GPIO_DEV):
 
 
         """
-        super(FlowSensor, self).__init__()
+        #super(FlowSensor, self).__init__()
+        super().__init__()
         self.clicks = 0
         self.last_click = int(time.time() * MS_IN_A_SECOND)
         self.click_delta = 0
@@ -42,7 +43,8 @@ class FlowSensor(GPIO_DEV):
 
     def release(self):
         GPIO.remove_event_detect(self.gpio_fs)
-        super(FlowSensor, self).release()
+        #super(FlowSensor, self).release()
+        super().release()
         logging.info("flow_sensor released")
 
     def watch_flow(self, flow_callback):
@@ -69,6 +71,9 @@ class FlowSensor(GPIO_DEV):
         # Update the last click
         self.last_click = current_time
 
+    def get_rpm(self):
+        """ Returns current RPM value """
+        return self.hertz
 
 if __name__ == "__main__":
     import sys
