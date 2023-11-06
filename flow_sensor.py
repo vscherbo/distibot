@@ -75,6 +75,14 @@ class FlowSensor(GPIO_DEV):
         """ Returns current RPM value """
         return self.hertz
 
+class FlowSensorFake(FlowSensor):
+    """ Class to emulate flow sensor"""
+
+    def get_rpm(self):
+        """ Returns fake rpm
+        """
+        return 27;
+
 if __name__ == "__main__":
     import sys
     import threading
