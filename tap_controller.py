@@ -65,9 +65,11 @@ class TapController(GPIO_DEV):
         """
         current_rpm = self.flow_sensor.get_rpm()
         if current_rpm < self.valid_range[0]:
+            logging.debug('LESS current_rpm=%s', current_rpm)
             self.open_tap()
             time.sleep(self.min_change_time)
         elif current_rpm > self.valid_range[1]:
+            logging.debug('MORE current_rpm=%s', current_rpm)
             self.close_tap()
             time.sleep(self.min_change_time)
         else:
@@ -90,7 +92,8 @@ if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, format=LOG_FORMAT,
                         level=logging.DEBUG)
 
-    FLOW_SENSOR = flow_sensor.FlowSensor(5)
+    #FLOW_SENSOR = flow_sensor.FlowSensor(5)
+    FLOW_SENSOR = flow_sensor.FlowSensorFake(5)
     TAP_CTRL = TapController(FLOW_SENSOR, [18, 22])
     DO_FLAG = True
     while DO_FLAG:
