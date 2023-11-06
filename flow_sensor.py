@@ -81,7 +81,7 @@ class FlowSensorFake(FlowSensor):
     def get_rpm(self):
         """ Returns fake rpm
         """
-        return 27;
+        return 27
 
 if __name__ == "__main__":
     import sys
