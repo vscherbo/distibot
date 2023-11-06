@@ -10,11 +10,11 @@ class TapController(GPIO_DEV):
     """
         A class to control a tap with an electrical driver and two wires for switch rotation.
     """
-    def __init__(self, flow_sensor, valid_range, open_pin=18, close_pin=23):
+    def __init__(self, arg_flow_sensor, valid_range, open_pin=19, close_pin=13):
         """
         A class to control a tap with an electrical driver and two wires for switch rotation.
 
-        :param flow_sensor: A FlowSensor instance that provides the current flow rate.
+        :param arg_flow_sensor: A FlowSensor instance that provides the current flow rate.
         :param valid_range: A tuple (low, high) representing the valid range of flow rates.
         :param min_change_time: The minimum time (in seconds) between changes in tap position
 		(default: 1).
@@ -22,7 +22,7 @@ class TapController(GPIO_DEV):
         :param close_pin: The GPIO pin number to use for closing the tap (default: 23).
         """
         super().__init__()
-        self.flow_sensor = flow_sensor
+        self.flow_sensor = arg_flow_sensor
         self.valid_range = valid_range
         self.min_change_time = MIN_CHANGE_TIME
         self.last_change_time = 0
@@ -80,3 +80,25 @@ class TapController(GPIO_DEV):
         """
         for pin in self.pins:
             GPIO.setup(pin, GPIO.IN)
+
+if __name__ == '__main__':
+    import sys
+    import logging
+    import flow_sensor
+
+    LOG_FORMAT = '%(asctime)-15s | %(levelname)-7s | %(message)s'
+    logging.basicConfig(stream=sys.stdout, format=LOG_FORMAT,
+                        level=logging.DEBUG)
+
+    FLOW_SENSOR = flow_sensor.FlowSensor(5)
+    TAP_CTRL = TapController(FLOW_SENSOR, [18, 22])
+    DO_FLAG = True
+    while DO_FLAG:
+        try:
+            time.sleep(2)
+            TAP_CTRL.adjust_flow()
+        except KeyboardInterrupt:
+            logging.info('\ncaught keyboard interrupt!, bye')
+            DO_FLAG = False
+
+    sys.exit()
