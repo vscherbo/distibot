@@ -3,6 +3,22 @@
 """
 
 import logging
+import re
+
+import importlib.util
+try:
+    spec = importlib.util.find_spec('w1thermsensor')
+    if spec is None:
+        raise ImportError
+    w1thermsensor = importlib.import_module('w1thermsensor')
+    from w1thermsensor.errors import ResetValueError, SensorNotReadyError
+    EMU_MODE = False
+except ImportError:
+    w1thermsensor = importlib.import_module('stub_w1thermsensor')
+    from stub_w1thermsensor.errors import ResetValueError, SensorNotReadyError
+    EMU_MODE = True
+
+""" Deprecated module imp
 import imp
 try:
     imp.find_module('w1thermsensor')
@@ -15,8 +31,7 @@ except ImportError:
     from stub_w1thermsensor.errors import ResetValueError
     from stub_w1thermsensor.errors import SensorNotReadyError
     EMU_MODE = True
-import re
-
+"""
 
 class Tsensor():
     """ Single sensor calss
