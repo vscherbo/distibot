@@ -7,16 +7,13 @@ Class for GPIO devices
 
 import inspect
 
-import imp
+import importlib.util
 try:
-    imp.find_module('RPi')
+    spec = importlib.util.find_spec('RPi')
+    if spec is None:
+        raise ImportError
     import RPi.GPIO as GPIO
 except ImportError:
-    """
-    import FakeRPi.GPIO as GPIO
-    OR
-    import FakeRPi.RPiO as RPiO
-    """
     import FakeRPi.GPIO as GPIO
 
 import logging
