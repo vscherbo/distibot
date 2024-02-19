@@ -86,8 +86,9 @@ class FlowSensorFake(FlowSensor):
 if __name__ == "__main__":
     import sys
     import threading
-
-    LOG_FORMAT = '%(asctime)-15s | %(levelname)-7s | %(message)s'
+    import tap_controller
+    LOG_FORMAT = '[%(filename)-22s:%(lineno)4s - %(funcName)20s()] \
+            %(levelname)-7s | %(asctime)-15s | %(message)s'
     logging.basicConfig(stream=sys.stdout, format=LOG_FORMAT,
                         level=logging.DEBUG)
 
@@ -140,9 +141,11 @@ if __name__ == "__main__":
     FST.flow_sensor.watch_flow(FST.flow_detected)
     FST.flow_timer.start()
     FST.do_flag = True
+    TAP_CTRL = tap_controller.TapController(FST.flow_sensor, [18, 22])
     while FST.do_flag:
         try:
             time.sleep(2)
+            TAP_CTRL.adjust_flow()
             logging.debug('timer.is_alive=%s', FST.flow_timer.is_alive())
         except KeyboardInterrupt:
             logging.info('\ncaught keyboard interrupt!, bye')

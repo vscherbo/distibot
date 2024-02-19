@@ -1,10 +1,13 @@
+#!/usr/bin/env python
 """ An AR500 Tap Controller """
 
 import time
+import logging
 #import RPi.GPIO as GPIO
 from gpio_dev import GPIO_DEV, GPIO
 
-MIN_CHANGE_TIME=1
+MIN_CHANGE_TIME=1 # hardware limit
+ROTATION_TIME=0.4
 
 class TapController(GPIO_DEV):
     """
@@ -43,8 +46,11 @@ class TapController(GPIO_DEV):
         if current_time - self.last_change_time >= self.min_change_time:
             self.last_change_time = current_time
             GPIO.output(self.open_pin, GPIO.HIGH)
-            time.sleep(0.5)
+            time.sleep(ROTATION_TIME)
             GPIO.output(self.open_pin, GPIO.LOW)
+            logging.debug('...открываем')
+        else:
+            logging.warning('слишком рано открывать')
 
     def close_tap(self):
         """
@@ -54,8 +60,11 @@ class TapController(GPIO_DEV):
         if current_time - self.last_change_time >= self.min_change_time:
             self.last_change_time = current_time
             GPIO.output(self.close_pin, GPIO.HIGH)
-            time.sleep(0.5)
+            time.sleep(ROTATION_TIME)
             GPIO.output(self.close_pin, GPIO.LOW)
+            logging.debug('...закрываем')
+        else:
+            logging.warning('слишком рано закрывать')
 
     def _do_open(self, current_rpm):
         """
@@ -78,6 +87,7 @@ class TapController(GPIO_DEV):
         If the flow rate is above the valid range, close the tap.
         """
         current_rpm = self.flow_sensor.get_rpm()
+        logging.debug('checking current_rpm=%s', current_rpm)
         #if current_rpm < self.valid_range[0]:
         if self._do_open(current_rpm):
             logging.debug('LESS current_rpm=%s', current_rpm)
@@ -90,7 +100,8 @@ class TapController(GPIO_DEV):
             time.sleep(self.min_change_time)
         else:
             # Flow is within valid range
-            pass
+            logging.debug('...OK: current_rpm=%s is valid', current_rpm)
+            #pass
 
     def __del__(self):
         """
@@ -101,20 +112,38 @@ class TapController(GPIO_DEV):
 
 if __name__ == '__main__':
     import sys
-    import logging
     import flow_sensor
 
     LOG_FORMAT = '%(asctime)-15s | %(levelname)-7s | %(message)s'
     logging.basicConfig(stream=sys.stdout, format=LOG_FORMAT,
                         level=logging.DEBUG)
 
-    #FLOW_SENSOR = flow_sensor.FlowSensor(5)
-    FLOW_SENSOR = flow_sensor.FlowSensorFake(5)
+    FLOW_SENSOR = flow_sensor.FlowSensor(5)
+    #FLOW_SENSOR = flow_sensor.FlowSensorFake(5)
     TAP_CTRL = TapController(FLOW_SENSOR, [18, 22])
+    """
+    TAP_CTRL.open_tap()
+    time.sleep(1)
+    TAP_CTRL.open_tap()
+    time.sleep(1)
+    TAP_CTRL.open_tap()
+    time.sleep(1)
+    TAP_CTRL.open_tap()
+    time.sleep(1)
+    TAP_CTRL.open_tap()
+    time.sleep(1)
+    TAP_CTRL.open_tap()
+    time.sleep(1)
+    TAP_CTRL.open_tap()
+    time.sleep(1)
+    TAP_CTRL.open_tap()
+    time.sleep(1)
+    """
     DO_FLAG = True
     while DO_FLAG:
         try:
             time.sleep(2)
+            logging.debug('adjust loop')
             TAP_CTRL.adjust_flow()
         except KeyboardInterrupt:
             logging.info('\ncaught keyboard interrupt!, bye')
