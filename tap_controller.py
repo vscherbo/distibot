@@ -37,8 +37,10 @@ class TapController(GPIO_DEV):
         GPIO.setup(self.close_pin, GPIO.OUT)
         GPIO.output(self.open_pin, GPIO.LOW)
         GPIO.output(self.close_pin, GPIO.LOW)
+        # initial opening
+        self.open_tap(4)
 
-    def open_tap(self):
+    def open_tap(self, arg_time=ROTATION_TIME):
         """
         Rotate the tap to the open position.
         """
@@ -46,13 +48,13 @@ class TapController(GPIO_DEV):
         if current_time - self.last_change_time >= self.min_change_time:
             self.last_change_time = current_time
             GPIO.output(self.open_pin, GPIO.HIGH)
-            time.sleep(ROTATION_TIME)
+            time.sleep(arg_time)
             GPIO.output(self.open_pin, GPIO.LOW)
             logging.debug('...открываем')
         else:
             logging.warning('слишком рано открывать')
 
-    def close_tap(self):
+    def close_tap(self, arg_time=ROTATION_TIME):
         """
         Rotate the tap to the closed position.
         """
@@ -60,7 +62,7 @@ class TapController(GPIO_DEV):
         if current_time - self.last_change_time >= self.min_change_time:
             self.last_change_time = current_time
             GPIO.output(self.close_pin, GPIO.HIGH)
-            time.sleep(ROTATION_TIME)
+            time.sleep(arg_time)
             GPIO.output(self.close_pin, GPIO.LOW)
             logging.debug('...закрываем')
         else:
