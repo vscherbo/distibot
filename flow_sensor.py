@@ -137,7 +137,7 @@ if __name__ == "__main__":
             logging.debug("flow_count=%d FREQ=%d", self.flow_sensor.clicks, self.flow_sensor.hertz)
 
     GPIO_FS = 5
-    FST = FSTester(GPIO_FS, 5)
+    FST = FSTester(GPIO_FS, flow_period=5)
     FST.flow_sensor.watch_flow(FST.flow_detected)
     FST.flow_timer.start()
     FST.do_flag = True
