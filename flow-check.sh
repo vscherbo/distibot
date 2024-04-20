@@ -1,4 +1,4 @@
 #!/bin/sh
 
-./flow_sensor.py & ./valve.py --port=10 --delay=25
+./flow_sensor.py & ./valve.py --port=6 --delay=25
 
