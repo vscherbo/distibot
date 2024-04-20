@@ -71,14 +71,14 @@ class TapController(GPIO_DEV):
         Make decision to open the tap
         """
         return bool(current_rpm is not None
-                    and 0 < current_rpm < self.valid_range[0])
+                    and (0 <= current_rpm < self.valid_range[0]))
 
     def _do_close(self, current_rpm):
         """
         Make decision to close the tap
         """
         return bool(current_rpm is not None
-                    and 0 < current_rpm > self.valid_range[1])
+                    and (0 < current_rpm > self.valid_range[1]))
 
     def adjust_flow(self):
         """
@@ -88,18 +88,16 @@ class TapController(GPIO_DEV):
         """
         current_rpm = self.flow_sensor.get_rpm()
         logging.debug('checking current_rpm=%s', current_rpm)
-        #if current_rpm < self.valid_range[0]:
         if self._do_open(current_rpm):
             logging.debug('LESS current_rpm=%s', current_rpm)
             self.open_tap()
             time.sleep(self.min_change_time)
-        #elif current_rpm > self.valid_range[1]:
         elif self._do_close(current_rpm):
             logging.debug('MORE current_rpm=%s', current_rpm)
             self.close_tap()
             time.sleep(self.min_change_time)
         else:
-            # Flow is within valid range
+            # The flow is within valid range
             logging.debug('...OK: current_rpm=%s is valid', current_rpm)
             #pass
 
