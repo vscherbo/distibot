@@ -1,0 +1,3 @@
+00.0 , condenser,    start_process # старт.
+47.0,  condenser, start_water # включить охлаждение
+98.5,  condenser, finish # финиш

@@ -130,7 +130,7 @@ class Cooker(GPIO_DEV):
 
         # TODO detect wrong power OR approximate
     def set_power(self, power):
-	"""Set the power of the cooker to the specified level.
+        """Set the power of the cooker to the specified level.
 
         Args:
             power: The desired power level.
@@ -162,7 +162,7 @@ class Cooker(GPIO_DEV):
                 do_change = (self.power_index != self.target_power_index)
 
     def current_power(self):
-        """Get the current power level of the cooker.
+        """Get the current power level of the cooker."""
         return self.powers[self.power_index]
 
 
