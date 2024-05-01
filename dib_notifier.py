@@ -6,6 +6,7 @@ import os
 import sys
 import logging
 import telegram
+import asyncio
 # ссылка на канал dib-000 https://t.me/joinchat/oJUXFAQZNQwyZGEy
 
 CHAT_ID = -1001566883283
@@ -93,7 +94,7 @@ class TGNotifier(telegram.Bot):
     def send_msg(self, message):
         """ Send a message to the Telegram chat with CHAT_ID
         """
-        self.sendMessage(chat_id=CHAT_ID, text=message)
+        asyncio.run(self.sendMessage(chat_id=CHAT_ID, text=message))
 
 
 def main():
