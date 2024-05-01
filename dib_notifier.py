@@ -7,6 +7,7 @@ import sys
 import logging
 import telegram
 import asyncio
+from telegram.request import HTTPXRequest
 # ссылка на канал dib-000 https://t.me/joinchat/oJUXFAQZNQwyZGEy
 
 CHAT_ID = -1001566883283
@@ -88,12 +89,14 @@ class TGNotifier(telegram.Bot):
             logging.error("Unexpected error:%s", sys.exc_info()[0])
             raise
         else:
-            super().__init__(token)
+            trequest = HTTPXRequest(connection_pool_size=20, pool_timeout=100)
+            super().__init__(token, request=trequest)
 
     def send_msg(self, message):
         """ Send a message to the Telegram chat with CHAT_ID
         """
         asyncio.run(self.sendMessage(chat_id=CHAT_ID, text=message))
+
 
 def main():
     """ Just main """
