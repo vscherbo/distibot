@@ -406,7 +406,7 @@ class Distibot:
                                   "gpio_id={}".format(gpio_id))
                     self.heads_sensor.ignore_finish()
                 self.valve3way.way_2()  # way for body
-                self.cooker.set_power(self.cooker_init_power)
+                # moved to start_water self.cooker.set_power(self.cooker_init_power)
                 self.start_water()
 
     def start_watch_heads(self):
@@ -419,8 +419,8 @@ class Distibot:
 
     def wait4body(self):
         """ This method starts a watching of body """
-        # self.__cooker_on()
-        self.cooker.set_power(self.cooker_init_power)
+        # moved to start_water
+        # self.cooker.set_power(self.cooker_init_power)
         self.start_water()
         self.valve3way.way_2()
         self.stage = 'body'
@@ -433,6 +433,7 @@ class Distibot:
     def start_water(self):
         """ Open a water tap """
         if not self.water_on:
+            self.cooker.set_power(self.cooker_init_power)
             self.valve_water.power_on_way()
             self.water_on = True
             self.flow_timer = threading.Timer(self.flow_period, self.__no_flow)
