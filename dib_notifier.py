@@ -75,12 +75,13 @@ answer:
 
 """
 
+
 class TGNotifier(telegram.Bot):
     """ A class for notification to Telegram chat
     """
     def __init__(self):
         logging.getLogger(__name__).addHandler(logging.NullHandler())
-        #self.token = os.environ.get('TELEGRAM_DIB_TOKEN')
+        # self.token = os.environ.get('TELEGRAM_DIB_TOKEN')
         try:
             token = os.environ['TELEGRAM_DIB_TOKEN']
         except KeyError as unset:
