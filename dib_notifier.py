@@ -89,13 +89,19 @@ class TGNotifier(telegram.Bot):
             logging.error("Unexpected error:%s", sys.exc_info()[0])
             raise
         else:
-            trequest = HTTPXRequest(connection_pool_size=20, pool_timeout=100)
+            trequest = HTTPXRequest(connection_pool_size=50, pool_timeout=200)
             super().__init__(token, request=trequest)
 
     def send_msg(self, message):
         """ Send a message to the Telegram chat with CHAT_ID
         """
-        asyncio.run(self.sendMessage(chat_id=CHAT_ID, text=message))
+        try:
+            asyncio.run(self.sendMessage(chat_id=CHAT_ID, text=message))
+        except TimeoutError:
+            logging.error("TimeoutError:%s", sys.exc_info()[0])
+        except Exception:
+            pass
+
 
 
 def main():

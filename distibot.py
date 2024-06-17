@@ -172,12 +172,12 @@ class Distibot:
         """
         for timer_i in self.timers:
             timer_i.cancel()
-        self.flow_sensor.release()
         self.cooker.release()
         self.valve3way.release()
-        self.valve_water.release()
         self.valve_drop.release()
         self.heads_sensor.release()
+        self.flow_sensor.release()
+        self.valve_water.release()
 
     def load_script(self, play_filename):
         """
