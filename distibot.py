@@ -23,7 +23,7 @@ from flow_sensor import FlowSensor
 
 
 TEMPERATURE_OVER_LIMIT = 3
-
+T_SLEEP = 3
 
 class Distibot:
     """ A main class of Distibot """
@@ -53,7 +53,7 @@ class Distibot:
         #self.drop_period = 4000
         #self.drop_timeout = 15
         self.drop = {'period': 4000, 'timeout': 15}
-        self.t_sleep = 1
+        self.t_sleep = T_SLEEP
         self.csv_delay = 0
         self.water_on = False
         self.loop_flag = None
@@ -208,6 +208,8 @@ class Distibot:
     def send_msg(self, msg_subj, msg_body):
         """ sending a mesasge to some messenger """
         logging.info("send_msg: subj=%s, msg='%s'", msg_subj, msg_body)
+        # skip TG notifier
+        """
         msg_body = '{}: {}'.format(msg_subj, msg_body)
         for i in range(1, 4):
             try:
@@ -217,6 +219,7 @@ class Distibot:
                 time.sleep(1)
             else:
                 break
+        """
 
             """
             except OSError as e:
