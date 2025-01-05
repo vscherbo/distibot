@@ -5,25 +5,25 @@
 """
 
 from __future__ import print_function
+
+import logging
+import threading
 import time
 from configparser import ConfigParser
-import threading
-import logging
-#import socket
-#import requests
 
-#from pushbullet import Pushbullet
 import dib_notifier
-
-from cooker import Cooker
-import valve
 import heads_sensor
 import tsensor
+import valve
+from cooker import Cooker
 from flow_sensor import FlowSensor
 
+# import socket
+# import requests
 
 TEMPERATURE_OVER_LIMIT = 3
 T_SLEEP = 3
+
 
 class Distibot:
     """ A main class of Distibot """
@@ -39,7 +39,6 @@ class Distibot:
         self.coord_t_boiler = []
         self.coord_t_condenser = []
 
-
         self.outdir = 'output'
         self.cmd_prev = 'before start'
         self.cmd_last = 'before start'
@@ -50,8 +49,8 @@ class Distibot:
         self.temperature_delta_limit = 0.3  # 30%
         self.stage = 'start'
         self.pause_start_ts = 0
-        #self.drop_period = 4000
-        #self.drop_timeout = 15
+        # self.drop_period = 4000
+        # self.drop_timeout = 15
         self.drop = {'period': 4000, 'timeout': 15}
         self.t_sleep = T_SLEEP
         self.csv_delay = 0
@@ -83,6 +82,7 @@ class Distibot:
         if self.config.has_option('tsensors', 'gpio_ts'):
             self.tsensors = tsensor.Tsensors(self.config)
             self.tsensors.get_t()
+
         if self.ts_play_set <= set(self.tsensors.ts_ids):
             self.set_loop_flag(True)
             logging.info('OK. Every ts in ts_play_set is described in conf, loop_flag=%s',
@@ -122,6 +122,7 @@ class Distibot:
                                       timeout=1000)
 
         self.flow_sensor = FlowSensor(gpio_fs=self.config.getint('flow_sensor', 'gpio_fs'))
+
         if tsensor.EMU_MODE:
             self.flow_period = 86400
         else:
@@ -160,6 +161,7 @@ class Distibot:
         check if we can opearate
         """
         flag_before = self.loop_flag
+
         if self.loop_flag is None:
             self.loop_flag = cond
         else:
@@ -170,6 +172,7 @@ class Distibot:
         """
         call from self.finish()
         """
+
         for timer_i in self.timers:
             timer_i.cancel()
         self.cooker.release()
@@ -190,6 +193,7 @@ class Distibot:
             _methods = [_attr for _attr in dir(self)
                         if callable(getattr(self, _attr)) and not _attr.startswith('_')]
             logging.debug('_methods=%s', _methods)
+
             for (loc_t, loc_ts, loc_method) in t_steps:
                 loc_t = float(loc_t)
                 loc_ts = loc_ts.strip()
@@ -197,18 +201,20 @@ class Distibot:
                 self.t_stages.append([loc_t, loc_ts, loc_method])
                 self.ts_play_set.add(loc_ts)
             logging.debug('t_stages=%s', self.t_stages)
-        except:
+        except Exception:
             res = False
             logging.exception('load_script exception')
             raise
         else:
             res = True
+
         return res
 
     def send_msg(self, msg_subj, msg_body):
         """ sending a mesasge to some messenger """
         logging.info("send_msg: subj=%s, msg='%s'", msg_subj, msg_body)
         msg_body = '{}: {}'.format(msg_subj, msg_body)
+
         for i in range(1, 4):
             try:
                 self.notifier.send_msg(msg_body)
@@ -245,15 +251,16 @@ class Distibot:
             crd_last = None
 
         self.csv_delay += self.t_sleep
+
         if self.csv_delay >= self.csv_write_period:
             self.csv_delay = 0
+
             for crd in self.coord_csv:
                 print(','.join([str(c1) for c1 in crd]), file=self.log)
             self.coord_csv.clear()
 
         if crd_last:
             print(','.join([str(c1) for c1 in crd_last]), file=self.log)
-
 
     def run_cmd(self):
         """ Run current command from play file """
@@ -275,8 +282,10 @@ class Distibot:
     def temperature_loop(self):
         """ A main loop of getting temperature value """
         over_cnt = 0
+
         while self.loop_flag:
             coord = []
+
             if self.tsensors.get_t():
                 self.timestamp = time.localtime()
                 coord.append(time.strftime("%H:%M:%S", self.timestamp))
@@ -335,6 +344,7 @@ class Distibot:
 
     def __cooker_off(self):
         self.cooker_timer.cancel()
+
         if self.cooker_timer in self.timers:
             self.timers.remove(self.cooker_timer)
 
@@ -372,6 +382,7 @@ class Distibot:
     def heads_started(self, gpio_id=-1):
         """ Run after a signal heads_started catched """
         logging.debug('inside heads_started')
+
         if self.heads_sensor.flag_ignore_start:
             logging.info('flag_ignore_start detected!')
         else:
@@ -382,6 +393,7 @@ class Distibot:
                 self.stage = 'heads'
                 logging.info('stage set to "%s"', self.stage)
                 self.cmd_last = 'heads_started'
+
                 if gpio_id > 0:
                     self.send_msg("Стартовали головы",
                                   "gpio_id={}".format(gpio_id))
@@ -392,6 +404,7 @@ class Distibot:
     def heads_finished(self, gpio_id=-1):
         """ Run after a signal heads_finished catched """
         logging.debug('inside heads_finished')
+
         if self.heads_sensor.flag_ignore_finish:
             logging.info('flag_ignore_finish detected!')
         else:
@@ -401,6 +414,7 @@ class Distibot:
                 self.stage = 'body'
                 logging.info('stage set to "%s"', self.stage)
                 self.cmd_last = 'heads_finished'
+
                 if gpio_id > 0:
                     self.send_msg("Закончились головы",
                                   "gpio_id={}".format(gpio_id))
@@ -432,6 +446,7 @@ class Distibot:
 
     def start_water(self):
         """ Open a water tap """
+
         if not self.water_on:
             self.cooker.set_power(self.cooker_init_power)
             self.valve_water.power_on_way()
@@ -441,8 +456,8 @@ class Distibot:
             self.flow_timer.start()
             self.flow_sensor.watch_flow(self.flow_detected)
             self.drop_timer.start()
-            logging.info('water_on=%s, flow_timer.is_alive=%s', self.water_on, \
-            self.flow_timer.is_alive())
+            logging.info('water_on=%s, flow_timer.is_alive=%s', self.water_on,
+                         self.flow_timer.is_alive())
 
     def __drop_container(self):
         self.drop_timer.cancel()
@@ -502,6 +517,7 @@ class Distibot:
 
     def finish(self):
         """ Stop everything """
+
         if self.stage != 'finish':
             logging.info('========== distibot.finish()')
             self.stop_process()
@@ -513,8 +529,8 @@ class Distibot:
 if __name__ == "__main__":
     import argparse
     import os
-    import sys
     import signal
+    import sys
 
     def dib_stop():
         """ Stop a Distibot instance """
@@ -527,9 +543,10 @@ if __name__ == "__main__":
     def signal_handler(arg_signal, frame):
         """ logging cathed signal """
         logging.info('Catched signal %s', arg_signal)
-        logging.info('frame: filename=%s, function=%s, line_no=%s', frame.f_code.co_filename,\
-                      frame.f_code.co_name, frame.f_lineno)
+        logging.info('frame: filename=%s, function=%s, line_no=%s', frame.f_code.co_filename,
+                     frame.f_code.co_name, frame.f_lineno)
         # ignore HUP, just log it
+
         if arg_signal != 1:
             dib_stop()
 
@@ -542,8 +559,8 @@ if __name__ == "__main__":
         """ logging cathed SEGV signal """
         logging.info('Catched signal %s', arg_signal)
         logging.info('frame.f_locals=%s', frame.f_locals)
-        logging.info('frame: filename=%s, function=%s, line_no=%s', frame.f_code.co_filename,\
-                      frame.f_code.co_name, frame.f_lineno)
+        logging.info('frame: filename=%s, function=%s, line_no=%s', frame.f_code.co_filename,
+                     frame.f_code.co_name, frame.f_lineno)
         dib_stop()
 
     signal.signal(signal.SIGSEGV, segv_handler)
@@ -563,6 +580,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     numeric_level = getattr(logging, args.log_level, None)
+
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: {0}'.format(numeric_level))
 
