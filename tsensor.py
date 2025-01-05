@@ -2,10 +2,10 @@
 """ Temperature sensors module
 """
 
+import importlib.util
 import logging
 import re
 
-import importlib.util
 try:
     spec = importlib.util.find_spec('w1thermsensor')
     if spec is None:
@@ -32,6 +32,7 @@ except ImportError:
     from stub_w1thermsensor.errors import SensorNotReadyError
     EMU_MODE = True
 """
+
 
 class Tsensor():
     """ Single sensor calss
@@ -84,7 +85,7 @@ class Tsensor():
         """ Returns True if delta between values is over self.delta_threshold
         """
         return False if self.curr_t == self.initial_t \
-        else abs((check_t - self.curr_t) / self.curr_t) > self.delta_threshold
+            else abs((check_t - self.curr_t) / self.curr_t) > self.delta_threshold
 
 
 class Tsensors():
@@ -139,11 +140,11 @@ class Tsensors():
             logging.info('id=%s, resolution=%s', k, self.ts_dict[k].sensor.get_resolution())
 
 if __name__ == '__main__':
-    from time import sleep, strftime
     import argparse
     import os
     import sys
     from configparser import ConfigParser
+    from time import sleep, strftime
 
     (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
     CONF_FILE_NAME = "distibot.conf"
