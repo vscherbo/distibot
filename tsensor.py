@@ -12,27 +12,14 @@ try:
     if spec is None:
         raise ImportError
     w1thermsensor = importlib.import_module('w1thermsensor')
-    from w1thermsensor.errors import ResetValueError, SensorNotReadyError
+    from w1thermsensor.errors import (NoSensorFoundError, ResetValueError,
+                                      SensorNotReadyError)
     EMU_MODE = False
 except ImportError:
     w1thermsensor = importlib.import_module('stub_w1thermsensor')
-    from stub_w1thermsensor.errors import ResetValueError, SensorNotReadyError
+    from stub_w1thermsensor.errors import (NoSensorFoundError, ResetValueError,
+                                           SensorNotReadyError)
     EMU_MODE = True
-
-""" Deprecated module imp
-import imp
-try:
-    imp.find_module('w1thermsensor')
-    import w1thermsensor
-    from w1thermsensor.errors import ResetValueError
-    from w1thermsensor.errors import SensorNotReadyError
-    EMU_MODE = False
-except ImportError:
-    import stub_w1thermsensor as w1thermsensor
-    from stub_w1thermsensor.errors import ResetValueError
-    from stub_w1thermsensor.errors import SensorNotReadyError
-    EMU_MODE = True
-"""
 
 
 class Tsensor():
@@ -63,14 +50,17 @@ class Tsensor():
             loc_t = round(self.sensor.get_temperature(), 1)
         except ResetValueError:
             if self.curr_t > 84.0:
-                logging.info('ResetValueError curr_t=%s', self.curr_t)
+                logging.info('ResetValueError id=%, curr_t=%s', self.sensor.id, self.curr_t)
         except SensorNotReadyError:
-            logging.info('SensorNotReadyError curr_t=%s', self.curr_t)
-            # logging.exception('SensorNotReadyError')
-        except Exception:
-            logging.exception('get_temperature')
+            logging.info('SensorNotReadyError id=%, curr_t=%s', self.sensor.id, self.curr_t)
             self.failed_cnt += 1
-            raise
+        except NoSensorFoundError:
+            logging.info('NoSensorFoundError id=%, curr_t=%s', self.sensor.id, self.curr_t)
+            self.failed_cnt += 1
+        except Exception:
+            logging.error('Unexpected exception', exc_info=True)
+            self.failed_cnt += 1
+            # raise
         else:
             self.failed_cnt = 0
 
