@@ -11,7 +11,6 @@ class W1ThermSensorError(Exception):
     """Exception base-class for W1ThermSensor errors"""
 
 
-
 class KernelModuleLoadError(W1ThermSensorError):
     """Exception when the w1 therm kernel modules could not be loaded properly"""
 
@@ -31,9 +30,7 @@ class NoSensorFoundError(W1ThermSensorError):
             {}
             Please check cabling and check your /boot/config.txt for
             dtoverlay=w1-gpio
-            """.format(
-                message
-                )
+            """.format(message)
             ).rstrip()
         )
 
