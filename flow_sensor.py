@@ -7,6 +7,7 @@ Handle <TODO sensor mark>
 
 import time
 import logging
+import sys
 from gpio_dev import GPIO_DEV, GPIO
 
 SECONDS_IN_A_MINUTE = 60
@@ -54,8 +55,12 @@ class FlowSensor(GPIO_DEV):
 
         """
         self.setup(self.gpio_fs, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(self.gpio_fs, GPIO.FALLING)
-        GPIO.add_event_callback(self.gpio_fs, callback=flow_callback)
+        try:
+            GPIO.add_event_detect(self.gpio_fs, GPIO.FALLING)
+        except:
+            logging.error("Unexpected error:%s", sys.exc_info())
+        else:
+            GPIO.add_event_callback(self.gpio_fs, callback=flow_callback)
 
     def handle_click(self):
         """ click handler calculates characterisitcs """
