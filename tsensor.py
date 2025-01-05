@@ -2,12 +2,13 @@
 """ Temperature sensors module
 """
 
+import importlib.util
 import logging
 import re
 
-import importlib.util
 try:
     spec = importlib.util.find_spec('w1thermsensor')
+
     if spec is None:
         raise ImportError
     w1thermsensor = importlib.import_module('w1thermsensor')
@@ -33,6 +34,7 @@ except ImportError:
     EMU_MODE = True
 """
 
+
 class Tsensor():
     """ Single sensor calss
     """
@@ -43,6 +45,7 @@ class Tsensor():
         self.curr_t = 4
         self.failed_cnt = 0
         self.delta_threshold = delta_threshold
+
         if EMU_MODE:
             logging.warning('tsensor emulation mode')
         try:
@@ -63,13 +66,14 @@ class Tsensor():
                 logging.info('ResetValueError curr_t=%s', self.curr_t)
         except SensorNotReadyError:
             logging.info('SensorNotReadyError curr_t=%s', self.curr_t)
-            #logging.exception('SensorNotReadyError')
+            # logging.exception('SensorNotReadyError')
         except Exception:
             logging.exception('get_temperature')
             self.failed_cnt += 1
             raise
         else:
             self.failed_cnt = 0
+
             if self.delta_over(loc_t):
                 # ignore, use current value
                 logging.warning('Over {:.0%} difference curr_t={}, \
@@ -78,27 +82,32 @@ class Tsensor():
             else:
                 # save current T
                 self.curr_t = loc_t
+
         return loc_t or self.curr_t
 
     def delta_over(self, check_t):
         """ Returns True if delta between values is over self.delta_threshold
         """
+
         return False if self.curr_t == self.initial_t \
-        else abs((check_t - self.curr_t) / self.curr_t) > self.delta_threshold
+            else abs((check_t - self.curr_t) / self.curr_t) > self.delta_threshold
 
 
 class Tsensors():
     """ A class for a set of temperature sensors
     """
     temperature_error_limit = 5
+
     def __init__(self, tconfig):
         # if config.has_section('tsensors'):
         ts_list = tconfig.options('tsensors')
         self.ts_dict = {}
         self.ts_data = {}
         self.ts_ids = []
+
         for t_sensor in ts_list:
             res = re.match('^ts_(.*)_id$', t_sensor)
+
             if res:
                 # ID of T sensor, i.e. "boiler"
                 sensor_id = res.group(1)
@@ -110,18 +119,22 @@ class Tsensors():
         """
         got_temp = True
         # for k in self.ts_dict.keys():
+
         for k in self.ts_ids:
             self.ts_data[k] = self.ts_dict[k].get_temperature()
+
             if self.ts_dict[k].failed_cnt > self.temperature_error_limit:
                 self.ts_dict[k].failed_cnt = 0
                 got_temp = False
-            #time.sleep(0.75)
+            # time.sleep(0.75)
+
         return got_temp
 
     @property
     def current_t(self):
         """ Returns current value of sensors
         """
+
         return [self.ts_data[k] for k in self.ts_ids]
 
     def t_over(self, tsensor_id, tlimit):
@@ -129,21 +142,24 @@ class Tsensors():
         """
         logging.debug('ts_data=%s', self.ts_data)
         logging.debug('tsensor_id=%s, t_curr=%s', tsensor_id, self.ts_data[tsensor_id])
+
         return self.ts_data[tsensor_id] > tlimit
 
     def get_resolution(self):
         """ Get resolution for each sensor
         """
+
         for k in self.ts_ids:
-            #self.ts_prec[k] = self.ts_dict[k].sensor.get_resolution()
+            # self.ts_prec[k] = self.ts_dict[k].sensor.get_resolution()
             logging.info('id=%s, resolution=%s', k, self.ts_dict[k].sensor.get_resolution())
 
+
 if __name__ == '__main__':
-    from time import sleep, strftime
     import argparse
     import os
     import sys
     from configparser import ConfigParser
+    from time import sleep, strftime
 
     (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
     CONF_FILE_NAME = "distibot.conf"
@@ -155,6 +171,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     numeric_level = getattr(logging, args.log_level, None)
+
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % numeric_level)
 
@@ -181,8 +198,10 @@ if __name__ == '__main__':
 
     csv = open('{0}-{1}.csv'.format(prg_name, strftime("%Y-%m-%d-%H-%M")), 'w')
     LOOP_FLAG = True
+
     while LOOP_FLAG:
         tsensors.get_t()
+
         for ts_id, t in tsensors.ts_data.items():
             logging.info('ts_id=%s, t=%s', ts_id, t)
 
