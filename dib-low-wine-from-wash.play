@@ -1,3 +1,3 @@
-00.0 , boiler,    start_process # старт.
+00.0 , condenser,    start_process # старт.
 53.0,  condenser, start_water # включить охлаждение
 97.5,  condenser, finish # финиш
