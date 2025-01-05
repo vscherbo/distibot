@@ -101,9 +101,8 @@ class TGNotifier(telegram.Bot):
         except TimeoutError:
             logging.error("TimeoutError:%s", sys.exc_info()[0])
         except Exception:
-            pass
-
-
+            logging.error("Unexpected error:%s", sys.exc_info()[0])
+            raise
 
 def main():
     """ Just main """
