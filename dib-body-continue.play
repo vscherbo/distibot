@@ -1,8 +1,0 @@
-{
-0.0: self.start_process,
-10.0: self.start_water,
-15.0: self.heads_started,
-45.0: self.heads_finished,
-94.5: self.stop_body,
-98.5: self.finish
-}
