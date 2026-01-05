@@ -50,12 +50,12 @@ class Tsensor():
             loc_t = round(self.sensor.get_temperature(), 1)
         except ResetValueError:
             if self.curr_t > 84.0:
-                logging.info('ResetValueError id=%, curr_t=%s', self.sensor.id, self.curr_t)
+                logging.info('ResetValueError id=%s, curr_t=%s', self.sensor.id, self.curr_t)
         except SensorNotReadyError:
-            logging.info('SensorNotReadyError id=%, curr_t=%s', self.sensor.id, self.curr_t)
+            logging.info('SensorNotReadyError id=%s, curr_t=%s', self.sensor.id, self.curr_t)
             self.failed_cnt += 1
         except NoSensorFoundError:
-            logging.info('NoSensorFoundError id=%, curr_t=%s', self.sensor.id, self.curr_t)
+            logging.info('NoSensorFoundError id=%s, curr_t=%s', self.sensor.id, self.curr_t)
             self.failed_cnt += 1
         except Exception:
             logging.error('Unexpected exception', exc_info=True)
