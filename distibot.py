@@ -1,10 +1,7 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
     Distibot main module
 """
-
-from __future__ import print_function
 
 import logging
 import threading
@@ -105,21 +102,21 @@ class Distibot:
         self.valve3way = valve.DoubleValve(gpio_v1=self.config.getint(
             'dbl_valve',
             'gpio_dbl_valve_1'),
-                                           gpio_v2=self.config.getint(
-                                               'dbl_valve',
-                                               'gpio_dbl_valve_2'))
+            gpio_v2=self.config.getint(
+            'dbl_valve',
+            'gpio_dbl_valve_2'))
 
         self.heads_sensor = \
             heads_sensor.Heads_sensor(hs_type=self.config.get(
                 'heads_sensor',
                 'hs_type'),
-                                      gpio_heads_start=self.config.getint(
-                                          'heads_sensor',
-                                          'gpio_hs_start'),
-                                      gpio_heads_finish=self.config.getint(
-                                          'heads_sensor',
-                                          'gpio_hs_finish'),
-                                      timeout=1000)
+                gpio_heads_start=self.config.getint(
+                'heads_sensor',
+                'gpio_hs_start'),
+                gpio_heads_finish=self.config.getint(
+                'heads_sensor',
+                'gpio_hs_finish'),
+                timeout=1000)
 
         self.flow_sensor = FlowSensor(gpio_fs=self.config.getint('flow_sensor', 'gpio_fs'))
 
@@ -129,7 +126,8 @@ class Distibot:
             self.flow_period = self.config.getint('flow_sensor', 'flow_period')
 
         self.notifier = dib_notifier.TGNotifier()
-        self.log = open('{}/sensor-{}.csv'.format(self.outdir, self.dt_string), 'w')
+        self.log = open('{}/sensor-{}.csv'.format(self.outdir, self.dt_string), 'w',
+                        encoding='utf-8')
 
     def __cooker_init(self, arg_config):
         """
@@ -213,7 +211,7 @@ class Distibot:
     def send_msg(self, msg_subj, msg_body):
         """ sending a mesasge to some messenger """
         logging.info("send_msg: subj=%s, msg='%s'", msg_subj, msg_body)
-        msg_body = '{}: {}'.format(msg_subj, msg_body)
+        msg_body = f'{msg_subj}, {msg_body}'
 
         for i in range(1, 4):
             try:
