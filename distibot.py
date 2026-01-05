@@ -272,12 +272,15 @@ class Distibot:
                           self.tsensors.current_t, self.curr_ts, self.cmd_last))
 
         try:
+            logging.info('trying to pop next step')
             (self.curr_t, self.curr_ts, self.curr_method) = self.t_stages.pop(0)
+            logging.info('NEXT: self.curr_t=%s, self.curr_ts=%s, self.curr_method=%s', self.curr_t, self.curr_ts, self.curr_method)
         except IndexError:
             # dirty patch
             self.curr_t = 999.0
             self.curr_ts = 'boiler'
             self.curr_method = self.do_nothing
+            logging.error('ERROR: NEXT: self.curr_t=%s, self.curr_ts=%s, self.curr_method=%s', self.curr_t, self.curr_ts, self.curr_method)
 
     def temperature_loop(self):
         """ A main loop of getting temperature value """
@@ -301,10 +304,15 @@ class Distibot:
 
                 if self.tsensors.ts_data[self.curr_ts] > self.curr_t:
                     over_cnt += 1
+                    logging.info('OVER: curr temperature=%s is over %s, cnt=%s', self.tsensors.ts_data[self.curr_ts], self.curr_t, over_cnt)
+                #else:
+                #    logging.debug('NOT over: curr temperature=%s is over %s, cnt=%s', self.tsensors.ts_data[self.curr_ts], self.curr_t, over_cnt)
 
                 if over_cnt > TEMPERATURE_OVER_LIMIT or self.curr_t == 0.0:
                     over_cnt = 0
                     self.run_cmd()
+                #else:
+                #    logging.debug('NOT cnt(%s)>%s curr_t=%s', over_cnt, TEMPERATURE_OVER_LIMIT , self.curr_t)
 
                 self.__csv_write()
             else:
@@ -325,6 +333,7 @@ class Distibot:
     def start_process(self):
         """ Do everything to start a proccess """
         self.__cooker_on()
+        self.cooker.set_power_max()
         self.stage = 'heat'
         # moved to start_water()
         # self.drop_timer.start()
@@ -448,7 +457,7 @@ class Distibot:
         """ Open a water tap """
 
         if not self.water_on:
-            self.cooker.set_power(self.cooker_init_power)
+            self.cooker.set_power(self.cooker_init_power)  # not init_power, 1700?
             self.valve_water.power_on_way()
             self.water_on = True
             self.flow_timer = threading.Timer(self.flow_period, self.__no_flow)
