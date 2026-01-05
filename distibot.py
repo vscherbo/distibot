@@ -429,7 +429,8 @@ class Distibot:
                                   "gpio_id={}".format(gpio_id))
                     self.heads_sensor.ignore_finish()
                 self.valve3way.way_2()  # way for body
-                # moved to start_water self.cooker.set_power(self.cooker_init_power)
+                # ??? moved to start_water
+                self.cooker.set_power(self.cooker_init_power)
                 self.start_water()
 
     def start_watch_heads(self):
