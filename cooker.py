@@ -190,9 +190,9 @@ class CookerTester():
 
     def play_script(self, arg_delay=3):
         for play_stage in self.play:
-            logging.debug('======================== run play_stage={0}'.format(play_stage))
+            logging.info('======================== RUN play_stage={0}'.format(play_stage))
             self.cooker.set_power(play_stage)
-            logging.info('>>> current_power={}'.format(self.cooker.current_power()))
+            logging.info('current_power={}'.format(self.cooker.current_power()))
             time.sleep(arg_delay)
 
 if __name__ == '__main__':
@@ -228,7 +228,9 @@ if __name__ == '__main__':
     ckt.cooker.switch_on()
     time.sleep(2)
 
-    # cooker_play = (240, 150, 80, 150)
+    ckt.cooker.set_power_max()
+    time.sleep(2)
+
     ckt.load_script(args.play)
     ckt.play_script()
 
