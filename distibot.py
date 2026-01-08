@@ -428,7 +428,8 @@ class Distibot:
                     self.heads_sensor.ignore_finish()
                 self.valve3way.way_2()  # way for body
                 # ??? moved to start_water
-                self.cooker.set_power(self.cooker_init_power)
+                # self.cooker.set_power(self.cooker_init_power)
+                self.cooker.set_power(1700)  # клапан не справляется
                 self.start_water()
 
     def start_watch_heads(self):
@@ -456,7 +457,8 @@ class Distibot:
         """ Open a water tap """
 
         if not self.water_on:
-            self.cooker.set_power(self.cooker_init_power)  # not init_power, 1700?
+            # self.cooker.set_power(self.cooker_init_power)  # not init_power, 1700?
+            self.cooker.set_power(1700)
             self.valve_water.power_on_way()
             self.water_on = True
             self.flow_timer = threading.Timer(self.flow_period, self.__no_flow)
