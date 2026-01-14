@@ -1,11 +1,16 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
     Valves controller classes
 """
-
+import argparse
 import logging
-from gpio_dev import GPIO_DEV, GPIO
+import os
+import sys
+from time import sleep
+
+from gpio_dev import GPIO, GPIO_DEV
+
+(prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
 
 
 class Valve(GPIO_DEV):
@@ -14,13 +19,13 @@ class Valve(GPIO_DEV):
     """
 
     def __init__(self, valve_gpio):
-        super(Valve, self).__init__()
+        super().__init__()
         self.valve_gpio = valve_gpio
         self.setup(self.valve_gpio, GPIO.OUT, initial=GPIO.LOW)
 
     def release(self):
         self.output(self.valve_gpio, GPIO.LOW)
-        super(Valve, self).release()
+        super().release()
 
     @property
     def default_way(self):
@@ -52,23 +57,25 @@ class Valve(GPIO_DEV):
         else:
             logging.info("=== Do nothing, already power_on_way")
 
+
 class DoubleValve(GPIO_DEV):
     """
         A double valve controller class
     """
 
     def __init__(self, gpio_v1, gpio_v2):
-        super(DoubleValve, self).__init__()
+        super().__init__()
         self.way = 3
-        # TODO check initial values
+        # TOD0 check initial values
         self.gpio_v1 = gpio_v1
         self.gpio_v2 = gpio_v2
-        super(DoubleValve, self).setup([gpio_v1, gpio_v2], GPIO.OUT, initial=GPIO.LOW)
+        super().setup([gpio_v1, gpio_v2], GPIO.OUT,
+                      initial=GPIO.LOW)
 
     def release(self):
         # forced set way_3: both valves are off
         self.way_3(True)
-        super(DoubleValve, self).release()
+        super().release()
         logging.info("DblValve switched off")
 
     @property
@@ -88,19 +95,19 @@ class DoubleValve(GPIO_DEV):
         swithes v1 ON
         """
         if not self.v1_on:
-            super(DoubleValve, self).output(self.gpio_v1, GPIO.HIGH)
+            super().output(self.gpio_v1, GPIO.HIGH)
             logging.info("DblValve v1_turn_on")
 
     def v1_turn_off(self):
         """
         swithes v1 OFF
         """
-        if not self.gpio_v1 in self.gpio_list:
+        if self.gpio_v1 not in self.gpio_list:
             logging.info("DblValve v1 is already cleaned up")
             return
 
         if self.v1_on:
-            super(DoubleValve, self).output(self.gpio_v1, GPIO.LOW)
+            super().output(self.gpio_v1, GPIO.LOW)
             logging.info("DblValve v1_turn_off")
 
     def v2_turn_on(self):
@@ -108,19 +115,19 @@ class DoubleValve(GPIO_DEV):
         swithes v2 ON
         """
         if not self.v2_on:
-            super(DoubleValve, self).output(self.gpio_v2, GPIO.HIGH)
+            super().output(self.gpio_v2, GPIO.HIGH)
             logging.info("DblValve v2_turn_on")
 
     def v2_turn_off(self):
         """
         swithes v2 OFF
         """
-        if not self.gpio_v2 in self.gpio_list:
+        if self.gpio_v2 not in self.gpio_list:
             logging.info("DblValve v2 is already cleaned up")
             return
 
         if self.v2_on:
-            super(DoubleValve, self).output(self.gpio_v2, GPIO.LOW)
+            super().output(self.gpio_v2, GPIO.LOW)
             logging.info("DblValve v2_turn_off")
 
     def way_1(self):
@@ -156,8 +163,10 @@ class DoubleValve(GPIO_DEV):
         else:
             logging.info("Do nothing: DblValve is on way_3")
 
+
 if __name__ == "__main__":
     # create Demo class
+
     def demo(sleep_time=2):
         """
         runs demo play
@@ -175,8 +184,8 @@ if __name__ == "__main__":
         logging.info("SingleValve before 2nd switch_off")
         v1.switch_off()
 
-
     # create Demo class, move method to it
+
     def dbl_demo(sleep_time=2):
         """
         runs demo play
@@ -198,36 +207,32 @@ if __name__ == "__main__":
         v1.way_1()
         sleep(sleep_time)
 
-
-    from time import sleep
-    import argparse
-    import os
-    import sys
-    (prg_name, prg_ext) = os.path.splitext(os.path.basename(__file__))
     # conf_file = prg_name +".conf"
 
     parser = argparse.ArgumentParser(description='Distibot "valve" module')
-    parser.add_argument('--log_to_file', type=bool, default=False, help='log destination')
+    parser.add_argument('--log_to_file', type=bool, default=False,
+                        help='log destination')
     parser.add_argument('--log_level', type=str, default="DEBUG", help='log level')
-    parser.add_argument('--ports', type=str, help='valve port OR comma separated ports')
+    parser.add_argument('--ports', type=str,
+                        help='valve port OR comma separated ports')
     parser.add_argument('--delay', type=int, default=2, help='seconds between steps')
     args = parser.parse_args()
 
     numeric_level = getattr(logging, args.log_level, None)
     if not isinstance(numeric_level, int):
-        raise ValueError('Invalid log level: %s' % numeric_level)
+        raise ValueError(f'Invalid log level: {numeric_level}')
 
-    #log_format = '[%(filename)-20s:%(lineno)4s - %(funcName)18s()] %(levelname)-7s\
-    #    | %(asctime)-15s | %(message)s'
-    log_format = '[%(filename)-12s:%(lineno)4s - %(funcName)18s()] \
+    LOG_FORMAT = '[%(filename)-12s:%(lineno)4s - %(funcName)18s()] \
         | %(asctime)-15s | %(message)s'
 
     if args.log_to_file:
-        log_dir = ''
-        log_file = log_dir + prg_name + ".log"
-        logging.basicConfig(filename=log_file, format=log_format, level=numeric_level)
+        LOG_DIR = ''
+        LOG_FILE = LOG_DIR + prg_name + ".log"
+        logging.basicConfig(filename=LOG_FILE, format=LOG_FORMAT,
+                            level=numeric_level)
     else:
-        logging.basicConfig(stream=sys.stdout, format=log_format, level=numeric_level)
+        logging.basicConfig(stream=sys.stdout, format=LOG_FORMAT,
+                            level=numeric_level)
 
     # end of prolog
     logging.info('Started')
@@ -236,12 +241,12 @@ if __name__ == "__main__":
     if len(ports) > 1:
         v_port1 = int(ports[0])
         v_port2 = int(ports[1])
-        logging.debug('DoubleValve port1={0}, port2={1}'.format(v_port1, v_port2))
+        logging.debug('DoubleValve port1=%s, port2=%s', v_port1, v_port2)
         v1 = DoubleValve(gpio_v1=v_port1, gpio_v2=v_port2)
         dbl_demo(sleep_time=args.delay)
     else:
         v_port1 = int(ports[0])
-        logging.debug('SingleValve port1={0}'.format(v_port1))
+        logging.debug('SingleValve port1=%s', v_port1)
         v1 = Valve(valve_gpio=v_port1)
         demo(sleep_time=args.delay)
 
