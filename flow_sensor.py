@@ -5,13 +5,15 @@
 Handle <TODO sensor mark>
 """
 
-import time
 import logging
 import sys
-from gpio_dev import GPIO_DEV, GPIO
+import time
+
+from gpio_dev import GPIO, GPIO_DEV
 
 SECONDS_IN_A_MINUTE = 60
 MS_IN_A_SECOND = 1000.0
+
 
 class FlowSensor(GPIO_DEV):
     """ Class handle flow sensor <sensor mark> """
@@ -29,7 +31,7 @@ class FlowSensor(GPIO_DEV):
 
 
         """
-        #super(FlowSensor, self).__init__()
+        # super(FlowSensor, self).__init__()
         super().__init__()
         self.clicks = 0
         self.last_click = int(time.time() * MS_IN_A_SECOND)
@@ -40,11 +42,11 @@ class FlowSensor(GPIO_DEV):
         self.inst_pour = 0.0  # current flow
         self.gpio_fs = gpio_fs
         # self.gpio_list.append(gpio_fs)
-        #logging.info('init flow-sensor GPIO_flow=%d', self.gpio_fs)
+        # logging.info('init flow-sensor GPIO_flow=%d', self.gpio_fs)
 
     def release(self):
         GPIO.remove_event_detect(self.gpio_fs)
-        #super(FlowSensor, self).release()
+        # super(FlowSensor, self).release()
         super().release()
         logging.info("flow_sensor released")
 
@@ -57,7 +59,7 @@ class FlowSensor(GPIO_DEV):
         self.setup(self.gpio_fs, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         try:
             GPIO.add_event_detect(self.gpio_fs, GPIO.FALLING)
-        except:
+        except BaseException:
             logging.error("Unexpected error:%s", sys.exc_info())
         else:
             GPIO.add_event_callback(self.gpio_fs, callback=flow_callback)
@@ -76,21 +78,33 @@ class FlowSensor(GPIO_DEV):
         # Update the last click
         self.last_click = current_time
 
-    def get_rpm(self):
+    def get_rpm_current(self):
         """ Returns current RPM value """
         return self.hertz
+
+    def get_rpm(self, max_age=2.0):
+        """
+        Возвращает текущую частоту вращения (Гц) или 0, если с последнего
+        импульса прошло более max_age секунд.
+        """
+        now_ms = int(time.time() * 1000.0)
+        if now_ms - self.last_click > max_age * 1000:
+            return 0.0
+        return self.hertz
+
 
 class FlowSensorFake(FlowSensor):
     """ Class to emulate flow sensor"""
 
-    def get_rpm(self):
+    def get_rpm(self, max_age=2.0):
         """ Returns fake rpm
         """
         return 27
 
+
 if __name__ == "__main__":
-    import sys
     import threading
+
     import tap_controller
     LOG_FORMAT = '[%(filename)-22s:%(lineno)4s - %(funcName)20s()] \
             %(levelname)-7s | %(asctime)-15s | %(message)s'

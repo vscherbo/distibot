@@ -14,6 +14,7 @@ import tsensor
 import valve
 from cooker import Cooker
 from flow_sensor import FlowSensor
+from tap_controller import TapController
 
 # import socket
 # import requests
@@ -120,6 +121,20 @@ class Distibot:
 
         self.flow_sensor = FlowSensor(gpio_fs=self.config.getint('flow_sensor', 'gpio_fs'))
 
+        self.tap_controller = TapController(
+            arg_flow_sensor=self.flow_sensor,
+            valid_low=self.config.getint('tap_control', 'flow_valid_low'),
+            valid_high=self.config.getint('tap_control', 'flow_valid_high'),
+            open_pin=self.config.getint('tap_control', 'gpio_tap_open', fallback=19),
+            close_pin=self.config.getint('tap_control', 'gpio_tap_close', fallback=13),
+            min_change_interval=self.config.getfloat(
+                'tap_control', 'min_change_interval', fallback=3.0),
+            rotation_time=self.config.getfloat('tap_control', 'rotation_time', fallback=0.4),
+            hysteresis=self.config.getfloat('tap_control', 'hysteresis', fallback=2.0)
+        )
+        # Принудительно закрыть кран (синхронизация "нуля")
+        self.tap_controller.close_tap_completely(8.0)
+
         if tsensor.EMU_MODE:
             self.flow_period = 86400
         else:
@@ -179,6 +194,7 @@ class Distibot:
         self.heads_sensor.release()
         self.flow_sensor.release()
         self.valve_water.release()
+        self.tap_controller.release()
 
     def load_script(self, play_filename):
         """
@@ -272,13 +288,15 @@ class Distibot:
         try:
             logging.info('trying to pop next step')
             (self.curr_t, self.curr_ts, self.curr_method) = self.t_stages.pop(0)
-            logging.info('NEXT: self.curr_t=%s, self.curr_ts=%s, self.curr_method=%s', self.curr_t, self.curr_ts, self.curr_method)
+            logging.info('NEXT: self.curr_t=%s, self.curr_ts=%s, self.curr_method=%s',
+                         self.curr_t, self.curr_ts, self.curr_method)
         except IndexError:
             # dirty patch
             self.curr_t = 999.0
             self.curr_ts = 'boiler'
             self.curr_method = self.do_nothing
-            logging.error('ERROR: NEXT: self.curr_t=%s, self.curr_ts=%s, self.curr_method=%s', self.curr_t, self.curr_ts, self.curr_method)
+            logging.error('ERROR: NEXT: self.curr_t=%s, self.curr_ts=%s, self.curr_method=%s',
+                          self.curr_t, self.curr_ts, self.curr_method)
 
     def temperature_loop(self):
         """ A main loop of getting temperature value """
@@ -302,17 +320,24 @@ class Distibot:
 
                 if self.tsensors.ts_data[self.curr_ts] > self.curr_t:
                     over_cnt += 1
-                    logging.info('OVER: curr temperature=%s is over %s, cnt=%s', self.tsensors.ts_data[self.curr_ts], self.curr_t, over_cnt)
-                #else:
-                #    logging.debug('NOT over: curr temperature=%s is over %s, cnt=%s', self.tsensors.ts_data[self.curr_ts], self.curr_t, over_cnt)
+                    logging.info('OVER: curr temperature=%s is over %s, cnt=%s',
+                                 self.tsensors.ts_data[self.curr_ts], self.curr_t, over_cnt)
+                # else:
+                #    logging.debug('NOT over: curr temperature=%s is over %s, cnt=%s',
+                #   self.tsensors.ts_data[self.curr_ts], self.curr_t, over_cnt)
 
                 if over_cnt > TEMPERATURE_OVER_LIMIT or self.curr_t == 0.0:
                     over_cnt = 0
                     self.run_cmd()
-                #else:
-                #    logging.debug('NOT cnt(%s)>%s curr_t=%s', over_cnt, TEMPERATURE_OVER_LIMIT , self.curr_t)
+                # else:
+                #    logging.debug('NOT cnt(%s)>%s curr_t=%s',
+                # over_cnt, TEMPERATURE_OVER_LIMIT , self.curr_t)
 
                 self.__csv_write()
+
+                if self.water_on:
+                    self.tap_controller.adjust_flow()
+
             else:
                 self.send_msg("Сбой получения температуры", "Требуется вмешательство")
                 # ? self.stop_process() ?
@@ -346,6 +371,12 @@ class Distibot:
         time.sleep(self.t_sleep+0.5)
         self.stage = 'finish'  # before cooker_off!
         self.__cooker_off()
+
+        if self.water_on:
+            self.valve_water.switch_off()
+            self.tap_controller.close_tap_completely(8.0)
+            self.water_on = False
+
         logging.debug('stage is "%s"', self.stage)
         self.save_coord_file()
 
