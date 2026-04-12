@@ -133,7 +133,7 @@ class Distibot:
             hysteresis=self.config.getfloat('tap_control', 'hysteresis', fallback=2.0)
         )
         # Принудительно закрыть кран (синхронизация "нуля")
-        self.tap_controller.close_tap_completely(8.0)
+        self.tap_controller.close_tap_completely()
 
         if tsensor.EMU_MODE:
             self.flow_period = 86400
@@ -492,7 +492,7 @@ class Distibot:
             self.cooker.set_power(1700)
             self.valve_water.power_on_way()
             self.water_on = True
-            self.flow_timer = threading.Timer(self.flow_period, self.__no_flow)
+            self.flow_timer = threading.Timer(self.flow_period+25.0, self.__no_flow)
             self.timers.append(self.flow_timer)
             self.flow_timer.start()
             self.flow_sensor.watch_flow(self.flow_detected)
@@ -623,7 +623,7 @@ if __name__ == "__main__":
     numeric_level = getattr(logging, args.log_level, None)
 
     if not isinstance(numeric_level, int):
-        raise ValueError('Invalid log level: {0}'.format(numeric_level))
+        raise ValueError(f'Invalid log level: {numeric_level}')
 
     LOG_FORMAT = '[%(filename)-22s:%(lineno)4s - %(funcName)20s()] \
             %(levelname)-7s | %(asctime)-15s | %(message)s'

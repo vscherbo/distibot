@@ -1,15 +1,12 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """ Distibot flow sensor
-
 Handle <TODO sensor mark>
 """
-
 import logging
 import sys
 import time
 
-from gpio_dev import GPIO, GPIO_DEV
+from gpio_dev import GPIO, GPIO_DEV, GPIODevError  # Импортируем GPIODevError
 
 SECONDS_IN_A_MINUTE = 60
 MS_IN_A_SECOND = 1000.0
@@ -17,19 +14,15 @@ MS_IN_A_SECOND = 1000.0
 
 class FlowSensor(GPIO_DEV):
     """ Class handle flow sensor <sensor mark> """
-
     # pylint: disable=too-many-instance-attributes
 
     def __init__(self, gpio_fs):
         """
         Args:
             gpio_fs (int): gpio number for flow sensor
-
         Attributes:
             clicks (int): number of registered clicks
             hertz (numeric): frequence of rotation
-
-
         """
         # super(FlowSensor, self).__init__()
         super().__init__()
@@ -54,15 +47,17 @@ class FlowSensor(GPIO_DEV):
         """ Start watch an events on gpio_fs
         Args:
             flow_callback (function): callback for event
-
         """
         self.setup(self.gpio_fs, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         try:
             GPIO.add_event_detect(self.gpio_fs, GPIO.FALLING)
-        except BaseException:
-            logging.error("Unexpected error:%s", sys.exc_info())
-        else:
-            GPIO.add_event_callback(self.gpio_fs, callback=flow_callback)
+        except (ValueError, RuntimeError) as e:  # Обработка конкретных исключений
+            logging.error("Error adding event detection on GPIO %d: %s", self.gpio_fs, e)
+            # Возможность пробросить исключение выше, если это критично
+            raise GPIODevError(
+                f"Failed to initialize flow sensor on GPIO {self.gpio_fs}: {e}") from e
+
+        GPIO.add_event_callback(self.gpio_fs, callback=flow_callback)
 
     def handle_click(self):
         """ click handler calculates characterisitcs """
@@ -107,7 +102,7 @@ if __name__ == "__main__":
 
     import tap_controller
     LOG_FORMAT = '[%(filename)-22s:%(lineno)4s - %(funcName)20s()] \
-            %(levelname)-7s | %(asctime)-15s | %(message)s'
+%(levelname)-7s | %(asctime)-15s | %(message)s'
     logging.basicConfig(stream=sys.stdout, format=LOG_FORMAT,
                         level=logging.DEBUG)
 
@@ -140,18 +135,13 @@ if __name__ == "__main__":
             """ callback function for a flow sensor's event
             Args:
                 gpio_id (int): it will be passed by RPi.GPIO
-
             """
-
             # pylint: disable=unused-argument
-
             self.flow_timer.cancel()
             self.timers.remove(self.flow_timer)
-
             self.flow_timer = threading.Timer(self.flow_period, self.no_flow)
             self.timers.append(self.flow_timer)
             self.flow_timer.start()
-
             self.flow_sensor.handle_click()
             logging.debug("flow_count=%d FREQ=%d", self.flow_sensor.clicks, self.flow_sensor.hertz)
 
@@ -160,7 +150,7 @@ if __name__ == "__main__":
     FST.flow_sensor.watch_flow(FST.flow_detected)
     FST.flow_timer.start()
     FST.do_flag = True
-    TAP_CTRL = tap_controller.TapController(FST.flow_sensor, [18, 22])
+    TAP_CTRL = tap_controller.TapController(FST.flow_sensor, 18, 22)
     while FST.do_flag:
         try:
             time.sleep(2)

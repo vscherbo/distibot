@@ -57,7 +57,9 @@ class TapController(GPIO_DEV):
         if arg_time is None:
             arg_time = self.rotation_time
         current_time = time.time()
-        if current_time - self.last_change_time >= self.min_change_interval:
+        # if current_time - self.last_change_time >= self.min_change_interval:
+        min_allowed_interval = max(self.min_change_interval, MIN_CHANGE_TIME)
+        if current_time - self.last_change_time >= min_allowed_interval:
             self.last_change_time = current_time
             GPIO.output(self.open_pin, GPIO.HIGH)
             time.sleep(arg_time)
@@ -67,14 +69,16 @@ class TapController(GPIO_DEV):
             logging.warning('Слишком рано открывать (прошло %.1f с)',
                             current_time - self.last_change_time)
 
-    def close_tap(self, arg_time=ROTATION_TIME):
+    def close_tap(self, arg_time=None):
         """
         Rotate the tap to the closed position.
         """
         if arg_time is None:
             arg_time = self.rotation_time
         current_time = time.time()
-        if current_time - self.last_change_time >= self.min_change_interval:
+        # if current_time - self.last_change_time >= self.min_change_interval:
+        min_allowed_interval = max(self.min_change_interval, MIN_CHANGE_TIME)
+        if current_time - self.last_change_time >= min_allowed_interval:
             self.last_change_time = current_time
             GPIO.output(self.close_pin, GPIO.HIGH)
             time.sleep(arg_time)
@@ -84,7 +88,7 @@ class TapController(GPIO_DEV):
             logging.warning('Слишком рано закрывать (прошло %.1f с)',
                             current_time - self.last_change_time)
 
-    def close_tap_completely(self, duration):
+    def close_tap_completely(self, duration=15.0):  # 15 - from AR-500-2 Manual
         """Подаёт сигнал на закрытие крана в течение duration секунд."""
         self.call_log()
         logging.info("Closing tap completely for %.1f sec", duration)
