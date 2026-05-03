@@ -2,10 +2,12 @@
 """ Distibot notification class
 """
 
+import logging
 import os
 import sys
-import logging
+
 import telegram
+
 # ссылка на канал dib-000 https://t.me/joinchat/oJUXFAQZNQwyZGEy
 
 CHAT_ID = -1001566883283
@@ -77,6 +79,7 @@ answer:
 class TGNotifier(telegram.Bot):
     """ A class for notification to Telegram chat
     """
+
     def __init__(self):
         logging.getLogger(__name__).addHandler(logging.NullHandler())
         # self.token = os.environ.get('TELEGRAM_DIB_TOKEN')
@@ -88,12 +91,14 @@ class TGNotifier(telegram.Bot):
             logging.error("Unexpected error:%s", sys.exc_info()[0])
             raise
         else:
-            super().__init__(token)
+            # super().__init__(token)
+            logging.info('No TG!!! Skip')
 
     def send_msg(self, message):
         """ Send a message to the Telegram chat with CHAT_ID
         """
-        self.sendMessage(chat_id=CHAT_ID, text=message)
+        # self.sendMessage(chat_id=CHAT_ID, text=message)
+        logging.info(message)
 
 
 def main():
