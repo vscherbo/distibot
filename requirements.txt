@@ -2,5 +2,6 @@ configparser
 python-telegram-bot
 RPi.GPIO
 w1thermsensor
+gpiozero
 #bottle
 #plotly
