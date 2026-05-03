@@ -1,117 +1,120 @@
 #!/usr/bin/env python
 """ An AR500 Tap Controller """
 
-import time
 import logging
-#import RPi.GPIO as GPIO
-from gpio_dev import GPIO_DEV, GPIO
+import time
 
-MIN_CHANGE_TIME=1 # hardware limit
-ROTATION_TIME=0.4
+# import RPi.GPIO as GPIO
+from gpio_dev import GPIO, GPIO_DEV
+
+MIN_CHANGE_TIME = 1  # hardware limit
+ROTATION_TIME = 0.4
 
 class TapController(GPIO_DEV):
-    """
-        A class to control a tap with an electrical driver and two wires for switch rotation.
-    """
-    def __init__(self, arg_flow_sensor, valid_range, open_pin=19, close_pin=13):
-        """
-        A class to control a tap with an electrical driver and two wires for switch rotation.
-
-        :param arg_flow_sensor: A FlowSensor instance that provides the current flow rate.
-        :param valid_range: A tuple (low, high) representing the valid range of flow rates.
-        :param min_change_time: The minimum time (in seconds) between changes in tap position
-		(default: 1).
-        :param open_pin: The GPIO pin number to use for opening the tap (default: 18).
-        :param close_pin: The GPIO pin number to use for closing the tap (default: 23).
-        """
+    def __init__(self, arg_flow_sensor, valid_low, valid_high,
+                 open_pin=19, close_pin=13,
+                 min_change_interval=5.0,   # увеличенная пауза
+                 rotation_time=0.3,         # максимальное время одного шага
+                 hysteresis=2.0,
+                 kp=0.1,                    # коэффициент усиления (сек/ед. rpm)
+                 min_pulse=0.15,            # минимальная длительность импульса
+                 max_pulse=1.5):            # максимальная длительность импульса
         super().__init__()
         self.flow_sensor = arg_flow_sensor
-        self.valid_range = valid_range
-        self.min_change_time = MIN_CHANGE_TIME
-        self.last_change_time = 0
+        self.valid_low = valid_low
+        self.valid_high = valid_high
+        self.min_change_interval = min_change_interval
+        self.rotation_time = rotation_time
+        self.hysteresis = hysteresis
+        self.kp = kp
+        self.min_pulse = min_pulse
+        self.max_pulse = max_pulse
+
         self.open_pin = open_pin
         self.close_pin = close_pin
-        self.pins = [open_pin, close_pin]
+        self.last_change_time = 0
+
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.open_pin, GPIO.OUT)
-        GPIO.setup(self.close_pin, GPIO.OUT)
-        GPIO.output(self.open_pin, GPIO.LOW)
-        GPIO.output(self.close_pin, GPIO.LOW)
-        # initial opening
-        self.open_tap(4)
+        GPIO.setup(self.open_pin, GPIO.OUT, initial=GPIO.LOW)
+        GPIO.setup(self.close_pin, GPIO.OUT, initial=GPIO.LOW)
 
-    def open_tap(self, arg_time=ROTATION_TIME):
-        """
-        Rotate the tap to the open position.
-        """
-        current_time = time.time()
-        if current_time - self.last_change_time >= self.min_change_time:
-            self.last_change_time = current_time
-            GPIO.output(self.open_pin, GPIO.HIGH)
-            time.sleep(arg_time)
-            GPIO.output(self.open_pin, GPIO.LOW)
-            logging.debug('...открываем')
-        else:
-            logging.warning('слишком рано открывать')
+    def _pulse(self, pin, duration):
+        """Выдать импульс на указанный пин."""
+        now = time.time()
+        min_allowed_interval = max(self.min_change_interval, MIN_CHANGE_TIME)
+        if now - self.last_change_time < min_allowed_interval:
+            logging.warning('Слишком рано (прошло %.1f с)',
+                            now - self.last_change_time)
+            return
+        self.last_change_time = now
+        GPIO.output(pin, GPIO.HIGH)
+        time.sleep(duration)
+        GPIO.output(pin, GPIO.LOW)
+        action = 'Открываем' if pin == self.open_pin else 'Закрываем'
+        logging.debug('%s кран на %.3f с', action, duration)
 
-    def close_tap(self, arg_time=ROTATION_TIME):
-        """
-        Rotate the tap to the closed position.
-        """
-        current_time = time.time()
-        if current_time - self.last_change_time >= self.min_change_time:
-            self.last_change_time = current_time
-            GPIO.output(self.close_pin, GPIO.HIGH)
-            time.sleep(arg_time)
-            GPIO.output(self.close_pin, GPIO.LOW)
-            logging.debug('...закрываем')
-        else:
-            logging.warning('слишком рано закрывать')
+    def open_tap(self, arg_time=None):
+        if arg_time is None:
+            arg_time = self.rotation_time
+        self._pulse(self.open_pin, arg_time)
 
-    def _do_open(self, current_rpm):
-        """
-        Make decision to open the tap
-        """
-        return bool(current_rpm is not None
-                    and (0 <= current_rpm < self.valid_range[0]))
-
-    def _do_close(self, current_rpm):
-        """
-        Make decision to close the tap
-        """
-        return bool(current_rpm is not None
-                    and (0 < current_rpm > self.valid_range[1]))
+    def close_tap(self, arg_time=None):
+        if arg_time is None:
+            arg_time = self.rotation_time
+        self._pulse(self.close_pin, arg_time)
 
     def adjust_flow(self):
         """
-        Adjust the tap position based on the current flow rate.
-        If the flow rate is below the valid range, open the tap.
-        If the flow rate is above the valid range, close the tap.
+        Пропорциональное регулирование:
+        - вычисляется ошибка относительно середины допустимого диапазона
+        - длительность импульса пропорциональна ошибке
+        - применяется импульс в нужную сторону
+        - затем ожидание min_change_interval
         """
-        current_rpm = self.flow_sensor.get_rpm()
-        logging.debug('checking current_rpm=%s', current_rpm)
-        if self._do_open(current_rpm):
-            logging.debug('LESS current_rpm=%s', current_rpm)
-            self.open_tap()
-            time.sleep(self.min_change_time)
-        elif self._do_close(current_rpm):
-            logging.debug('MORE current_rpm=%s', current_rpm)
-            self.close_tap()
-            time.sleep(self.min_change_time)
-        else:
-            # The flow is within valid range
-            logging.debug('...OK: current_rpm=%s is valid', current_rpm)
-            #pass
+        now = time.time()
+        if now - self.last_change_time < self.min_change_interval:
+            logging.debug("Пропуск регулировки: слишком рано (%.1f с)",
+                          now - self.last_change_time)
+            return
 
-    def __del__(self):
-        """
-        Clean up the GPIO pins that were used by the TapController object.
-        """
-        for pin in self.pins:
-            GPIO.setup(pin, GPIO.IN)
+        rpm = self.flow_sensor.get_rpm(max_age=2.0)
+        logging.debug("Текущий rpm = %.1f", rpm)
+
+        target = (self.valid_low + self.valid_high) / 2.0
+        error = rpm - target   # положительная -> перебор, нужна закрытие
+
+        # Зона нечувствительности с гистерезисом
+        if rpm < self.valid_low - self.hysteresis:
+            # недобор – открываем
+            pulse_time = min(max(self.kp * abs(error), self.min_pulse), self.max_pulse)
+            self._pulse(self.open_pin, pulse_time)
+        elif rpm > self.valid_high + self.hysteresis:
+            # перебор – закрываем
+            pulse_time = min(max(self.kp * abs(error), self.min_pulse), self.max_pulse)
+            self._pulse(self.close_pin, pulse_time)
+        else:
+            logging.debug("Поток в норме: %.1f Гц", rpm)
+
+    def close_tap_completely(self, duration=15.0):  # 15 - from AR-500-2 Manual
+        """Подаёт сигнал на закрытие крана в течение duration секунд."""
+        self.call_log()
+        logging.info("Closing tap completely for %.1f sec", duration)
+        GPIO.output(self.close_pin, GPIO.HIGH)
+        time.sleep(duration)
+        GPIO.output(self.close_pin, GPIO.LOW)
+        self.last_change_time = time.time()
+
+    def release(self):
+        """Освободить ресурсы: выключить оба пина."""
+        GPIO.output(self.open_pin, GPIO.LOW)
+        GPIO.output(self.close_pin, GPIO.LOW)
+        super().release()
+        logging.info("TapController released")
+
 
 if __name__ == '__main__':
     import sys
+
     import flow_sensor
 
     LOG_FORMAT = '%(asctime)-15s | %(levelname)-7s | %(message)s'
@@ -119,8 +122,8 @@ if __name__ == '__main__':
                         level=logging.DEBUG)
 
     FLOW_SENSOR = flow_sensor.FlowSensor(5)
-    #FLOW_SENSOR = flow_sensor.FlowSensorFake(5)
-    TAP_CTRL = TapController(FLOW_SENSOR, [18, 22])
+    # FLOW_SENSOR = flow_sensor.FlowSensorFake(5)
+    TAP_CTRL = TapController(FLOW_SENSOR, valid_low=18, valid_high=22)
     """
     TAP_CTRL.open_tap()
     time.sleep(1)
